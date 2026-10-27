@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="ຮ້ານຄຳ ລິດປະສົງ (ໂຕບີ້) ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ ຄຳມ່ວນ — ລາຄາຄຳມື້ນີ້, ຄຳຮູບປະພັນ, ຄຳແທ່ງ, ຮັບຊື້ຄຳ. ໂທ 020 5895 4624">
+<meta property="og:title" content="ຮ້ານຄຳ ລິດປະສົງ Litpasong Jewelry">
+<meta property="og:description" content="ລາຄາຄຳມື້ນີ້ ແລະ ສິນຄ້າຂອງຮ້ານ · ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ">
+<meta property="og:image" content="https://tobienar-cloud.github.io/litpasong/img/front.jpg">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>ຮ້ານຄຳ ລິດປະສົງ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao+Looped:wght@400;600;800&family=Noto+Serif+Lao:wght@500;700;800&display=swap">
+<style>
+/* Layout: maroon shop-sign band on top, today's price board as the hero, then services, units, hours/contact */
+:root{
+  --maroon:#6e1423; --maroon-deep:#4a0d17; --gold:#c9a24a; --gold-soft:#e8d39a;
+  --bg:#fbf7f1; --surface:#ffffff; --fg:#2a1a1c; --muted:#76615f; --line:#e8ddd0;
+  --display:"Noto Serif Lao","Noto Sans Lao Looped",serif;
+  --body:"Noto Sans Lao Looped","Noto Sans Lao",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1a1213; --surface:#241819; --fg:#f3e9df; --muted:#b8a49c; --line:#3a2a2b; --gold:#d8b45c; --gold-soft:#e8d39a; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1a1213; --surface:#241819; --fg:#f3e9df; --muted:#b8a49c; --line:#3a2a2b; --gold:#d8b45c; --gold-soft:#e8d39a; color-scheme:dark}
+
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.7}
+.wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.35}
+.num{font-variant-numeric:tabular-nums}
+
+/* Sign band */
+.sign{background:radial-gradient(120% 140% at 20% 0%,var(--maroon) 0%,var(--maroon-deep) 70%);color:#fbf1df;border-bottom:3px solid var(--gold)}
+.sign .wrap{padding-block:40px 36px;display:grid;gap:24px;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:center}
+.sign .txt{display:grid;gap:10px;min-width:0}
+.sign figure{margin:0;border:2px solid var(--gold);border-radius:14px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.sign figure img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+@media (max-width:720px){.sign .wrap{grid-template-columns:1fr}}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;font-weight:600;text-decoration:none;font-family:var(--body);font-size:15px;border:0;cursor:pointer}
+.btn.gold{background:linear-gradient(180deg,#f3d886,#c9a24a);color:#3a0a12}
+.btn.ghost{border:1px solid rgba(232,211,154,.6);color:#fbf1df;background:transparent}
+.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.eyebrow{font-size:13px;letter-spacing:.12em;color:var(--gold-soft);text-transform:uppercase}
+.sign h1{font-size:clamp(34px,7vw,56px);font-weight:800;background:linear-gradient(180deg,#fff3cf,#d8b45c 70%,#b88b2e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sign p{margin:0;color:#ead9c6;max-width:58ch}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{border:1px solid rgba(232,211,154,.45);border-radius:999px;padding:4px 14px;font-size:14px;color:#fbf1df}
+
+main .wrap{display:grid;gap:48px;padding-block:40px 56px}
+section{display:grid;gap:18px}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.sec-head h2{font-size:26px}
+.stamp{font-size:14px;color:var(--muted)}
+
+/* Price board */
+.feature{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.big{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:grid;gap:4px}
+.big.main{background:linear-gradient(160deg,var(--maroon),var(--maroon-deep));border-color:var(--gold);color:#fbf1df}
+.big .lbl{font-size:15px;color:var(--muted)}
+.big.main .lbl{color:var(--gold-soft)}
+.big .val{font-family:var(--display);font-weight:800;font-size:clamp(26px,4.5vw,34px);line-height:1.2}
+.big.main .val{color:#f6dc8f}
+.big .unit{font-size:14px;color:var(--muted)}
+.big.main .unit{color:#ead9c6}
+
+.tables{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.tbl{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.tbl h3{font-size:18px;padding:14px 18px;border-bottom:1px solid var(--line)}
+table{width:100%;border-collapse:collapse}
+td{padding:11px 18px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+td:last-child{text-align:right;font-weight:600;white-space:nowrap}
+.note{font-size:14px;color:var(--muted);margin:0}
+
+/* Services */
+.svc{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px}
+.svc div{display:grid;gap:6px;align-content:start}
+.svc h3{font-size:19px;color:var(--maroon)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .svc h3{color:var(--gold)}}
+:root[data-theme="dark"] .svc h3{color:var(--gold)}
+.svc p{margin:0;color:var(--muted)}
+
+/* Callouts */
+.callout{display:grid;gap:2px;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--surface)}
+.callout b{font-size:16px}
+.callout span{color:var(--muted);font-size:15px}
+.callout.warn{border-left:5px solid var(--maroon)}
+.callout.wa{border-left:5px solid #25a35a}
+.callout a{font-weight:700;color:var(--fg)}
+.tbl h3 small{font-family:var(--body);font-size:13px;font-weight:600;color:var(--maroon);margin-left:6px}
+/* Products */
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.f{font-family:var(--body);font-size:14px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.f.on{background:var(--maroon);border-color:var(--maroon);color:#fbf1df}
+.f:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.products figure{margin:0;display:grid;gap:6px}
+.products img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;display:block;border:1px solid var(--line)}
+.products figcaption{font-size:14px;font-weight:600}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:999px;background:#e3f1e4;color:#1f6b2c;margin-left:4px;vertical-align:middle}
+/* XRF */
+.xrf{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:center}
+@media (max-width:720px){.xrf{grid-template-columns:1fr}}
+.xrf-main{margin:0}.xrf-main img{width:100%;border-radius:14px;display:block;border:2px solid var(--gold)}
+.xrf-txt{display:grid;gap:8px;min-width:0}
+.xrf-txt .lead{margin:0;font-size:18px;font-weight:600}
+.xrf-txt ul{margin:0;padding-left:20px;display:grid;gap:4px;color:var(--muted)}
+.xrf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.xrf-grid figure{margin:0;display:grid;gap:6px}
+.xrf-grid img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;display:block;border:1px solid var(--line)}
+.xrf-grid figcaption{font-size:14px;font-weight:600}
+.morebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.reviews img{aspect-ratio:8/9}
+/* Gallery */
+.more{color:var(--maroon);font-weight:600;text-decoration:none;font-size:15px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.gallery figure{margin:0;display:grid;gap:6px}
+.gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;display:block;border:1px solid var(--line)}
+.gallery figcaption{font-size:14px;color:var(--muted)}
+/* Units */
+.units{display:flex;flex-wrap:wrap;gap:12px}
+.u{flex:1 1 180px;border:1px dashed var(--gold);border-radius:12px;padding:14px 16px;text-align:center}
+.u b{display:block;font-family:var(--display);font-size:22px}
+.u span{color:var(--muted);font-size:14px}
+
+/* Hours/contact */
+.visit{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:8px}
+.card h3{font-size:19px}
+.hours{font-family:var(--display);font-size:24px;font-weight:700}
+.open{display:inline-block;justify-self:start;font-size:13px;padding:2px 12px;border-radius:999px;font-weight:600}
+.open.yes{background:#e3f1e4;color:#1f6b2c}
+.open.no{background:#f4e3e3;color:#8a2020}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-block:4px}
+.ph a{font-size:20px;font-weight:700;color:var(--fg);text-decoration:none;font-family:var(--display)}
+.copy{font-family:var(--body);font-size:13px;padding:4px 12px;border-radius:999px;border:1px solid var(--gold);background:transparent;color:var(--fg);cursor:pointer}
+.copy:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.fb{color:var(--maroon);font-weight:600}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .fb,:root:not([data-theme="light"]) .more{color:var(--gold)}}
+:root[data-theme="dark"] .fb,:root[data-theme="dark"] .more{color:var(--gold)}
+.social{display:flex;flex-wrap:wrap;gap:8px}
+.social a{flex:1 1 120px;display:grid;gap:0;padding:8px 14px;border:1px solid var(--gold);border-radius:12px;text-decoration:none;color:var(--fg)}
+.social a:hover{background:var(--bg)}
+.social a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.social b{font-size:15px}
+.social span{font-size:13px;color:var(--muted)}
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+footer .wrap{padding-block:20px}
+</style>
+
+</head>
+<body>
+<header class="sign">
+  <div class="wrap">
+    <div class="txt">
+    <div class="eyebrow">Litpasong Jewelry · ໂຕບີ້</div>
+    <h1>ຮ້ານຄຳ ລິດປະສົງ</h1>
+    <p>ຂາຍຄຳຮູບປະພັນ ຄຳແທ່ງ ຮັບຊື້ຄຳລາຄາສູງ ຮັບຈຳຄຳດອກເບ້ຍຕ່ຳ ຕັ້ງຢູ່ເທິງຕະຫຼາດຫຼັກ 3 ເມືອງທ່າແຂກ ແຂວງຄຳມ່ວນ</p>
+    <div class="chips"><span class="chip">ເປີດທຸກມື້ 8:00–15:30</span><span class="chip">1 ບາດ = 15 ກຣາມ</span><span class="chip">ຄຳແທ່ງ KPV GOLD</span></div>
+    <div class="cta"><a class="btn gold" href="#visit">ໂທ / WhatsApp</a><a class="btn ghost" href="#products">ເບິ່ງສິນຄ້າ</a><a class="btn ghost" href="https://www.facebook.com/khachitta/" target="_blank" rel="noopener">Facebook</a><a class="btn ghost" href="https://www.tiktok.com/@tobeelps" target="_blank" rel="noopener">TikTok</a><a class="btn ghost" href="https://www.youtube.com/@Tobeelps" target="_blank" rel="noopener">YouTube</a></div>
+    </div>
+    <figure><img src="img/front.jpg" alt="ໜ້າຮ້ານຄຳ ລິດປະສົງ ທີ່ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ" width="696" height="520"></figure>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+<section id="price">
+  <div class="sec-head"><h2>ລາຄາຄຳມື້ນີ້</h2><span class="stamp num" data-p="stamp">ອັບເດດ ວັນທີ 27/10/2026 ເວລາ 21:00 ໂມງ</span></div>
+  <div class="feature">
+    <div class="big main"><span class="lbl">ຄຳຮູບປະພັນ 1 ບາດ</span><span class="val num" data-p="baht1">45,000,000</span><span class="unit">ກີບ · ຍັງບໍ່ລວມຄ່າລາຍ</span></div>
+    <div class="big"><span class="lbl">ຄຳແທ່ງ 1 ບາດ (ລາຄາຂາຍ)</span><span class="val num" data-p="bar_sell">44,950,000</span><span class="unit">ກີບ · ບໍ່ມີຄ່າລາຍ</span></div>
+    <div class="big"><span class="lbl">ຮັບຊື້ຄຳແທ່ງ ສູງສຸດ</span><span class="val num" data-p="buy_bar_max">44,100,000</span><span class="unit">ກີບ / ບາດ</span></div>
+  </div>
+  <div class="tables">
+    <div class="tbl">
+      <h3>ລາຄາຂາຍ ຄຳຮູບປະພັນ <small>ຍັງບໍ່ລວມຄ່າລາຍ</small></h3>
+      <table class="num"><tbody>
+        <tr><td>1 ບາດ</td><td><span data-p="baht1">45,000,000</span> ກີບ</td></tr>
+        <tr><td>2 ສະຫຼຶງ</td><td><span data-p="salung2">22,650,000</span> ກີບ</td></tr>
+        <tr><td>1 ສະຫຼຶງ</td><td><span data-p="salung1">11,350,000</span> ກີບ</td></tr>
+        <tr><td>5 ຫຸນ</td><td><span data-p="hun5">5,760,000</span> ກີບ</td></tr>
+        <tr><td>3 ຫຸນ</td><td><span data-p="hun3">3,610,000</span> ກີບ</td></tr>
+        <tr><td>2 ຫຸນ</td><td><span data-p="hun2">2,510,000</span> ກີບ</td></tr>
+        <tr><td>1 ຫຸນ</td><td><span data-p="hun1">1,300,000</span> ກີບ</td></tr>
+      </tbody></table>
+    </div>
+    <div class="tbl">
+      <h3>ຄຳແທ່ງ ແລະ ຮັບຊື້ຄືນ</h3>
+      <table class="num"><tbody>
+        <tr><td>ຂາຍຄຳແທ່ງ 1 ບາດ <span class="tag">ບໍ່ມີຄ່າລາຍ</span></td><td><span data-p="bar_sell">44,950,000</span> ກີບ</td></tr>
+        <tr><td>ຂາຍຄຳແທ່ງ 1 ກຣາມ</td><td><span data-p="bar_gram">3,210,000</span> ກີບ</td></tr>
+        <tr><td>ຮັບຊື້ ຄຳຮູບປະພັນ</td><td><span data-p="buy_jewelry">43,300,000</span> ກີບ</td></tr>
+        <tr><td>ຮັບຊື້ ຄຳຮູບປະພັນ (ສະພາບດີ)</td><td><span data-p="buy_jewelry_good">43,500,000</span> ກີບ</td></tr>
+        <tr><td>ຮັບຊື້ ຄຳແທ່ງ ສູງສຸດ</td><td><span data-p="buy_bar_max">44,100,000</span> ກີບ</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+  <div class="callout warn"><b>ລາຄາຄຳຮູບປະພັນ ຍັງບໍ່ລວມຄ່າລາຍ</b><span>ຄ່າລາຍແຕ່ລະແບບບໍ່ເທົ່າກັນ ຂຶ້ນກັບລາຍ ແລະ ນ້ຳໜັກ ສອບຖາມຄ່າລາຍໄດ້ທີ່ແອັດມິນ. ຄຳແທ່ງ 1 ບາດ ບໍ່ມີຄ່າລາຍ.</span></div>
+  <div class="callout wa"><b>ອອມຄຳ ຫຼື ລູກຄ້າຕ່າງແຂວງ</b><span>ທັກແອັດມິນທາງ WhatsApp <a class="num" href="https://wa.me/8562058954624" target="_blank" rel="noopener">020 5895 4624</a></span></div>
+  <p class="note">ລາຄາຮັບຊື້ຄິດຕໍ່ 1 ບາດ. ລາຄາຄຳອາດມີການປ່ຽນແປງພາຍໃນມື້ ສອບຖາມລາຄາລ່າສຸດຜ່ານແອັດມິນໄດ້.</p>
+</section>
+
+<section id="services">
+  <div class="sec-head"><h2>ບໍລິການຂອງຮ້ານ</h2></div>
+  <div class="svc">
+    <div><h3>ຂາຍຄຳຮູບປະພັນ</h3><p>ສາຍຄໍ ສາຍແຂນ ແຫວນ ຕຸ້ມຫູ ມີຫຼາຍນ້ຳໜັກ ຕັ້ງແຕ່ 1 ຫຸນ ຫາ 1 ບາດ.</p></div>
+    <div><h3>ຂາຍຄຳແທ່ງ</h3><p>ຄຳແທ່ງ KPV GOLD ສຳລັບເກັບອອມ ມີທັງແບບບາດ ແລະ ແບບກຣາມ.</p></div>
+    <div><h3>ຮັບຊື້ຄຳ ລາຄາສູງ</h3><p>ຮັບຊື້ຄຳ ນາກ ເງິນ ອີຕາລີ. ຄຳໝຸ່ນ ຫັກ ບຸ້ມ ກໍຮັບຊື້ ໃຫ້ລາຄາສູງຕາມເປີເຊັນຄຳ ທີ່ເຊັກດ້ວຍເຄື່ອງ.</p></div>
+    <div><h3>ຮັບຫຼອມຄຳ</h3><p>ຮັບຫຼອມຄຳເປັນກ້ອນ ເຊັກເປີເຊັນໃຫ້ເບິ່ງຕໍ່ໜ້າ.</p></div>
+    <div><h3>ປ່ຽນເປັນຄຳພູວົງ</h3><p>ຄຳທຳມະດາ ຄຳກິໂລ ຫຼື ຄຳໜ້າຮ້ານ ກໍສາມາດເອົາມາປ່ຽນເປັນຄຳພູວົງໄດ້ ຈ່າຍພຽງສ່ວນຕ່າງ.</p></div>
+    <div><h3>ຮັບຈຳຄຳ</h3><p>ຮັບຈຳຄຳ ດອກເບ້ຍຕ່ຳ ສະດວກ ວ່ອງໄວ.</p></div>
+    <div><h3>ຮັບຈອງຄຳ</h3><p>ຈອງຄຳລາຍທີ່ຕ້ອງການໄວ້ກ່ອນ ແລ້ວມາຮັບທີ່ຮ້ານ.</p></div>
+    <div><h3>ອອມຄຳ</h3><p>ຢາກອອມຄຳ ຫຼື ຢູ່ຕ່າງແຂວງ ທັກແອັດມິນ WhatsApp 020 5895 4624.</p></div>
+  </div>
+</section>
+
+<section id="products">
+  <div class="sec-head"><h2>ສິນຄ້າຂອງຮ້ານ</h2><a class="more" href="https://www.facebook.com/khachitta/photos" target="_blank" rel="noopener">ເບິ່ງລາຍເພີ່ມໃນເຟສບຸກ →</a></div>
+  <div class="filters" role="group" aria-label="ເລືອກປະເພດສິນຄ້າ">
+    <button type="button" class="f on" data-f="all" id="f-all">ທັງໝົດ</button>
+    <button type="button" class="f" data-f="necklace" id="f-necklace">ສາຍຄໍ</button>
+    <button type="button" class="f" data-f="bracelet" id="f-bracelet">ສາຍແຂນ / ກຳໄລ</button>
+    <button type="button" class="f" data-f="ring" id="f-ring">ແຫວນ</button>
+    <button type="button" class="f" data-f="earring" id="f-earring">ຕຸ້ມຫູ</button>
+    <button type="button" class="f" data-f="pendant" id="f-pendant">ລ໋ອກເກັດ</button>
+    <button type="button" class="f" data-f="bar" id="f-bar">ຄຳແທ່ງ</button>
+  </div>
+  <div class="products" id="plist"></div>
+  <div class="morebar"><span id="pcount" class="note"></span><button type="button" class="btn gold" id="pmore">ເບິ່ງເພີ່ມ</button></div>
+  <p class="note">ຮູບຈາກລີວິວໃນເພຈ. ລາຍຂອງຈິງໃນຮ້ານອາດປ່ຽນໄປຕາມສິນຄ້າທີ່ມີ. ລາຄາຄຳຮູບປະພັນ ຍັງບໍ່ລວມຄ່າລາຍ, ຄຳແທ່ງ 1 ບາດ ບໍ່ມີຄ່າລາຍ.</p>
+</section>
+
+<section id="reviews">
+  <div class="sec-head"><h2>ຮີວິວຈາກລູກຄ້າ</h2><a class="more" href="https://www.facebook.com/khachitta/photos" target="_blank" rel="noopener">ເບິ່ງທັງໝົດໃນເຟສບຸກ →</a></div>
+  <p class="note" style="margin:0">ຂອບໃຈລູກຄ້າທຸກທ່ານທີ່ໄວ້ວາງໃຈ ຮ້ານຄຳ ລິດປະສົງ</p>
+  <div class="products reviews" id="rlist"></div>
+  <div class="morebar"><span id="rcount" class="note"></span><button type="button" class="btn gold" id="rmore">ເບິ່ງເພີ່ມ</button></div>
+</section>
+
+<section id="xrf">
+  <div class="sec-head"><h2>ເຄື່ອງເຊັກເປີເຊັນຄຳ ທີ່ທັນສະໄໝ</h2></div>
+  <div class="xrf">
+    <figure class="xrf-main"><img src="img/xrf-machine.jpg" alt="ເຄື່ອງເຊັກເປີເຊັນຄຳ XRF ໃນຮ້ານ" loading="lazy"></figure>
+    <div class="xrf-txt">
+      <p class="lead">ຮ້ານເຮົາໃຊ້ເຄື່ອງ XRF ເຊັກເປີເຊັນຄຳ ຮູ້ຜົນພາຍໃນ 60 ວິນາທີ ບໍ່ຕ້ອງຂູດ ບໍ່ຕ້ອງຕັດ ຄຳບໍ່ເສຍຫາຍ.</p>
+      <ul>
+        <li>ເຊັກໃຫ້ເບິ່ງຕໍ່ໜ້າລູກຄ້າ ເຫັນທັງເປີເຊັນຄຳ ແລະ ຄ່າ K</li>
+        <li>ບອກສ່ວນປະສົມໄດ້ ເຊັ່ນ ຄຳ ເງິນ ທອງແດງ</li>
+        <li>ຮັບຊື້ຄຳ ນາກ ເງິນ ໃຫ້ລາຄາສູງຕາມເປີເຊັນຈິງ</li>
+        <li>ຊັ່ງນ້ຳໜັກດ້ວຍຕາຊັ່ງດິຈິຕອນ ໃຫ້ລູກຄ້າເຫັນທຸກຄັ້ງ</li>
+      </ul>
+    </div>
+  </div>
+  <div class="xrf-grid">
+    <figure><img src="img/xrf-9999.jpg" alt="ຜົນເຊັກ ຄຳ 99.99% 24K" loading="lazy"><figcaption class="num">ຄຳ 99.99% · 24K</figcaption></figure>
+    <figure><img src="img/xrf-9745.jpg" alt="ຜົນເຊັກ ຄຳ 97.45% 23.39K" loading="lazy"><figcaption class="num">ຄຳ 97.45% · 23.39K</figcaption></figure>
+    <figure><img src="img/xrf-use.jpg" alt="ກຳລັງເຊັກຄຳດ້ວຍເຄື່ອງ XRF" loading="lazy"><figcaption>ເຊັກຕໍ່ໜ້າລູກຄ້າ</figcaption></figure>
+    <figure><img src="img/scale-tray.jpg" alt="ຊັ່ງຄຳເກົ່າ 129.41 ກຣາມ" loading="lazy"><figcaption class="num">ຮັບຊື້ຄຳເກົ່າ 129.41 g</figcaption></figure>
+    <figure><img src="img/scale-chain.jpg" alt="ຊັ່ງຄຳ 35.95 ກຣາມ" loading="lazy"><figcaption class="num">ຊັ່ງຕໍ່ໜ້າ 35.95 g</figcaption></figure>
+    <figure><img src="img/nugget.jpg" alt="ຄຳຫຼອມ 39.10 ກຣາມ" loading="lazy"><figcaption class="num">ຄຳຫຼອມ 39.10 g</figcaption></figure>
+  </div>
+</section>
+
+<section id="photos">
+  <div class="sec-head"><h2>ບັນຍາກາດຮ້ານ</h2><a class="more" href="https://www.facebook.com/khachitta/reels/" target="_blank" rel="noopener">ເບິ່ງວິດີໂອທັງໝົດໃນເຟສບຸກ →</a></div>
+  <div class="gallery">
+    <figure><img src="img/interior.jpg" alt="ພາຍໃນຮ້ານ ຕູ້ຄຳ" loading="lazy"><figcaption>ພາຍໃນຮ້ານ</figcaption></figure>
+    <figure><img src="img/bracelet.jpg" alt="ສາຍແຂນຄຳ ພ້ອມໃບຮັບປະກັນ" loading="lazy"><figcaption>ສາຍແຂນ ພ້ອມໃບຮັບປະກັນ</figcaption></figure>
+    <figure><img src="img/necklace.jpg" alt="ສາຍຄໍຄຳ ພ້ອມຖົງຮ້ານ" loading="lazy"><figcaption>ສາຍຄໍ</figcaption></figure>
+    <figure><img src="img/ring.jpg" alt="ແຫວນຄຳ ພ້ອມໃບຮັບປະກັນ" loading="lazy"><figcaption>ແຫວນ</figcaption></figure>
+    <figure><img src="img/buy.jpg" alt="ຮັບຊື້ຄຳເກົ່າ ຊັ່ງນ້ຳໜັກຕໍ່ໜ້າລູກຄ້າ" loading="lazy"><figcaption>ຮັບຊື້ຄຳ ຊັ່ງຕໍ່ໜ້າລູກຄ້າ</figcaption></figure>
+    <figure><img src="img/street.jpg" alt="ທາງໄປຮ້ານ ຕະຫຼາດຫຼັກ 3" loading="lazy"><figcaption>ທາງມາຮ້ານ ຕະຫຼາດຫຼັກ 3</figcaption></figure>
+  </div>
+</section>
+
+<section id="units">
+  <div class="sec-head"><h2>ຫົວໜ່ວຍນ້ຳໜັກຄຳຂອງຮ້ານ</h2></div>
+  <div class="units">
+    <div class="u"><b class="num">1 ບາດ</b><span class="num">= 15 ກຣາມ</span></div>
+    <div class="u"><b class="num">1 ບາດ</b><span>= 4 ສະຫຼຶງ</span></div>
+    <div class="u"><b class="num">1 ສະຫຼຶງ</b><span class="num">≈ 3.75 ກຣາມ</span></div>
+  </div>
+</section>
+
+<section id="visit">
+  <div class="sec-head"><h2>ທີ່ຕັ້ງ ເວລາເປີດ ແລະ ຕິດຕໍ່</h2></div>
+  <div class="visit">
+    <div class="card">
+      <h3>ທີ່ຕັ້ງຮ້ານ</h3>
+      <span>ເທິງຕະຫຼາດຫຼັກ 3 ເມືອງທ່າແຂກ ແຂວງຄຳມ່ວນ</span>
+      <a class="btn gold" style="justify-self:start" href="https://www.google.com/maps/dir/?api=1&amp;destination=17.39071,104.82948" target="_blank" rel="noopener">ນຳທາງມາຮ້ານ (Google Maps)</a>
+      <h3 style="margin-top:10px">ເວລາເປີດບໍລິການ</h3>
+      <div class="hours num">8:00 ເຊົ້າ – 3:30 ແລງ</div>
+      <span>ເປີດທຸກມື້</span>
+      <span id="openNow" class="open" hidden></span>
+    </div>
+    <div class="card">
+      <h3>ໂທຫາຮ້ານ</h3>
+      <div class="ph"><a class="num" href="tel:+8562097170747">020 9717 0747</a><button class="copy" data-v="02097170747" type="button">ກັອບປີ້</button></div>
+      <div class="ph"><a class="num" href="tel:+8562058954624">020 5895 4624</a><button class="copy" data-v="02058954624" type="button">ກັອບປີ້</button></div>
+      <h3 style="margin-top:10px">WhatsApp</h3>
+      <div class="ph"><a class="num" href="https://wa.me/8562058954624" target="_blank" rel="noopener">020 5895 4624</a><button class="copy" data-v="02058954624" type="button">ກັອບປີ້</button></div>
+      <div class="ph"><a class="num" href="https://wa.me/8562078337526" target="_blank" rel="noopener">020 7833 7526</a><button class="copy" data-v="02078337526" type="button">ກັອບປີ້</button></div>
+      <h3 style="margin-top:10px">ຕິດຕາມຮ້ານ</h3>
+      <div class="social">
+        <a href="https://www.facebook.com/khachitta/" target="_blank" rel="noopener"><b>Facebook</b><span>ຮ້ານຄຳ ລິດປະສົງ</span></a>
+        <a href="https://www.tiktok.com/@tobeelps" target="_blank" rel="noopener"><b>TikTok</b><span>@tobeelps</span></a>
+        <a href="https://www.youtube.com/@Tobeelps" target="_blank" rel="noopener"><b>YouTube</b><span>@Tobeelps</span></a>
+      </div>
+      <h3 style="margin-top:10px">ເຈົ້າຂອງຮ້ານ · ໂຕບີ້</h3>
+      <div class="social">
+        <a href="https://www.facebook.com/nar.namsok" target="_blank" rel="noopener"><b>Facebook</b><span>ໂປຣໄຟລ໌ 1</span></a>
+        <a href="https://www.facebook.com/BieNarOnly/" target="_blank" rel="noopener"><b>Facebook</b><span>ໂປຣໄຟລ໌ 2</span></a>
+      </div>
+      <span class="note">ແຈ້ງລາຄາຄຳປະຈຳວັນ ທຸກມື້ເວລາ 10:00 ໂມງ</span>
+    </div>
+  </div>
+</section>
+
+</div>
+</main>
+
+<footer><div class="wrap">© ຮ້ານຄຳ ລິດປະສົງ · Litpasong Jewelry · ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ ຄຳມ່ວນ</div></footer>
+
+<script id="price-data" type="application/json">{"stamp": "ອັບເດດ ວັນທີ 27/10/2026 ເວລາ 21:00 ໂມງ", "baht1": "45,000,000", "salung2": "22,650,000", "salung1": "11,350,000", "hun5": "5,760,000", "hun3": "3,610,000", "hun2": "2,510,000", "hun1": "1,300,000", "bar_gram": "3,210,000", "bar_sell": "44,950,000", "buy_jewelry": "43,300,000", "buy_jewelry_good": "43,500,000", "buy_bar_max": "44,100,000"}</script>
+<script>
+(function(){try{var d=JSON.parse(document.getElementById('price-data').textContent);document.querySelectorAll('[data-p]').forEach(function(el){var v=d[el.dataset.p];if(v)el.textContent=v;});}catch(e){}})();
+(function(){
+  try{
+    var el=document.getElementById('openNow');
+    var now=new Date();
+    var m=(now.getUTCHours()+7)%24*60+now.getUTCMinutes(); // Vientiane time
+    var open=m>=480&&m<930;
+    el.textContent=open?'ຕອນນີ້ເປີດຢູ່':'ຕອນນີ້ປິດແລ້ວ';
+    el.className='open '+(open?'yes':'no');
+    el.hidden=false;
+  }catch(e){}
+})();
+document.querySelectorAll('.copy').forEach(function(b){b.addEventListener('click',function(){
+  var v=b.dataset.v,done=function(){b.textContent='ກັອບປີ້ແລ້ວ';setTimeout(function(){b.textContent='ກັອບປີ້'},1500)};
+  try{navigator.clipboard.writeText(v).then(done,function(){sel(b)})}catch(e){sel(b)}
+})});
+var PCAP={"necklace":"ສາຍຄໍ","bracelet":"ສາຍແຂນ / ກຳໄລ","ring":"ແຫວນ","earring":"ຕຸ້ມຫູ","pendant":"ລ໋ອກເກັດ / ກອບພຣະ","bar":"ຄຳແທ່ງ"};
+(function(){var G={products:[],reviews:[]},f='all',ps=24,rs=12;
+var pl=document.getElementById('plist'),pm=document.getElementById('pmore'),pc=document.getElementById('pcount'),rl=document.getElementById('rlist'),rm=document.getElementById('rmore'),rc=document.getElementById('rcount');
+function fig(src,cap,alt){return '<figure><img src="img/'+src+'" alt="'+alt+'" loading="lazy">'+(cap?'<figcaption>'+cap+'</figcaption>':'')+'</figure>'}
+function rp(){var it=G.products.filter(function(p){return f==='all'||p[1]===f});pl.innerHTML=it.slice(0,ps).map(function(p){return fig(p[0],PCAP[p[1]],PCAP[p[1]]+' ຮ້ານຄຳ ລິດປະສົງ')}).join('');pc.textContent='ສະແດງ '+Math.min(ps,it.length)+' ຈາກ '+it.length+' ຮູບ';pm.hidden=ps>=it.length;}
+function rr(){rl.innerHTML=G.reviews.slice(0,rs).map(function(r){return fig(r,'','ລີວິວລູກຄ້າ ຮ້ານຄຳ ລິດປະສົງ')}).join('');rc.textContent='ສະແດງ '+Math.min(rs,G.reviews.length)+' ຈາກ '+G.reviews.length+' ຮູບ';rm.hidden=rs>=G.reviews.length;}
+document.querySelectorAll('.f').forEach(function(b){b.addEventListener('click',function(){f=b.dataset.f;ps=24;document.querySelectorAll('.f').forEach(function(x){x.classList.toggle('on',x===b)});rp();})});
+pm.addEventListener('click',function(){ps+=24;rp();});rm.addEventListener('click',function(){rs+=12;rr();});
+pc.textContent='ກຳລັງໂຫຼດຮູບ…';
+fetch('gallery.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){G.products=d.products||[];G.reviews=d.reviews||[];rp();rr();}).catch(function(){pc.textContent='ໂຫຼດຮູບບໍ່ສຳເລັດ ລອງໂຫຼດໜ້າໃໝ່';});
+})();
+function sel(b){var a=b.previousElementSibling,r=document.createRange();r.selectNodeContents(a);var s=getSelection();s.removeAllRanges();s.addRange(r);}
+</script>
+
+</body>
+</html>
