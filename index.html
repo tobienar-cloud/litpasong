@@ -89,6 +89,8 @@ td:last-child{text-align:right;font-weight:600;white-space:nowrap}
 .callout.wa{border-left:5px solid #25a35a}
 .callout a{font-weight:700;color:var(--fg)}
 .tbl h3 small{font-family:var(--body);font-size:13px;font-weight:600;color:var(--maroon);margin-left:6px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tbl h3 small{color:var(--gold)}}
+:root[data-theme="dark"] .tbl h3 small{color:var(--gold)}
 /* Products */
 .filters{display:flex;flex-wrap:wrap;gap:8px}
 .f{font-family:var(--body);font-size:14px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
