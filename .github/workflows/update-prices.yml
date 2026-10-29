@@ -1,0 +1,37 @@
+name: Update gold prices
+on:
+  schedule:
+    - cron: "5 3 * * *"      # 10:05 Vientiane every day
+    - cron: "35 3-8 * * *"   # 10:35-15:35 Vientiane, only commits if prices changed
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: update-prices
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read sheet and update index.html
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+          SHEET_CSV_URL: ${{ secrets.SHEET_CSV_URL }}
+        run: python3 .github/scripts/update_prices.py
+      - name: Commit and push
+        id: push
+        run: |
+          if git diff --quiet; then echo "No change"; exit 0; fi
+          git config user.name "tobienar-cloud"
+          git config user.email "tobienar-cloud@users.noreply.github.com"
+          git commit -am "ອັບເດດລາຄາຄຳ $(TZ=Asia/Vientiane date +%d/%m/%Y)"
+          git pull --rebase origin main
+          git push origin main
+          echo "pushed=1" >> "$GITHUB_OUTPUT"
+      - name: Rebuild GitHub Pages
+        if: steps.push.outputs.pushed == '1'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds"
