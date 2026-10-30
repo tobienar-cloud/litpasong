@@ -13,6 +13,8 @@ const CFG = {
   ORDER_SHEET: 'ຄຳສັ່ງຊື້',
   SLIP_FOLDER: 'ສະລິບໂອນເງິນ Litpasong',
   NOTIFY_EMAIL: '',            // ອີເມວແຈ້ງເຕືອນບິນໃໝ່ (ວ່າງ = ໃຊ້ອີເມວເຈົ້າຂອງຊີດ)
+  ADMIN_WHATSAPP: '+8562058954624', // WhatsApp ແອັດມິນ ຮັບແຈ້ງເຕືອນບິນໃໝ່
+  // ກະແຈ CallMeBot ເກັບໃນ Project Settings → Script properties ຊື່ CALLMEBOT_APIKEY (ບໍ່ໃສ່ໃນໂຄດ)
   PAY_MINUTES: 30,             // ລັອກລາຄາ 30 ນາທີ
   PICKUP_MONTHS: 3,            // ຮັບຄຳພາຍໃນ 3 ເດືອນ
   MAX_GRAMS: 15,               // ສູງສຸດ 1 ບາດ (15 ກຣາມ) ຕໍ່ບິນ
@@ -227,12 +229,32 @@ function folder_() {
 }
 
 function notify_(o, slipUrl) {
-  const to = CFG.NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
-  if (!to) return;
   const body = 'ບິນໃໝ່ລໍຖ້າກວດເງິນ\n\nເລກບິນ: ' + o.bill + '\nລູກຄ້າ: ' + o.name + ' ' + String(o.phone).replace(/^'/, '') +
     '\nລາຍການ: ' + o.item + ' x ' + o.qty + '\nຍອດໂອນ: ' + Number(o.total).toLocaleString('en-US') + ' ກີບ\nສະລິບ: ' + slipUrl +
     '\n\nກວດເງິນເຂົ້າໃນ BCEL One ໃຫ້ຕົງຍອດ ແລ້ວປ່ຽນສະຖານະໃນຊີດ "' + CFG.ORDER_SHEET + '" ເປັນ "' + STATUS.READY + '"';
-  try { MailApp.sendEmail(to, 'ບິນໃໝ່ ' + o.bill + ' ລໍຖ້າກວດເງິນ', body); } catch (err) {}
+  // 1) WhatsApp ແອັດມິນ
+  whatsapp_(body);
+  // 2) ອີເມວ
+  const to = CFG.NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
+  if (to) { try { MailApp.sendEmail(to, 'ບິນໃໝ່ ' + o.bill + ' ລໍຖ້າກວດເງິນ', body); } catch (err) {} }
+}
+
+function whatsapp_(text) {
+  const key = PropertiesService.getScriptProperties().getProperty('CALLMEBOT_APIKEY');
+  if (!key || !CFG.ADMIN_WHATSAPP) return 'no key';
+  const url = 'https://api.callmebot.com/whatsapp.php?phone=' + encodeURIComponent(CFG.ADMIN_WHATSAPP) +
+    '&text=' + encodeURIComponent(text) + '&apikey=' + encodeURIComponent(key);
+  try {
+    const r = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    return r.getResponseCode() + ' ' + r.getContentText().slice(0, 200);
+  } catch (err) { return String(err); }
+}
+
+// ທົດສອບ WhatsApp: ເລືອກຟັງຊັນ testWhatsApp ແລ້ວກົດ Run
+function testWhatsApp() {
+  const res = whatsapp_('ທົດສອບແຈ້ງເຕືອນ WhatsApp ຈາກລະບົບສັ່ງຊື້ ຮ້ານຄຳ ລິດປະສົງ ✅');
+  Logger.log(res);
+  return res;
 }
 
 function clean_(s, max) {
