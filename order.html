@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ສັ່ງຊື້ຄຳອອນລາຍ · ຮ້ານຄຳ ລິດປະສົງ</title>
+<meta name="description" content="ສັ່ງຊື້ຄຳອອນລາຍ ລັອກລາຄາມື້ນີ້ ໂອນຜ່ານ BCEL ແລ້ວມາຮັບຄຳທີ່ຮ້ານ ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ">
+<meta property="og:title" content="ສັ່ງຊື້ຄຳອອນລາຍ · ຮ້ານຄຳ ລິດປະສົງ">
+<meta property="og:image" content="https://tobienar-cloud.github.io/litpasong/img/front.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao+Looped:wght@400;600;800&family=Noto+Serif+Lao:wght@700;800&display=swap">
+<style>
+:root{
+  --maroon:#6e1423; --maroon-deep:#4a0d17; --gold:#c9a24a; --gold-soft:#e8d39a;
+  --bg:#fbf7f1; --surface:#ffffff; --fg:#2a1a1c; --muted:#76615f; --line:#e8ddd0;
+  --good:#1f6b2c; --good-bg:#e3f1e4; --warn:#8a5a00; --warn-bg:#fbefd2; --bad:#8a2020; --bad-bg:#f4e3e3;
+  --display:"Noto Serif Lao","Noto Sans Lao Looped",serif;
+  --body:"Noto Sans Lao Looped","Noto Sans Lao",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#1a1213; --surface:#241819; --fg:#f3e9df; --muted:#b8a49c; --line:#3a2a2b; --gold:#d8b45c;
+  --good:#9fd8a8; --good-bg:#1d3322; --warn:#f0c870; --warn-bg:#3a2e14; --bad:#f0a0a0; --bad-bg:#3a1c1c; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.65}
+img{max-width:100%}
+[hidden]{display:none!important}
+.wrap{max-width:640px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left,0px)) 48px max(16px,env(safe-area-inset-right,0px))}
+header{background:radial-gradient(120% 140% at 20% 0%,var(--maroon),var(--maroon-deep) 70%);color:#fbf1df;border-bottom:3px solid var(--gold)}
+header .wrap{padding-top:22px;padding-bottom:20px;display:grid;gap:4px}
+header a{color:var(--gold-soft);font-size:14px;text-decoration:none}
+h1{font-family:var(--display);font-size:clamp(26px,6vw,34px);margin:0;line-height:1.3;color:#f6dc8f}
+h2{font-family:var(--display);font-size:20px;margin:0 0 4px}
+.sub{margin:0;color:#ead9c6;font-size:15px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;margin-top:18px}
+.steps{display:flex;gap:6px;margin-top:18px;font-size:13px;color:var(--muted)}
+.steps span{flex:1;text-align:center;padding:6px 4px;border-radius:999px;border:1px solid var(--line)}
+.steps span.on{background:var(--maroon);color:#fbf1df;border-color:var(--maroon)}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.item{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg);color:var(--fg);text-align:left;font-family:var(--body);cursor:pointer;display:grid;gap:2px}
+.item b{font-size:15px}
+.item span{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.item[aria-pressed="true"]{border:2px solid var(--maroon);padding:9px 11px;background:var(--surface)}
+.item:disabled{opacity:.45;cursor:not-allowed}
+.group-t{font-size:14px;color:var(--muted);margin:4px 0 -6px}
+label{display:grid;gap:4px;font-size:15px}
+input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
+.qty{display:flex;align-items:center;gap:10px}
+.qty button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:20px;cursor:pointer}
+.qty output{min-width:32px;text-align:center;font-size:20px;font-weight:600}
+.total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:12px;gap:8px;flex-wrap:wrap}
+.total b{font-family:var(--display);font-size:26px;font-variant-numeric:tabular-nums}
+.note{font-size:14px;color:var(--muted);margin:0}
+.rules{margin:0;padding-left:20px;font-size:14px;color:var(--muted);display:grid;gap:2px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.check input{margin-top:5px;width:18px;height:18px}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;font:600 16px var(--body);border:0;cursor:pointer;text-decoration:none}
+.btn.gold{background:linear-gradient(180deg,#f3d886,#c9a24a);color:#3a0a12}
+.btn.line{border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn:focus-visible,.item:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.err{background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:10px 12px;font-size:15px}
+.pay{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:520px){.pay{grid-template-columns:1fr}}
+.pay img{width:100%;border-radius:12px;border:1px solid var(--line);background:#fff}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:15px;margin:0}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-weight:600;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.big{font-family:var(--display);font-size:24px}
+.timer{font-variant-numeric:tabular-nums;font-weight:700}
+.pill{display:inline-block;padding:2px 12px;border-radius:999px;font-size:14px;font-weight:600}
+.pill.wait{background:var(--warn-bg);color:var(--warn)}
+.pill.good{background:var(--good-bg);color:var(--good)}
+.pill.bad{background:var(--bad-bg);color:var(--bad)}
+.receipt{border:2px solid var(--gold)}
+.receipt .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+#billqr{background:#fff;padding:8px;border-radius:8px;width:132px;height:132px}
+#billqr img,#billqr canvas{width:116px!important;height:116px!important}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.closed{text-align:center}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a href="./">← ກັບໜ້າຮ້ານ</a>
+  <h1>ສັ່ງຊື້ຄຳອອນລາຍ</h1>
+  <p class="sub">ລັອກລາຄາມື້ນີ້ · ໂອນຜ່ານ BCEL · ມາຮັບຄຳທີ່ຮ້ານ ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ</p>
+</div></header>
+
+<main class="wrap">
+  <div class="steps" aria-hidden="true"><span id="st1" class="on">1 ເລືອກຄຳ</span><span id="st2">2 ໂອນ + ແນບສະລິບ</span><span id="st3">3 ໃບຈອງ</span></div>
+
+  <section class="card closed" id="v-closed" hidden>
+    <h2>ກຳລັງຈະເປີດໃຫ້ບໍລິການ</h2>
+    <p class="note">ລະບົບສັ່ງຊື້ອອນລາຍກຳລັງຕັ້ງຄ່າ ສັ່ງຈອງໄດ້ທາງ WhatsApp 020 5895 4624</p>
+    <div class="row" style="justify-content:center"><a class="btn gold" href="https://wa.me/8562058954624" target="_blank" rel="noopener">ທັກ WhatsApp</a></div>
+  </section>
+
+  <section class="card" id="v-loading"><p class="note">ກຳລັງໂຫຼດລາຄາລ່າສຸດ…</p></section>
+
+  <!-- Step 1 -->
+  <form class="card" id="v-choose" hidden novalidate>
+    <h2>ເລືອກຄຳ</h2>
+    <p class="group-t">ຄຳຮູບປະພັນ (ຍັງບໍ່ລວມຄ່າລາຍ ຈ່າຍທີ່ຮ້ານ)</p>
+    <div class="items" id="items-jewelry" role="group" aria-label="ຄຳຮູບປະພັນ"></div>
+    <p class="group-t">ຄຳແທ່ງ (ບໍ່ມີຄ່າລາຍ)</p>
+    <div class="items" id="items-bar" role="group" aria-label="ຄຳແທ່ງ"></div>
+    <div class="qty"><span>ຈຳນວນ</span><button type="button" id="minus" aria-label="ລົດຈຳນວນ">−</button><output id="qty">1</output><button type="button" id="plus" aria-label="ເພີ່ມຈຳນວນ">+</button><span class="note" id="grams"></span></div>
+    <div class="total"><span>ຍອດໂອນ</span><b id="total">—</b></div>
+    <p class="note" id="lab-note"></p>
+    <label for="f-name">ຊື່ ແລະ ນາມສະກຸນ (ຕາມບັດປະຈຳຕົວ)<input type="text" id="f-name" autocomplete="name" maxlength="80" required></label>
+    <label for="f-phone">ເບີໂທ / WhatsApp<input type="tel" id="f-phone" autocomplete="tel" inputmode="tel" placeholder="020 xxxx xxxx" maxlength="20" required></label>
+    <ul class="rules" id="rules"></ul>
+    <label class="check" for="f-agree"><input type="checkbox" id="f-agree"><span>ຂ້ອຍຍອມຮັບເງື່ອນໄຂຂ້າງເທິງ</span></label>
+    <div class="err" id="err1" hidden></div>
+    <button class="btn gold" type="submit" id="go1">ລັອກລາຄາ ແລະ ໄປໂອນເງິນ</button>
+  </form>
+
+  <!-- Step 2 -->
+  <section class="card" id="v-pay" hidden>
+    <h2>ໂອນເງິນ ແລ້ວແນບສະລິບ</h2>
+    <p class="note">ລາຄາລັອກໄວ້ເຖິງ <b id="p-due"></b> · ເຫຼືອ <span class="timer" id="p-timer"></span></p>
+    <div class="pay">
+      <img src="img/pay/bcel-qr.png" alt="QR ຮັບເງິນ BCEL ບັນຊີ LITHPASONG PHAKOUSON MR" width="500" height="558">
+      <dl class="kv">
+        <dt>ເລກບິນ</dt><dd id="p-bill"></dd>
+        <dt>ລາຍການ</dt><dd id="p-item"></dd>
+        <dt>ຍອດໂອນ</dt><dd class="big" id="p-total"></dd>
+        <dt>ຊື່ບັນຊີ</dt><dd>LITHPASONG PHAKOUSON MR</dd>
+        <dt>ເລກບັນຊີ</dt><dd><span id="acct">020-12-00-01117122-001</span> <button type="button" class="btn line" id="copy-acct" style="padding:2px 10px;font-size:13px">ກັອບປີ້</button></dd>
+        <dt>ທະນາຄານ</dt><dd>BCEL · ກີບ (LAK)</dd>
+      </dl>
+    </div>
+    <p class="note">ສັ່ງຈາກມືຖື: ກົດບັນທຶກຮູບ QR ແລ້ວເປີດແອັບທະນາຄານ ເລືອກສະແກນຈາກຮູບ ຫຼື ໂອນເຂົ້າເລກບັນຊີ</p>
+    <div class="row"><a class="btn line" href="img/pay/bcel-qr.png" download="litpasong-bcel-qr.png">ບັນທຶກຮູບ QR</a></div>
+    <ol class="rules">
+      <li>ສະແກນ QR ດ້ວຍແອັບທະນາຄານ (BCEL One ຫຼື ທະນາຄານອື່ນຜ່ານ LAPNet)</li>
+      <li>ໃສ່ຍອດໃຫ້ຕົງ ແລະ ໃສ່ <b>ເລກບິນ</b> ໃນຊ່ອງໝາຍເຫດ</li>
+      <li>ຖ່າຍຮູບສະລິບ ແລ້ວແນບຂ້າງລຸ່ມ</li>
+    </ol>
+    <label for="f-slip">ຮູບສະລິບໂອນເງິນ<input type="file" id="f-slip" accept="image/*"></label>
+    <img id="slip-prev" alt="ຕົວຢ່າງສະລິບ" hidden style="max-height:260px;width:auto;border-radius:10px;border:1px solid var(--line)">
+    <div class="err" id="err2" hidden></div>
+    <button class="btn gold" type="button" id="go2" disabled>ສົ່ງສະລິບ</button>
+  </section>
+
+  <!-- Step 3 -->
+  <section class="card receipt" id="v-receipt" hidden>
+    <div class="top">
+      <div>
+        <h2>ໃບຈອງຄຳ</h2>
+        <p class="note">ຮ້ານຄຳ ລິດປະສົງ (ໂຕບີ້) · ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ</p>
+        <p style="margin:6px 0 0"><span class="pill" id="r-status"></span></p>
+      </div>
+      <div id="billqr" aria-label="QR ເລກບິນ"></div>
+    </div>
+    <dl class="kv">
+      <dt>ເລກບິນ</dt><dd id="r-bill"></dd>
+      <dt>ເວລາສັ່ງ</dt><dd id="r-created"></dd>
+      <dt>ຊື່</dt><dd id="r-name"></dd>
+      <dt>ເບີໂທ</dt><dd id="r-phone"></dd>
+      <dt>ລາຍການ</dt><dd id="r-item"></dd>
+      <dt>ນ້ຳໜັກລວມ</dt><dd id="r-grams"></dd>
+      <dt>ລາຄາຕໍ່ໜ່ວຍ</dt><dd id="r-price"></dd>
+      <dt>ຍອດໂອນ</dt><dd class="big" id="r-total"></dd>
+      <dt>ແນບສະລິບ</dt><dd id="r-slip"></dd>
+      <dt>ຮັບຄຳພາຍໃນ</dt><dd id="r-pickup"></dd>
+    </dl>
+    <p class="note" id="r-lab"></p>
+    <p class="note">ມາຮັບຄຳທີ່ຮ້ານ ເປີດທຸກມື້ 8:00–15:30 · ສະແດງໃບຈອງນີ້ ແລະ ບັດປະຈຳຕົວທີ່ຊື່ຕົງກັບບິນ · ຖ່າຍໜ້າຈໍເກັບໄວ້ ຫຼື ບັນທຶກລິ້ງໜ້ານີ້</p>
+    <div class="row">
+      <a class="btn gold" id="r-wa" target="_blank" rel="noopener">ແຈ້ງແອັດມິນທາງ WhatsApp</a>
+      <button class="btn line" type="button" id="r-copy">ກັອບປີ້ລິ້ງໃບຈອງ</button>
+      <a class="btn line" href="https://www.google.com/maps/dir/?api=1&amp;destination=17.39071,104.82948" target="_blank" rel="noopener">ນຳທາງມາຮ້ານ</a>
+    </div>
+    <button class="btn line" type="button" id="r-refresh">ອັບເດດສະຖານະ</button>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// ---- ຕັ້ງຄ່າ: ໃສ່ URL ຂອງ Apps Script web app ----
+const SCRIPT_URL = '';
+const ADMIN_WA = '8562058954624';
+
+const $ = id => document.getElementById(id);
+const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
+const fmtG = g => (Math.round(g * 1000) / 1000) + ' ກຣາມ';
+let ITEMS = [], RULES = {payMinutes: 30, pickupMonths: 3, maxGrams: 15}, sel = null, qty = 1, ORDER = null, TOKEN = '', timerId = 0, slipData = '';
+
+function show(view, step) {
+  ['v-closed','v-loading','v-choose','v-pay','v-receipt'].forEach(v => $(v).hidden = v !== view);
+  [1,2,3].forEach(i => $('st' + i).classList.toggle('on', i === step));
+}
+function err(id, msg) { $(id).textContent = msg || ''; $(id).hidden = !msg; }
+
+async function api(method, params) {
+  let res;
+  if (method === 'GET') res = await fetch(SCRIPT_URL + '?' + new URLSearchParams(params), {cache: 'no-store'});
+  else res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(params)});
+  const j = await res.json();
+  if (!j.ok) throw new Error(j.error || 'ເກີດຂໍ້ຜິດພາດ');
+  return j;
+}
+
+function save() { try { localStorage.setItem('lps-last', JSON.stringify({bill: ORDER.bill, t: TOKEN})); } catch (e) {} }
+function setUrl() { try { history.replaceState(null, '', '?bill=' + encodeURIComponent(ORDER.bill) + '&t=' + TOKEN); } catch (e) {} }
+
+// ---- Step 1 ----
+function renderItems() {
+  ['jewelry','bar'].forEach(kind => {
+    $('items-' + kind).innerHTML = ITEMS.filter(i => i.kind === kind).map(i =>
+      `<button type="button" class="item" data-id="${i.id}" aria-pressed="false"${i.grams > RULES.maxGrams ? ' disabled' : ''}><b>${i.name.replace('ຄຳຮູບປະພັນ ','')}</b><span>${kip(i.price)}</span></button>`).join('');
+  });
+  document.querySelectorAll('.item').forEach(b => b.addEventListener('click', () => {
+    sel = ITEMS.find(i => i.id === b.dataset.id); qty = 1;
+    document.querySelectorAll('.item').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    calc();
+  }));
+  $('rules').innerHTML = [
+    `ລາຄາລັອກໄວ້ ${RULES.payMinutes} ນາທີ ຕ້ອງໂອນ ແລະ ແນບສະລິບພາຍໃນເວລານີ້ ບໍ່ທັນຕ້ອງສັ່ງໃໝ່ຕາມລາຄາໃໝ່`,
+    `ສັ່ງໄດ້ສູງສຸດ 1 ບາດ (${RULES.maxGrams} ກຣາມ) ຕໍ່ບິນ`,
+    'ຈ່າຍເຕັມລາຄາຄຳຕອນສັ່ງ · ຄ່າລາຍຂອງຄຳຮູບປະພັນຈ່າຍທີ່ຮ້ານຕອນຮັບຄຳ · ເລືອກລາຍຈິງທີ່ຮ້ານ',
+    `ມາຮັບຄຳພາຍໃນ ${RULES.pickupMonths} ເດືອນ ເກີນກຳນົດກະລຸນາທັກແອັດມິນ`,
+    'ບິນຈະຢືນຢັນເມື່ອແອັດມິນເຫັນເງິນເຂົ້າບັນຊີແລ້ວເທົ່ານັ້ນ',
+  ].map(t => `<li>${t}</li>`).join('');
+}
+function calc() {
+  if (!sel) { $('total').textContent = '—'; $('grams').textContent = ''; $('lab-note').textContent = ''; $('qty').textContent = qty; return; }
+  const max = Math.floor(RULES.maxGrams / sel.grams + 1e-9);
+  qty = Math.min(Math.max(1, qty), max);
+  $('qty').textContent = qty;
+  $('minus').disabled = qty <= 1; $('plus').disabled = qty >= max;
+  $('grams').textContent = 'ລວມ ' + fmtG(sel.grams * qty);
+  $('total').textContent = kip(sel.price * qty);
+  $('lab-note').textContent = sel.kind === 'jewelry' ? 'ຍອດນີ້ເປັນລາຄາຄຳ ຍັງບໍ່ລວມຄ່າລາຍ (ຈ່າຍທີ່ຮ້ານຕອນຮັບຄຳ)' : 'ຄຳແທ່ງບໍ່ມີຄ່າລາຍ';
+}
+$('minus').onclick = () => { qty--; calc(); };
+$('plus').onclick = () => { qty++; calc(); };
+$('v-choose').addEventListener('submit', async e => {
+  e.preventDefault(); err('err1');
+  const name = $('f-name').value.trim(), phone = $('f-phone').value.trim();
+  if (!sel) return err('err1', 'ກະລຸນາເລືອກລາຍການ');
+  if (!name) return err('err1', 'ກະລຸນາໃສ່ຊື່');
+  if (!/^[0-9+ ()-]{8,20}$/.test(phone)) return err('err1', 'ເບີໂທບໍ່ຖືກຕ້ອງ');
+  if (!$('f-agree').checked) return err('err1', 'ກະລຸນາຍອມຮັບເງື່ອນໄຂ');
+  $('go1').disabled = true; $('go1').textContent = 'ກຳລັງລັອກລາຄາ…';
+  try {
+    const j = await api('POST', {action: 'create', item: sel.id, qty, name, phone});
+    ORDER = j.order; TOKEN = j.order.t;
+  } catch (ex) { err('err1', ex.message); }
+  $('go1').disabled = false; $('go1').textContent = 'ລັອກລາຄາ ແລະ ໄປໂອນເງິນ';
+  if (ORDER && TOKEN) { save(); setUrl(); payView(); }
+});
+
+// ---- Step 2 ----
+function payView() {
+  show('v-pay', 2);
+  $('p-bill').textContent = ORDER.bill; $('p-item').textContent = ORDER.item + ' × ' + ORDER.qty;
+  $('p-total').textContent = kip(ORDER.total); $('p-due').textContent = ORDER.due;
+  clearInterval(timerId);
+  const tick = () => {
+    const s = Math.max(0, Math.round((ORDER.dueMs - Date.now()) / 1000));
+    $('p-timer').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    if (!s) { clearInterval(timerId); err('err2', 'ໝົດເວລາລັອກລາຄາ ຖ້າໂອນແລ້ວໃຫ້ແນບສະລິບທັນທີ ຫຼື ທັກແອັດມິນ'); }
+  };
+  tick(); timerId = setInterval(tick, 1000);
+}
+$('f-slip').addEventListener('change', () => {
+  const f = $('f-slip').files[0]; slipData = ''; $('go2').disabled = true; err('err2');
+  if (!f) return;
+  const img = new Image();
+  img.onload = () => {
+    const sc = Math.min(1, 1400 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    slipData = c.toDataURL('image/jpeg', 0.85);
+    $('slip-prev').src = slipData; $('slip-prev').hidden = false; $('go2').disabled = false;
+    URL.revokeObjectURL(img.src);
+  };
+  img.onerror = () => err('err2', 'ອ່ານຮູບບໍ່ໄດ້ ກະລຸນາເລືອກຮູບໃໝ່');
+  img.src = URL.createObjectURL(f);
+});
+$('go2').addEventListener('click', async () => {
+  err('err2'); $('go2').disabled = true; $('go2').textContent = 'ກຳລັງສົ່ງ…';
+  try { const j = await api('POST', {action: 'slip', bill: ORDER.bill, t: TOKEN, image: slipData}); ORDER = j.order; clearInterval(timerId); receiptView(); }
+  catch (ex) { err('err2', ex.message); $('go2').disabled = false; }
+  $('go2').textContent = 'ສົ່ງສະລິບ';
+});
+
+// ---- Step 3 ----
+function receiptView() {
+  show('v-receipt', 3);
+  const st = ORDER.status, cls = /ພ້ອມຮັບ|ຮັບຄຳແລ້ວ/.test(st) ? 'good' : /ຍົກເລີກ|ໝົດເວລາ/.test(st) ? 'bad' : 'wait';
+  $('r-status').textContent = st; $('r-status').className = 'pill ' + cls;
+  $('r-bill').textContent = ORDER.bill; $('r-created').textContent = ORDER.created; $('r-name').textContent = ORDER.name; $('r-phone').textContent = ORDER.phone;
+  $('r-item').textContent = ORDER.item + ' × ' + ORDER.qty; $('r-grams').textContent = fmtG(ORDER.grams);
+  $('r-price').textContent = kip(ORDER.price); $('r-total').textContent = kip(ORDER.total);
+  $('r-slip').textContent = ORDER.slipAt || 'ຍັງບໍ່ໄດ້ແນບ'; $('r-pickup').textContent = ORDER.pickup;
+  $('r-lab').textContent = ORDER.jewelry ? 'ຍອດໂອນເປັນລາຄາຄຳ ຍັງບໍ່ລວມຄ່າລາຍ ຈ່າຍຄ່າລາຍທີ່ຮ້ານຕອນຮັບຄຳ' : 'ຄຳແທ່ງບໍ່ມີຄ່າລາຍ';
+  $('r-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ແຈ້ງໂອນເງິນ ບິນ ' + ORDER.bill + ' ຍອດ ' + kip(ORDER.total) + '\n' + location.href);
+  $('billqr').innerHTML = '';
+  if (window.QRCode) new QRCode($('billqr'), {text: ORDER.bill, width: 116, height: 116, correctLevel: QRCode.CorrectLevel.M});
+}
+$('r-copy').addEventListener('click', () => {
+  const b = $('r-copy');
+  navigator.clipboard.writeText(location.href).then(() => { b.textContent = 'ກັອບປີ້ແລ້ວ'; setTimeout(() => b.textContent = 'ກັອບປີ້ລິ້ງໃບຈອງ', 1500); }).catch(() => prompt('ກັອບປີ້ລິ້ງນີ້', location.href));
+});
+$('copy-acct').addEventListener('click', () => { const b = $('copy-acct'); navigator.clipboard.writeText('020120001117122001').then(() => { b.textContent = 'ກັອບປີ້ແລ້ວ'; setTimeout(() => b.textContent = 'ກັອບປີ້', 1500); }).catch(() => {}); });
+$('r-refresh').addEventListener('click', () => loadOrder(ORDER.bill, TOKEN));
+
+async function loadOrder(bill, t) {
+  show('v-loading', 3);
+  try {
+    const j = await api('GET', {action: 'order', bill, t});
+    ORDER = j.order; TOKEN = t;
+    if (ORDER.status === 'ລໍຖ້າໂອນເງິນ') payView(); else receiptView();
+  } catch (ex) { show('v-closed', 1); $('v-closed').querySelector('h2').textContent = ex.message; }
+}
+
+// ---- start ----
+(async () => {
+  if (!SCRIPT_URL) { show('v-closed', 1); return; }
+  const q = new URLSearchParams(location.search);
+  if (q.get('bill') && q.get('t')) return loadOrder(q.get('bill'), q.get('t'));
+  try {
+    const j = await api('GET', {action: 'items'});
+    ITEMS = j.items; RULES = j.rules || RULES;
+    renderItems(); calc(); show('v-choose', 1);
+  } catch (ex) { show('v-closed', 1); }
+})();
+</script>
+</body>
+</html>
