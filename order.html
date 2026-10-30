@@ -49,6 +49,10 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
 .qty button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:20px;cursor:pointer}
 .qty output{min-width:32px;text-align:center;font-size:20px;font-weight:600}
 .total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:12px;gap:8px;flex-wrap:wrap}
+.wa-help{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.wa-help .note{margin:0 0 8px}
+.btn.wa,.btn.wa:visited{background:#25d366;color:#fff;border-color:#25d366;text-decoration:none}
+.wa-help.hot{background:var(--warn-bg);border:2px solid #25d366;border-radius:12px;padding:12px}
 .total b{font-family:var(--display);font-size:26px;font-variant-numeric:tabular-nums}
 .note{font-size:14px;color:var(--muted);margin:0}
 .rules{margin:0;padding-left:20px;font-size:14px;color:var(--muted);display:grid;gap:2px}
@@ -145,6 +149,10 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
     <img id="slip-prev" alt="ຕົວຢ່າງສະລິບ" hidden style="max-height:260px;width:auto;border-radius:10px;border:1px solid var(--line)">
     <div class="err" id="err2" hidden></div>
     <button class="btn gold" type="button" id="go2" disabled>ສົ່ງສະລິບ</button>
+    <div class="wa-help" id="wa-help">
+      <p class="note">ໂອນເງິນແລ້ວ ແຕ່ແນບສະລິບບໍ່ໄດ້ ຫຼື ໝົດເວລາ? ສົ່ງສະລິບ ແລະ ເລກບິນ ໃຫ້ແອັດມິນທາງ WhatsApp ໄດ້ເລີຍ</p>
+      <a class="btn wa" id="p-wa" target="_blank" rel="noopener">📲 ສົ່ງສະລິບທາງ WhatsApp 020 5895 4624</a>
+    </div>
   </section>
 
   <!-- Step 3 -->
@@ -171,6 +179,7 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
       <dt>ຮັບຄຳພາຍໃນ</dt><dd id="r-pickup"></dd>
       <dt>ຮັບຄຳແລ້ວເມື່ອ</dt><dd id="r-done"></dd>
     </dl>
+    <div class="err" id="r-late" hidden></div>
     <div class="err" style="background:var(--warn-bg);color:var(--warn)"><b>📸 ກະລຸນາແຄັບໜ້າຈໍໃບຈອງນີ້ ແລະ ສະລິບໂອນເງິນ ເກັບໄວ້ເປັນຫຼັກຖານ</b><br>ນຳມາສະແດງພ້ອມບັດປະຈຳຕົວ ຕອນຮັບຄຳທີ່ໜ້າຮ້ານ</div>
     <p class="note" id="r-lab"></p>
     <p class="note">ມາຮັບຄຳທີ່ຮ້ານ ເປີດທຸກມື້ 8:00–15:30 · ສະແດງໃບຈອງນີ້ ແລະ ບັດປະຈຳຕົວທີ່ຊື່ຕົງກັບບິນ · ຖ່າຍໜ້າຈໍເກັບໄວ້ ຫຼື ບັນທຶກລິ້ງໜ້ານີ້</p>
@@ -315,12 +324,15 @@ function payView() {
   show('v-pay', 2);
   $('p-bill').textContent = ORDER.bill; $('p-item').textContent = ORDER.item + ' × ' + ORDER.qty;
   $('p-total').textContent = kip(ORDER.total); $('p-due').textContent = ORDER.due;
+  $('p-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ຂ້ອຍໂອນເງິນແລ້ວ ຂໍສົ່ງສະລິບ\nບິນ ' + ORDER.bill + '\nຍອດ ' + kip(ORDER.total) + '\n' + location.href + '\n(ແນບຮູບສະລິບໃນແຊັດນີ້)');
+  $('wa-help').classList.remove('hot');
+  if (ORDER.status !== 'ລໍຖ້າໂອນເງິນ') { $('wa-help').classList.add('hot'); err('err2', 'ໝົດເວລາລັອກລາຄາແລ້ວ ຖ້າໂອນເງິນແລ້ວ ຍັງແນບສະລິບໄດ້ພາຍໃນ 24 ຊົ່ວໂມງ ແອັດມິນຈະກວດເວລາໂອນໃນສະລິບ · ຫຼື ສົ່ງສະລິບທາງ WhatsApp'); }
   amountQr();
   clearInterval(timerId);
   const tick = () => {
     const s = Math.max(0, Math.round((ORDER.dueMs - Date.now()) / 1000));
     $('p-timer').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-    if (!s) { clearInterval(timerId); err('err2', 'ໝົດເວລາລັອກລາຄາ ຖ້າໂອນແລ້ວໃຫ້ແນບສະລິບທັນທີ ຫຼື ທັກແອັດມິນ'); }
+    if (!s) { clearInterval(timerId); $('wa-help').classList.add('hot'); err('err2', 'ໝົດເວລາລັອກລາຄາແລ້ວ ຖ້າໂອນເງິນແລ້ວ ໃຫ້ແນບສະລິບທັນທີ (ພາຍໃນ 24 ຊົ່ວໂມງ) ແອັດມິນຈະກວດເວລາໂອນໃນສະລິບ · ຫຼື ສົ່ງສະລິບທາງ WhatsApp'); }
   };
   tick(); timerId = setInterval(tick, 1000);
 }
@@ -342,7 +354,7 @@ $('f-slip').addEventListener('change', () => {
 $('go2').addEventListener('click', async () => {
   err('err2'); $('go2').disabled = true; $('go2').textContent = 'ກຳລັງສົ່ງ…';
   try { const j = await api('POST', {action: 'slip', bill: ORDER.bill, t: TOKEN, image: slipData}); ORDER = j.order; clearInterval(timerId); receiptView(); }
-  catch (ex) { err('err2', ex.message); $('go2').disabled = false; }
+  catch (ex) { err('err2', ex.message + ' · ຖ້າໂອນເງິນແລ້ວ ກົດປຸ່ມ WhatsApp ຂ້າງລຸ່ມ ເພື່ອສົ່ງສະລິບໃຫ້ແອັດມິນ'); $('wa-help').classList.add('hot'); $('go2').disabled = false; }
   $('go2').textContent = 'ສົ່ງສະລິບ';
 });
 
@@ -355,6 +367,7 @@ function receiptView() {
   $('r-item').textContent = ORDER.item + ' × ' + ORDER.qty; $('r-grams').textContent = fmtG(ORDER.grams);
   $('r-price').textContent = kip(ORDER.price); $('r-total').textContent = kip(ORDER.total);
   $('r-slip').textContent = ORDER.slipAt || 'ຍັງບໍ່ໄດ້ແນບ'; $('r-pickup').textContent = ORDER.pickup;
+  err('r-late', ORDER.late && !/ພ້ອມຮັບ|ຮັບຄຳແລ້ວ/.test(st) ? 'ແນບສະລິບຫຼັງໝົດເວລາລັອກລາຄາ: ແອັດມິນຈະກວດເວລາໂອນໃນສະລິບ ແລ້ວຕິດຕໍ່ກັບທາງໂທລະສັບ' : '');
   $('r-paid').textContent = ORDER.paidAt || '—'; $('r-done').textContent = ORDER.doneAt || '—'; save();
   $('r-lab').textContent = ORDER.jewelry ? 'ຍອດໂອນເປັນລາຄາຄຳ ຍັງບໍ່ລວມຄ່າລາຍ ຈ່າຍຄ່າລາຍທີ່ຮ້ານຕອນຮັບຄຳ' : 'ຄຳແທ່ງບໍ່ມີຄ່າລາຍ';
   $('r-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ແຈ້ງໂອນເງິນ ບິນ ' + ORDER.bill + ' ຍອດ ' + kip(ORDER.total) + '\n' + location.href);
@@ -373,7 +386,8 @@ async function loadOrder(bill, t) {
   try {
     const j = await api('GET', {action: 'order', bill, t});
     ORDER = j.order; TOKEN = t;
-    if (ORDER.status === 'ລໍຖ້າໂອນເງິນ') payView(); else receiptView();
+    const lateOk = ORDER.status === 'ໝົດເວລາໂອນ' && ORDER.dueMs && Date.now() < ORDER.dueMs + 24 * 3600000;
+    if (ORDER.status === 'ລໍຖ້າໂອນເງິນ' || lateOk) payView(); else receiptView();
   } catch (ex) { show('v-closed', 1); $('v-closed').querySelector('h2').textContent = ex.message; }
 }
 

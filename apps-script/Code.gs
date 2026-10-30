@@ -16,6 +16,7 @@ const CFG = {
   ADMIN_WHATSAPP: '+8562097170747', // WhatsApp ແອັດມິນ ຮັບແຈ້ງເຕືອນບິນໃໝ່
   // ກະແຈ CallMeBot ເກັບໃນ Project Settings → Script properties ຊື່ CALLMEBOT_APIKEY (ບໍ່ໃສ່ໃນໂຄດ)
   PAY_MINUTES: 30,             // ລັອກລາຄາ 30 ນາທີ
+  LATE_SLIP_HOURS: 24,         // ໝົດເວລາແລ້ວ ຍັງແນບສະລິບໄດ້ພາຍໃນ 24 ຊົ່ວໂມງ (ແອັດມິນກວດເວລາໂອນ)
   PICKUP_MONTHS: 3,            // ຮັບຄຳພາຍໃນ 3 ເດືອນ
   MAX_GRAMS: 15,               // ສູງສຸດ 1 ບາດ (15 ກຣາມ) ຕໍ່ບິນ
   TZ: 'Asia/Vientiane',
@@ -171,11 +172,14 @@ function slip_(b) {
   const o = find_(b.bill, b.t);
   const sh = orders_();
   const status = sh.getRange(o.row, COL['ສະຖານະ']).getValue();
-  if (status !== STATUS.WAIT_PAY && status !== STATUS.WAIT_CHECK) throw new Error('ບິນນີ້ແນບສະລິບບໍ່ໄດ້ແລ້ວ (ສະຖານະ: ' + status + ')');
+  if (status !== STATUS.WAIT_PAY && status !== STATUS.WAIT_CHECK && status !== STATUS.EXPIRED) throw new Error('ບິນນີ້ແນບສະລິບບໍ່ໄດ້ແລ້ວ (ສະຖານະ: ' + status + ') ຖ້າໂອນເງິນແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 5895 4624');
   const due = sh.getRange(o.row, COL['ໂອນກ່ອນ']).getValue();
-  if (status === STATUS.WAIT_PAY && new Date() > new Date(due.getTime() + 5 * 60000)) {
+  const now = new Date();
+  // ແນບຊ້າໄດ້ພາຍໃນ 24 ຊົ່ວໂມງ ແອັດມິນກວດເວລາໂອນໃນສະລິບເອງ
+  const late = status !== STATUS.WAIT_CHECK && now > new Date(due.getTime() + 5 * 60000);
+  if (late && now > new Date(due.getTime() + CFG.LATE_SLIP_HOURS * 3600000)) {
     sh.getRange(o.row, COL['ສະຖານະ']).setValue(STATUS.EXPIRED);
-    throw new Error('ໝົດເວລາລັອກລາຄາແລ້ວ ກະລຸນາສັ່ງໃໝ່ຕາມລາຄາປັດຈຸບັນ ຖ້າໂອນເງິນແລ້ວ ກະລຸນາທັກແອັດມິນ WhatsApp 020 5895 4624');
+    throw new Error('ບິນນີ້ໝົດເວລາແນບສະລິບແລ້ວ ຖ້າໂອນເງິນແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 5895 4624');
   }
   const m = /^data:(image\/(jpeg|png|webp));base64,(.+)$/.exec(String(b.image || ''));
   if (!m) throw new Error('ກະລຸນາແນບຮູບສະລິບ');
@@ -186,7 +190,11 @@ function slip_(b) {
   sh.getRange(o.row, COL['ສະລິບ']).setValue(file.getUrl());
   sh.getRange(o.row, COL['ເວລາແນບສະລິບ']).setValue(new Date());
   sh.getRange(o.row, COL['ສະຖານະ']).setValue(STATUS.WAIT_CHECK);
-  notify_(o, file.getUrl());
+  if (late) {
+    const nc = sh.getRange(o.row, COL['ໝາຍເຫດແອັດມິນ']);
+    nc.setValue(('⚠️ ແນບສະລິບຫຼັງໝົດເວລາລັອກລາຄາ (' + Utilities.formatDate(now, CFG.TZ, 'dd/MM HH:mm') + ') ກວດເວລາໂອນໃນສະລິບ ' + (nc.getValue() || '')).trim());
+  }
+  notify_(o, file.getUrl(), late);
   return publicOrder_(find_(o.bill, b.t));
 }
 
@@ -275,6 +283,7 @@ function publicOrder_(o) {
     phone: phone.length > 4 ? phone.slice(0, -4).replace(/[0-9]/g, '•') + phone.slice(-4) : phone,
     item: o.item, qty: o.qty, grams: o.grams, price: o.price, total: o.total,
     due: f(o.due), dueMs: (o.due instanceof Date) ? o.due.getTime() : 0, slipAt: f(o.slipAt),
+    late: (o.slipAt instanceof Date) && (o.due instanceof Date) && o.slipAt.getTime() > o.due.getTime() + 5 * 60000,
     status: o.status, pickup: fd(o.pickup), paidAt: f(o.paidAt), doneAt: f(o.doneAt),
     jewelry: String(o.item).indexOf('ຮູບປະພັນ') >= 0,
   };
@@ -285,8 +294,8 @@ function folder_() {
   return it.hasNext() ? it.next() : DriveApp.createFolder(CFG.SLIP_FOLDER);
 }
 
-function notify_(o, slipUrl) {
-  const body = 'ບິນໃໝ່ລໍຖ້າກວດເງິນ\n\nເລກບິນ: ' + o.bill + '\nລູກຄ້າ: ' + o.name + ' ' + String(o.phone).replace(/^'/, '') +
+function notify_(o, slipUrl, late) {
+  const body = (late ? '⚠️ ແນບສະລິບຫຼັງໝົດເວລາລັອກລາຄາ ກວດເວລາໂອນໃນສະລິບ\n' : '') + 'ບິນໃໝ່ລໍຖ້າກວດເງິນ\n\nເລກບິນ: ' + o.bill + '\nລູກຄ້າ: ' + o.name + ' ' + String(o.phone).replace(/^'/, '') +
     '\nລາຍການ: ' + o.item + ' x ' + o.qty + '\nຍອດໂອນ: ' + Number(o.total).toLocaleString('en-US') + ' ກີບ\nສະລິບ: ' + slipUrl +
     '\n\nກວດເງິນເຂົ້າໃນ BCEL One ໃຫ້ຕົງຍອດ ແລ້ວປ່ຽນສະຖານະໃນຊີດ "' + CFG.ORDER_SHEET + '" ເປັນ "' + STATUS.READY + '"';
   // 1) WhatsApp ແອັດມິນ
