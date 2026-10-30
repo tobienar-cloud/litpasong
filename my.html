@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ກວດສອບຄຳສັ່ງຊື້ · ຮ້ານຄຳ ລິດປະສົງ</title>
+<meta name="description" content="ກວດສອບປະຫວັດການສັ່ງຊື້ຄຳອອນລາຍ ສະຖານະການໂອນເງິນ ແລະ ການຮັບຄຳ">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao+Looped:wght@400;600;800&family=Noto+Serif+Lao:wght@700;800&display=swap">
+<style>
+:root{
+  --maroon:#6e1423; --maroon-deep:#4a0d17; --gold:#c9a24a; --gold-soft:#e8d39a;
+  --bg:#fbf7f1; --surface:#ffffff; --fg:#2a1a1c; --muted:#76615f; --line:#e8ddd0;
+  --good:#1f6b2c; --good-bg:#e3f1e4; --warn:#8a5a00; --warn-bg:#fbefd2; --bad:#8a2020; --bad-bg:#f4e3e3;
+  --display:"Noto Serif Lao","Noto Sans Lao Looped",serif;
+  --body:"Noto Sans Lao Looped","Noto Sans Lao",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#1a1213; --surface:#241819; --fg:#f3e9df; --muted:#b8a49c; --line:#3a2a2b; --gold:#d8b45c;
+  --good:#9fd8a8; --good-bg:#1d3322; --warn:#f0c870; --warn-bg:#3a2e14; --bad:#f0a0a0; --bad-bg:#3a1c1c; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.65}
+img{max-width:100%}
+[hidden]{display:none!important}
+.wrap{max-width:640px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left,0px)) 48px max(16px,env(safe-area-inset-right,0px))}
+header{background:radial-gradient(120% 140% at 20% 0%,var(--maroon),var(--maroon-deep) 70%);color:#fbf1df;border-bottom:3px solid var(--gold)}
+header .wrap{padding-top:22px;padding-bottom:20px;display:grid;gap:4px}
+header a{color:var(--gold-soft);font-size:14px;text-decoration:none}
+h1{font-family:var(--display);font-size:clamp(26px,6vw,34px);margin:0;line-height:1.3;color:#f6dc8f}
+h2{font-family:var(--display);font-size:20px;margin:0 0 4px}
+.sub{margin:0;color:#ead9c6;font-size:15px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;margin-top:18px}
+.steps{display:flex;gap:6px;margin-top:18px;font-size:13px;color:var(--muted)}
+.steps span{flex:1;text-align:center;padding:6px 4px;border-radius:999px;border:1px solid var(--line)}
+.steps span.on{background:var(--maroon);color:#fbf1df;border-color:var(--maroon)}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.item{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg);color:var(--fg);text-align:left;font-family:var(--body);cursor:pointer;display:grid;gap:2px}
+.item b{font-size:15px}
+.item span{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.item[aria-pressed="true"]{border:2px solid var(--maroon);padding:9px 11px;background:var(--surface)}
+.item:disabled{opacity:.45;cursor:not-allowed}
+.group-t{font-size:14px;color:var(--muted);margin:4px 0 -6px}
+label{display:grid;gap:4px;font-size:15px}
+input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
+.qty{display:flex;align-items:center;gap:10px}
+.qty button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:20px;cursor:pointer}
+.qty output{min-width:32px;text-align:center;font-size:20px;font-weight:600}
+.total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:12px;gap:8px;flex-wrap:wrap}
+.total b{font-family:var(--display);font-size:26px;font-variant-numeric:tabular-nums}
+.note{font-size:14px;color:var(--muted);margin:0}
+.rules{margin:0;padding-left:20px;font-size:14px;color:var(--muted);display:grid;gap:2px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.check input{margin-top:5px;width:18px;height:18px}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;font:600 16px var(--body);border:0;cursor:pointer;text-decoration:none}
+.btn.gold{background:linear-gradient(180deg,#f3d886,#c9a24a);color:#3a0a12}
+.btn.line{border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn:focus-visible,.item:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.err{background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:10px 12px;font-size:15px}
+.pay{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:520px){.pay{grid-template-columns:1fr}}
+.pay img{width:100%;border-radius:12px;border:1px solid var(--line);background:#fff}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:15px;margin:0}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-weight:600;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.big{font-family:var(--display);font-size:24px}
+.timer{font-variant-numeric:tabular-nums;font-weight:700}
+.pill{display:inline-block;padding:2px 12px;border-radius:999px;font-size:14px;font-weight:600}
+.pill.wait{background:var(--warn-bg);color:var(--warn)}
+.pill.good{background:var(--good-bg);color:var(--good)}
+.pill.bad{background:var(--bad-bg);color:var(--bad)}
+.receipt{border:2px solid var(--gold)}
+.receipt .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+#billqr{background:#fff;padding:8px;border-radius:8px;width:132px;height:132px}
+#billqr img,#billqr canvas{width:116px!important;height:116px!important}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.closed{text-align:center}
+</style>
+<style>
+.list{display:grid;gap:10px}
+.ord{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg);text-decoration:none}
+.ord:hover{border-color:var(--gold)}
+.ord b{font-size:15px}
+.ord .amt{font-family:var(--display);font-size:18px;text-align:right;font-variant-numeric:tabular-nums}
+.ord small{color:var(--muted);font-size:13px}
+.tl{display:flex;gap:4px;grid-column:1/-1;margin-top:6px}
+.tl span{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.tl span.on{background:var(--gold)}
+.tl span.bad{background:var(--bad)}
+.legend{display:flex;gap:4px;font-size:12px;color:var(--muted);grid-column:1/-1}
+.legend i{flex:1;font-style:normal;text-align:center}
+.tabs{display:flex;gap:8px;margin-top:18px}
+.tabs button{flex:1;padding:10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:600 15px var(--body);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--maroon);border-color:var(--maroon);color:#fbf1df}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><a href="./">← ກັບໜ້າຮ້ານ</a><a href="order.html">ສັ່ງຊື້ຄຳອອນລາຍ →</a></div>
+  <h1>ກວດສອບຄຳສັ່ງຊື້</h1>
+  <p class="sub">ເບິ່ງສະຖານະການໂອນເງິນ ແລະ ການຮັບຄຳ ຂອງທຸກບິນທີ່ສັ່ງອອນລາຍ</p>
+</div></header>
+
+<main class="wrap">
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="t-login" aria-selected="true">ເຂົ້າດ້ວຍເບີໂທ + PIN</button>
+    <button type="button" role="tab" id="t-device" aria-selected="false">ບິນໃນເຄື່ອງນີ້</button>
+  </div>
+
+  <form class="card" id="v-login" novalidate>
+    <h2>ເຂົ້າສູ່ລະບົບ</h2>
+    <label for="l-phone">ເບີໂທທີ່ໃຊ້ຕອນສັ່ງຊື້<input type="tel" id="l-phone" autocomplete="tel" inputmode="tel" placeholder="020 xxxx xxxx" maxlength="20"></label>
+    <label for="l-pin">ລະຫັດ PIN (4–6 ຕົວເລກ ທີ່ຕັ້ງຕອນສັ່ງຊື້)<input type="password" id="l-pin" inputmode="numeric" autocomplete="current-password" maxlength="6"></label>
+    <div class="err" id="l-err" hidden></div>
+    <button class="btn gold" type="submit" id="l-go">ເບິ່ງປະຫວັດການສັ່ງຊື້</button>
+    <p class="note">ລືມ PIN? ທັກແອັດມິນ WhatsApp 020 9717 0747 ພ້ອມເລກບິນ ແລະ ຊື່ຕາມບັດປະຈຳຕົວ</p>
+  </form>
+
+  <section class="card" id="v-list" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap"><h2 id="list-title">ປະຫວັດການສັ່ງຊື້</h2><button type="button" class="btn line" id="logout" style="padding:6px 14px;font-size:14px">ອອກຈາກລະບົບ</button></div>
+    <p class="note" id="list-sum"></p>
+    <div class="list" id="list"></div>
+  </section>
+
+  <section class="card" id="v-device" hidden>
+    <h2>ບິນທີ່ສັ່ງຈາກເຄື່ອງນີ້</h2>
+    <p class="note">ສະແດງສະເພາະບິນທີ່ສັ່ງຈາກມືຖື ຫຼື ຄອມເຄື່ອງນີ້ ກົດບິນເພື່ອເບິ່ງສະຖານະລ່າສຸດ</p>
+    <div class="list" id="dlist"></div>
+  </section>
+</main>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4PY_Xt5TtnErjBkAryQ8Sb8N1cwv67FImKLI7E33VxF4jfO361g/exec';
+const $ = id => document.getElementById(id);
+const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const STEPS = ['ສັ່ງຊື້', 'ແນບສະລິບ', 'ຢືນຢັນເງິນ', 'ຮັບຄຳແລ້ວ'];
+function stage(st) {
+  if (/ຍົກເລີກ|ໝົດເວລາ/.test(st)) return -1;
+  return {'ລໍຖ້າໂອນເງິນ': 1, 'ລໍຖ້າກວດເງິນ': 2, 'ຈ່າຍແລ້ວ ພ້ອມຮັບ': 3, 'ຮັບຄຳແລ້ວ': 4}[st] || 1;
+}
+function pill(st) { const k = stage(st); return '<span class="pill ' + (k < 0 ? 'bad' : k >= 3 ? 'good' : 'wait') + '">' + esc(st) + '</span>'; }
+function link(o) { return 'order.html?bill=' + encodeURIComponent(o.bill) + '&t=' + encodeURIComponent(o.t); }
+function card(o) {
+  const k = stage(o.status);
+  const bars = STEPS.map((_, i) => '<span class="' + (k < 0 ? (i === 0 ? 'bad' : '') : (i < k ? 'on' : '')) + '"></span>').join('');
+  const extra = [o.paidAt && ('ຢືນຢັນເງິນ ' + o.paidAt), o.doneAt ? ('ຮັບຄຳແລ້ວ ' + o.doneAt) : (k === 3 ? 'ມາຮັບຄຳພາຍໃນ ' + o.pickup : '')].filter(Boolean).join(' · ');
+  return '<a class="ord" href="' + link(o) + '">' +
+    '<div><b>' + esc(o.bill) + '</b><br><small>' + esc(o.created) + '</small></div><div class="amt">' + kip(o.total) + '</div>' +
+    '<div>' + esc(o.item) + ' × ' + esc(o.qty) + '</div><div>' + pill(o.status) + '</div>' +
+    (extra ? '<small style="grid-column:1/-1">' + esc(extra) + '</small>' : '') +
+    '<div class="tl" aria-hidden="true">' + bars + '</div><div class="legend" aria-hidden="true">' + STEPS.map(s => '<i>' + s + '</i>').join('') + '</div></a>';
+}
+function tab(which) {
+  const login = which === 'login';
+  $('t-login').setAttribute('aria-selected', String(login)); $('t-device').setAttribute('aria-selected', String(!login));
+  $('v-device').hidden = login;
+  if (login) { const has = !!$('list').innerHTML; $('v-login').hidden = has; $('v-list').hidden = !has; }
+  else { $('v-login').hidden = true; $('v-list').hidden = true; renderDevice(); }
+}
+$('t-login').onclick = () => tab('login');
+$('t-device').onclick = () => tab('device');
+function renderDevice() {
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem('lps-bills') || '[]'); } catch (e) {}
+  $('dlist').innerHTML = list.length ? list.map(o => '<a class="ord" href="' + link(o) + '"><div><b>' + esc(o.bill) + '</b><br><small>' + esc(o.created || '') + '</small></div><div class="amt">' + (o.total ? kip(o.total) : '') + '</div><div style="grid-column:1/-1">' + esc(o.item || '') + '</div></a>').join('')
+    : '<p class="note">ຍັງບໍ່ມີບິນທີ່ສັ່ງຈາກເຄື່ອງນີ້ ລອງເຂົ້າດ້ວຍເບີໂທ + PIN</p>';
+}
+$('v-login').addEventListener('submit', async e => {
+  e.preventDefault();
+  const phone = $('l-phone').value.trim(), pin = $('l-pin').value.trim();
+  $('l-err').hidden = true;
+  if (phone.replace(/[^0-9]/g, '').length < 8 || !/^[0-9]{4,6}$/.test(pin)) { $('l-err').textContent = 'ກະລຸນາໃສ່ເບີໂທ ແລະ PIN 4–6 ຕົວເລກ'; $('l-err').hidden = false; return; }
+  $('l-go').disabled = true; $('l-go').textContent = 'ກຳລັງຊອກຫາ…';
+  try {
+    const res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: 'history', phone, pin})});
+    const j = await res.json();
+    if (!j.ok) throw new Error(j.error);
+    const n = j.orders.length, active = j.orders.filter(o => [1, 2, 3].includes(stage(o.status))).length;
+    $('list-title').textContent = 'ປະຫວັດການສັ່ງຊື້ ' + (j.orders[0] ? j.orders[0].name : '');
+    $('list-sum').textContent = 'ທັງໝົດ ' + n + ' ບິນ · ກຳລັງດຳເນີນການ ' + active + ' ບິນ';
+    $('list').innerHTML = j.orders.map(card).join('');
+    $('l-pin').value = '';
+    $('v-login').hidden = true; $('v-list').hidden = false;
+  } catch (ex) { $('l-err').textContent = ex.message || 'ເກີດຂໍ້ຜິດພາດ ລອງໃໝ່ອີກຄັ້ງ'; $('l-err').hidden = false; }
+  $('l-go').disabled = false; $('l-go').textContent = 'ເບິ່ງປະຫວັດການສັ່ງຊື້';
+});
+$('logout').onclick = () => { $('list').innerHTML = ''; $('l-phone').value = ''; $('v-list').hidden = true; $('v-login').hidden = false; };
+</script>
+</body>
+</html>

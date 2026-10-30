@@ -45,7 +45,9 @@ const STATUS = {
 
 const HEAD = ['ເລກບິນ', 'ເວລາສັ່ງ', 'ຊື່ລູກຄ້າ', 'ເບີໂທ', 'ລາຍການ', 'ຈຳນວນ', 'ນ້ຳໜັກ (g)',
   'ລາຄາຕໍ່ໜ່ວຍ (ກີບ)', 'ຍອດໂອນ (ກີບ)', 'ໂອນກ່ອນ', 'ສະລິບ', 'ເວລາແນບສະລິບ',
-  'ສະຖານະ', 'ຮັບຄຳພາຍໃນ', 'ໝາຍເຫດແອັດມິນ', 'token'];
+  'ສະຖານະ', 'ຮັບຄຳພາຍໃນ', 'ໝາຍເຫດແອັດມິນ', 'token', 'pin',
+  'ລິ້ງໃບຈອງ', 'ເວລາຢືນຢັນເງິນ', 'ເວລາຮັບຄຳ'];
+const SITE = 'https://tobienar-cloud.github.io/litpasong/';
 const COL = Object.fromEntries(HEAD.map((h, i) => [h, i + 1]));
 
 // ---------- ຕິດຕັ້ງຄັ້ງດຽວ: ກົດ Run ຟັງຊັນ setup ----------
@@ -58,6 +60,9 @@ function setup() {
   const rule = SpreadsheetApp.newDataValidation().requireValueInList(Object.values(STATUS), true).build();
   sh.getRange(2, COL['ສະຖານະ'], 2000, 1).setDataValidation(rule);
   sh.hideColumns(COL['token']);
+  sh.hideColumns(COL['pin']);
+  const props = PropertiesService.getScriptProperties();
+  if (!props.getProperty('PIN_SALT')) props.setProperty('PIN_SALT', Utilities.getUuid());
   folder_();
   return 'ok';
 }
@@ -80,6 +85,7 @@ function doPost(e) {
   try {
     if (body.action === 'create') return json_({ ok: true, order: create_(body) });
     if (body.action === 'slip') return json_({ ok: true, order: slip_(body) });
+    if (body.action === 'history') return json_({ ok: true, orders: history_(body) });
     return json_({ ok: false, error: 'unknown action' });
   } catch (err) {
     return json_({ ok: false, error: String(err.message || err) });
@@ -107,7 +113,9 @@ function rules_() {
 function create_(b) {
   const name = clean_(b.name, 80), phone = clean_(b.phone, 30);
   if (!name) throw new Error('ກະລຸນາໃສ່ຊື່');
-  if (!/^[0-9+ ()-]{8,20}$/.test(phone)) throw new Error('ເບີໂທບໍ່ຖືກຕ້ອງ');
+  if (!/^[0-9+ ()-]{8,20}$/.test(phone) || phone8_(phone).length < 8) throw new Error('ເບີໂທບໍ່ຖືກຕ້ອງ');
+  const pin = String(b.pin || '');
+  if (!/^[0-9]{4,6}$/.test(pin)) throw new Error('ລະຫັດ PIN ຕ້ອງເປັນຕົວເລກ 4–6 ໂຕ');
   const qty = Math.floor(Number(b.qty));
   if (!(qty >= 1 && qty <= 40)) throw new Error('ຈຳນວນບໍ່ຖືກຕ້ອງ');
   const item = items_().find(i => i.id === b.item);
@@ -148,6 +156,8 @@ function create_(b) {
     row[COL['ສະຖານະ'] - 1] = STATUS.WAIT_PAY;
     row[COL['ຮັບຄຳພາຍໃນ'] - 1] = pickup;
     row[COL['token'] - 1] = token;
+    row[COL['pin'] - 1] = pinHash_(phone, pin);
+    row[COL['ລິ້ງໃບຈອງ'] - 1] = SITE + 'order.html?bill=' + bill + '&t=' + token;
     sh.appendRow(row);
     SpreadsheetApp.flush();
     return Object.assign(publicOrder_(find_(bill, token)), { t: token });
@@ -180,6 +190,51 @@ function slip_(b) {
   return publicOrder_(find_(o.bill, b.t));
 }
 
+// ---------- ປະຫວັດການສັ່ງຊື້ (ເບີໂທ + PIN) ----------
+function history_(b) {
+  const p8 = phone8_(b.phone), pin = String(b.pin || '');
+  if (p8.length < 8 || !/^[0-9]{4,6}$/.test(pin)) throw new Error('ກະລຸນາໃສ່ເບີໂທ ແລະ PIN ໃຫ້ຖືກຕ້ອງ');
+  const cache = CacheService.getScriptCache(), key = 'fail_' + p8;
+  const fails = Number(cache.get(key) || 0);
+  if (fails >= 5) throw new Error('ໃສ່ PIN ຜິດຫຼາຍເທື່ອ ກະລຸນາລໍຖ້າ 15 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 9717 0747');
+  const h = pinHash_(p8, pin);
+  const sh = orders_(), last = sh.getLastRow();
+  const out = [];
+  if (last > 1) {
+    sh.getRange(2, 1, last - 1, HEAD.length).getValues().forEach((r, i) => {
+      if (phone8_(r[COL['ເບີໂທ'] - 1]) === p8 && r[COL['pin'] - 1] === h) {
+        const o = rowObj_(r, i + 2);
+        out.push(Object.assign(publicOrder_(o), { t: r[COL['token'] - 1] }));
+      }
+    });
+  }
+  if (!out.length) {
+    cache.put(key, String(fails + 1), 900);
+    throw new Error('ບໍ່ພົບຄຳສັ່ງຊື້ ກວດເບີໂທ ແລະ PIN ອີກຄັ້ງ (PIN ແມ່ນລະຫັດທີ່ຕັ້ງຕອນສັ່ງຊື້)');
+  }
+  cache.remove(key);
+  return out.reverse();
+}
+
+function phone8_(p) { return String(p || '').replace(/[^0-9]/g, '').slice(-8); }
+
+function pinHash_(phone, pin) {
+  const salt = PropertiesService.getScriptProperties().getProperty('PIN_SALT') || 'lps';
+  const d = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, salt + ':' + phone8_(phone) + ':' + pin, Utilities.Charset.UTF_8);
+  return d.map(x => ('0' + (x & 255).toString(16)).slice(-2)).join('');
+}
+
+// ບັນທຶກເວລາອັດຕະໂນມັດ ເມື່ອແອັດມິນປ່ຽນສະຖານະໃນຊີດ
+function onEdit(e) {
+  try {
+    const sh = e.range.getSheet();
+    if (sh.getName() !== CFG.ORDER_SHEET || e.range.getColumn() !== COL['ສະຖານະ'] || e.range.getRow() < 2) return;
+    const v = e.range.getValue();
+    if (v === STATUS.READY) sh.getRange(e.range.getRow(), COL['ເວລາຢືນຢັນເງິນ']).setValue(new Date());
+    if (v === STATUS.DONE) sh.getRange(e.range.getRow(), COL['ເວລາຮັບຄຳ']).setValue(new Date());
+  } catch (err) {}
+}
+
 // ---------- ຕົວຊ່ວຍ ----------
 function orders_() {
   const sh = SpreadsheetApp.getActive().getSheetByName(CFG.ORDER_SHEET);
@@ -196,17 +251,19 @@ function find_(bill, token) {
   const vals = sh.getRange(2, 1, last - 1, HEAD.length).getValues();
   for (let i = vals.length - 1; i >= 0; i--) {
     const r = vals[i];
-    if (r[COL['ເລກບິນ'] - 1] === bill && r[COL['token'] - 1] === token) {
-      const g = h => r[COL[h] - 1];
-      return {
-        row: i + 2, bill: bill, created: g('ເວລາສັ່ງ'), name: g('ຊື່ລູກຄ້າ'), phone: String(g('ເບີໂທ')),
-        item: g('ລາຍການ'), qty: g('ຈຳນວນ'), grams: g('ນ້ຳໜັກ (g)'), price: g('ລາຄາຕໍ່ໜ່ວຍ (ກີບ)'),
-        total: g('ຍອດໂອນ (ກີບ)'), due: g('ໂອນກ່ອນ'), slipAt: g('ເວລາແນບສະລິບ'), status: g('ສະຖານະ'),
-        pickup: g('ຮັບຄຳພາຍໃນ'),
-      };
-    }
+    if (r[COL['ເລກບິນ'] - 1] === bill && r[COL['token'] - 1] === token) return rowObj_(r, i + 2);
   }
   throw new Error('ບໍ່ພົບບິນ');
+}
+
+function rowObj_(r, row) {
+  const g = h => r[COL[h] - 1];
+  return {
+    row: row, bill: g('ເລກບິນ'), created: g('ເວລາສັ່ງ'), name: g('ຊື່ລູກຄ້າ'), phone: String(g('ເບີໂທ')),
+    item: g('ລາຍການ'), qty: g('ຈຳນວນ'), grams: g('ນ້ຳໜັກ (g)'), price: g('ລາຄາຕໍ່ໜ່ວຍ (ກີບ)'),
+    total: g('ຍອດໂອນ (ກີບ)'), due: g('ໂອນກ່ອນ'), slipAt: g('ເວລາແນບສະລິບ'), status: g('ສະຖານະ'),
+    pickup: g('ຮັບຄຳພາຍໃນ'), paidAt: g('ເວລາຢືນຢັນເງິນ'), doneAt: g('ເວລາຮັບຄຳ'),
+  };
 }
 
 function publicOrder_(o) {
@@ -218,7 +275,7 @@ function publicOrder_(o) {
     phone: phone.length > 4 ? phone.slice(0, -4).replace(/[0-9]/g, '•') + phone.slice(-4) : phone,
     item: o.item, qty: o.qty, grams: o.grams, price: o.price, total: o.total,
     due: f(o.due), dueMs: (o.due instanceof Date) ? o.due.getTime() : 0, slipAt: f(o.slipAt),
-    status: o.status, pickup: fd(o.pickup),
+    status: o.status, pickup: fd(o.pickup), paidAt: f(o.paidAt), doneAt: f(o.doneAt),
     jewelry: String(o.item).indexOf('ຮູບປະພັນ') >= 0,
   };
 }

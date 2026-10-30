@@ -82,7 +82,7 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
 </head>
 <body>
 <header><div class="wrap">
-  <a href="./">← ກັບໜ້າຮ້ານ</a>
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><a href="./">← ກັບໜ້າຮ້ານ</a><a href="my.html">ກວດສອບຄຳສັ່ງຊື້ຂອງຂ້ອຍ →</a></div>
   <h1>ສັ່ງຊື້ຄຳອອນລາຍ</h1>
   <p class="sub">ລັອກລາຄາມື້ນີ້ · ໂອນຜ່ານ BCEL · ມາຮັບຄຳທີ່ຮ້ານ ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ</p>
 </div></header>
@@ -110,6 +110,8 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
     <p class="note" id="lab-note"></p>
     <label for="f-name">ຊື່ ແລະ ນາມສະກຸນ (ຕາມບັດປະຈຳຕົວ)<input type="text" id="f-name" autocomplete="name" maxlength="80" required></label>
     <label for="f-phone">ເບີໂທ / WhatsApp<input type="tel" id="f-phone" autocomplete="tel" inputmode="tel" placeholder="020 xxxx xxxx" maxlength="20" required></label>
+    <label for="f-pin">ຕັ້ງລະຫັດ PIN 4–6 ຕົວເລກ (ໃຊ້ກັບເບີໂທ ເພື່ອເບິ່ງປະຫວັດການສັ່ງຊື້)<input type="password" id="f-pin" inputmode="numeric" autocomplete="new-password" pattern="[0-9]*" maxlength="6" required></label>
+    <p class="note" style="margin-top:-8px">ຈື່ PIN ໄວ້ ແລະ ໃຊ້ PIN ດຽວກັນທຸກຄັ້ງທີ່ສັ່ງ ຢ່າບອກ PIN ໃຫ້ຄົນອື່ນ</p>
     <ul class="rules" id="rules"></ul>
     <label class="check" for="f-agree"><input type="checkbox" id="f-agree"><span>ຂ້ອຍຍອມຮັບເງື່ອນໄຂຂ້າງເທິງ</span></label>
     <div class="err" id="err1" hidden></div>
@@ -164,7 +166,9 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
       <dt>ລາຄາຕໍ່ໜ່ວຍ</dt><dd id="r-price"></dd>
       <dt>ຍອດໂອນ</dt><dd class="big" id="r-total"></dd>
       <dt>ແນບສະລິບ</dt><dd id="r-slip"></dd>
+      <dt>ຢືນຢັນເງິນເຂົ້າ</dt><dd id="r-paid"></dd>
       <dt>ຮັບຄຳພາຍໃນ</dt><dd id="r-pickup"></dd>
+      <dt>ຮັບຄຳແລ້ວເມື່ອ</dt><dd id="r-done"></dd>
     </dl>
     <p class="note" id="r-lab"></p>
     <p class="note">ມາຮັບຄຳທີ່ຮ້ານ ເປີດທຸກມື້ 8:00–15:30 · ສະແດງໃບຈອງນີ້ ແລະ ບັດປະຈຳຕົວທີ່ຊື່ຕົງກັບບິນ · ຖ່າຍໜ້າຈໍເກັບໄວ້ ຫຼື ບັນທຶກລິ້ງໜ້ານີ້</p>
@@ -203,7 +207,11 @@ async function api(method, params) {
   return j;
 }
 
-function save() { try { localStorage.setItem('lps-last', JSON.stringify({bill: ORDER.bill, t: TOKEN})); } catch (e) {} }
+function save() { try {
+  const list = JSON.parse(localStorage.getItem('lps-bills') || '[]').filter(x => x.bill !== ORDER.bill);
+  list.unshift({bill: ORDER.bill, t: TOKEN, item: ORDER.item + ' × ' + ORDER.qty, total: ORDER.total, created: ORDER.created});
+  localStorage.setItem('lps-bills', JSON.stringify(list.slice(0, 50)));
+} catch (e) {} }
 function setUrl() { try { history.replaceState(null, '', '?bill=' + encodeURIComponent(ORDER.bill) + '&t=' + TOKEN); } catch (e) {} }
 
 // ---- Step 1 ----
@@ -239,14 +247,15 @@ $('minus').onclick = () => { qty--; calc(); };
 $('plus').onclick = () => { qty++; calc(); };
 $('v-choose').addEventListener('submit', async e => {
   e.preventDefault(); err('err1');
-  const name = $('f-name').value.trim(), phone = $('f-phone').value.trim();
+  const name = $('f-name').value.trim(), phone = $('f-phone').value.trim(), pin = $('f-pin').value.trim();
   if (!sel) return err('err1', 'ກະລຸນາເລືອກລາຍການ');
   if (!name) return err('err1', 'ກະລຸນາໃສ່ຊື່');
   if (!/^[0-9+ ()-]{8,20}$/.test(phone)) return err('err1', 'ເບີໂທບໍ່ຖືກຕ້ອງ');
+  if (!/^[0-9]{4,6}$/.test(pin)) return err('err1', 'ລະຫັດ PIN ຕ້ອງເປັນຕົວເລກ 4–6 ໂຕ');
   if (!$('f-agree').checked) return err('err1', 'ກະລຸນາຍອມຮັບເງື່ອນໄຂ');
   $('go1').disabled = true; $('go1').textContent = 'ກຳລັງລັອກລາຄາ…';
   try {
-    const j = await api('POST', {action: 'create', item: sel.id, qty, name, phone});
+    const j = await api('POST', {action: 'create', item: sel.id, qty, name, phone, pin});
     ORDER = j.order; TOKEN = j.order.t;
   } catch (ex) { err('err1', ex.message); }
   $('go1').disabled = false; $('go1').textContent = 'ລັອກລາຄາ ແລະ ໄປໂອນເງິນ';
@@ -297,6 +306,7 @@ function receiptView() {
   $('r-item').textContent = ORDER.item + ' × ' + ORDER.qty; $('r-grams').textContent = fmtG(ORDER.grams);
   $('r-price').textContent = kip(ORDER.price); $('r-total').textContent = kip(ORDER.total);
   $('r-slip').textContent = ORDER.slipAt || 'ຍັງບໍ່ໄດ້ແນບ'; $('r-pickup').textContent = ORDER.pickup;
+  $('r-paid').textContent = ORDER.paidAt || '—'; $('r-done').textContent = ORDER.doneAt || '—'; save();
   $('r-lab').textContent = ORDER.jewelry ? 'ຍອດໂອນເປັນລາຄາຄຳ ຍັງບໍ່ລວມຄ່າລາຍ ຈ່າຍຄ່າລາຍທີ່ຮ້ານຕອນຮັບຄຳ' : 'ຄຳແທ່ງບໍ່ມີຄ່າລາຍ';
   $('r-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ແຈ້ງໂອນເງິນ ບິນ ' + ORDER.bill + ' ຍອດ ' + kip(ORDER.total) + '\n' + location.href);
   $('billqr').innerHTML = '';
