@@ -111,7 +111,7 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
   <form class="card" id="v-login" novalidate>
     <h2>ເຂົ້າສູ່ລະບົບ</h2>
     <label for="l-phone">ເບີໂທທີ່ໃຊ້ຕອນສັ່ງຊື້<input type="tel" id="l-phone" autocomplete="tel" inputmode="tel" placeholder="020 xxxx xxxx" maxlength="20"></label>
-    <label for="l-pin">ລະຫັດ PIN (4–6 ຕົວເລກ ທີ່ຕັ້ງຕອນສັ່ງຊື້)<input type="password" id="l-pin" inputmode="numeric" autocomplete="current-password" maxlength="6"></label>
+    <label for="l-pin">ລະຫັດ PIN 6 ຕົວເລກ (ທີ່ຕັ້ງຕອນສັ່ງຊື້)<input type="password" id="l-pin" inputmode="numeric" autocomplete="current-password" maxlength="6"></label>
     <div class="err" id="l-err" hidden></div>
     <button class="btn gold" type="submit" id="l-go">ເບິ່ງປະຫວັດການສັ່ງຊື້</button>
     <p class="note">ລືມ PIN? ທັກແອັດມິນ WhatsApp 020 9717 0747 ພ້ອມເລກບິນ ແລະ ຊື່ຕາມບັດປະຈຳຕົວ</p>
@@ -171,7 +171,7 @@ $('v-login').addEventListener('submit', async e => {
   e.preventDefault();
   const phone = $('l-phone').value.trim(), pin = $('l-pin').value.trim();
   $('l-err').hidden = true;
-  if (phone.replace(/[^0-9]/g, '').length < 8 || !/^[0-9]{4,6}$/.test(pin)) { $('l-err').textContent = 'ກະລຸນາໃສ່ເບີໂທ ແລະ PIN 4–6 ຕົວເລກ'; $('l-err').hidden = false; return; }
+  if (phone.replace(/[^0-9]/g, '').length < 8 || !/^[0-9]{4,6}$/.test(pin)) { $('l-err').textContent = 'ກະລຸນາໃສ່ເບີໂທ ແລະ PIN 6 ຕົວເລກ'; $('l-err').hidden = false; return; }
   $('l-go').disabled = true; $('l-go').textContent = 'ກຳລັງຊອກຫາ…';
   try {
     const res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: 'history', phone, pin})});

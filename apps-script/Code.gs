@@ -115,7 +115,7 @@ function create_(b) {
   if (!name) throw new Error('ກະລຸນາໃສ່ຊື່');
   if (!/^[0-9+ ()-]{8,20}$/.test(phone) || phone8_(phone).length < 8) throw new Error('ເບີໂທບໍ່ຖືກຕ້ອງ');
   const pin = String(b.pin || '');
-  if (!/^[0-9]{4,6}$/.test(pin)) throw new Error('ລະຫັດ PIN ຕ້ອງເປັນຕົວເລກ 4–6 ໂຕ');
+  if (!/^[0-9]{6}$/.test(pin)) throw new Error('ລະຫັດ PIN ຕ້ອງເປັນຕົວເລກ 6 ໂຕ');
   const qty = Math.floor(Number(b.qty));
   if (!(qty >= 1 && qty <= 40)) throw new Error('ຈຳນວນບໍ່ຖືກຕ້ອງ');
   const item = items_().find(i => i.id === b.item);
