@@ -13,7 +13,7 @@ const CFG = {
   ORDER_SHEET: 'ຄຳສັ່ງຊື້',
   SLIP_FOLDER: 'ສະລິບໂອນເງິນ Litpasong',
   NOTIFY_EMAIL: '',            // ອີເມວແຈ້ງເຕືອນບິນໃໝ່ (ວ່າງ = ໃຊ້ອີເມວເຈົ້າຂອງຊີດ)
-  ADMIN_WHATSAPP: '+8562058954624', // WhatsApp ແອັດມິນ ຮັບແຈ້ງເຕືອນບິນໃໝ່
+  ADMIN_WHATSAPP: '+8562097170747', // WhatsApp ແອັດມິນ ຮັບແຈ້ງເຕືອນບິນໃໝ່
   // ກະແຈ CallMeBot ເກັບໃນ Project Settings → Script properties ຊື່ CALLMEBOT_APIKEY (ບໍ່ໃສ່ໃນໂຄດ)
   PAY_MINUTES: 30,             // ລັອກລາຄາ 30 ນາທີ
   PICKUP_MONTHS: 3,            // ຮັບຄຳພາຍໃນ 3 ເດືອນ
