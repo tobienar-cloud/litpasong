@@ -62,7 +62,7 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
 .err{background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:10px 12px;font-size:15px}
 .pay{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px;align-items:start}
 @media (max-width:520px){.pay{grid-template-columns:1fr}}
-.pay img{width:100%;border-radius:12px;border:1px solid var(--line);background:#fff}
+.pay img,.pay canvas{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);background:#fff}
 .kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:15px;margin:0}
 .kv dt{color:var(--muted)}
 .kv dd{margin:0;font-weight:600;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
@@ -123,7 +123,7 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
     <h2>ໂອນເງິນ ແລ້ວແນບສະລິບ</h2>
     <p class="note">ລາຄາລັອກໄວ້ເຖິງ <b id="p-due"></b> · ເຫຼືອ <span class="timer" id="p-timer"></span></p>
     <div class="pay">
-      <img src="img/pay/bcel-qr.png" alt="QR ຮັບເງິນ BCEL ບັນຊີ LITHPASONG PHAKOUSON MR" width="500" height="558">
+      <img id="pay-qr" src="img/pay/bcel-qr.png" alt="QR ຮັບເງິນ BCEL ບັນຊີ LITHPASONG PHAKOUSON MR" width="500" height="558">
       <dl class="kv">
         <dt>ເລກບິນ</dt><dd id="p-bill"></dd>
         <dt>ລາຍການ</dt><dd id="p-item"></dd>
@@ -134,10 +134,10 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
       </dl>
     </div>
     <p class="note">ສັ່ງຈາກມືຖື: ກົດບັນທຶກຮູບ QR ແລ້ວເປີດແອັບທະນາຄານ ເລືອກສະແກນຈາກຮູບ ຫຼື ໂອນເຂົ້າເລກບັນຊີ</p>
-    <div class="row"><a class="btn line" href="img/pay/bcel-qr.png" download="litpasong-bcel-qr.png">ບັນທຶກຮູບ QR</a></div>
+    <div class="row"><a class="btn line" id="qr-dl" href="img/pay/bcel-qr.png" download="litpasong-bcel-qr.png">ບັນທຶກຮູບ QR</a></div>
     <ol class="rules">
       <li>ສະແກນ QR ດ້ວຍແອັບທະນາຄານ (BCEL One ຫຼື ທະນາຄານອື່ນຜ່ານ LAPNet)</li>
-      <li>ໃສ່ຍອດໃຫ້ຕົງ ແລະ ໃສ່ <b>ເລກບິນ</b> ໃນຊ່ອງໝາຍເຫດ</li>
+      <li id="amt-rule">ໃສ່ຍອດໃຫ້ຕົງ ແລະ ໃສ່ <b>ເລກບິນ</b> ໃນຊ່ອງໝາຍເຫດ</li>
       <li>ຖ່າຍຮູບສະລິບ ແລ້ວແນບຂ້າງລຸ່ມ</li>
     </ol>
     <div class="err" style="background:var(--warn-bg);color:var(--warn)"><b>📸 ກະລຸນາແຄັບໜ້າຈໍ ຫຼັງໂອນເງິນສຳເລັດ</b><br>ເກັບສະລິບໄວ້ເປັນຫຼັກຖານ ແລະ ນຳມາສະແດງພ້ອມບັດປະຈຳຕົວ ຕອນຮັບຄຳທີ່ໜ້າຮ້ານ</div>
@@ -265,10 +265,57 @@ $('v-choose').addEventListener('submit', async e => {
 });
 
 // ---- Step 2 ----
+// LAO QR (EMVCo) ຂອງບັນຊີຮ້ານ + ຍອດເງິນ ເພື່ອໃຫ້ແອັບທະນາຄານຂຶ້ນຍອດເອງ
+const QR_MERCHANT = '38670016A00526628466257701082771041802030010324WXVWZQCPJEKVXNPIFTGXWBIA';
+function crc16(str) {
+  let c = 0xFFFF;
+  for (const b of new TextEncoder().encode(str)) {
+    c ^= b << 8;
+    for (let i = 0; i < 8; i++) c = (c & 0x8000) ? ((c << 1) ^ 0x1021) & 0xFFFF : (c << 1) & 0xFFFF;
+  }
+  return c.toString(16).toUpperCase().padStart(4, '0');
+}
+function tlv(id, v) { return id + String(v.length).padStart(2, '0') + v; }
+function laoQr(amount) {
+  const amt = String(Math.round(Number(amount)));
+  if (!/^[1-9][0-9]{0,12}$/.test(amt)) return null;
+  const body = tlv('00', '01') + tlv('01', '12') + QR_MERCHANT + tlv('53', '418') + tlv('54', amt) + tlv('58', 'LA') + '6304';
+  return body + crc16(body);
+}
+function amountQr() {
+  const payload = window.QRCode && laoQr(ORDER.total);
+  if (!payload) return;   // ໃຊ້ QR ເດີມ (ລູກຄ້າໃສ່ຍອດເອງ)
+  const tmp = document.createElement('div');
+  new QRCode(tmp, {text: payload, width: 390, height: 390, correctLevel: QRCode.CorrectLevel.M});
+  const src = tmp.querySelector('canvas');
+  if (!src) return;
+  const W = 500, H = 640, cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
+  g.fillStyle = '#c8102e'; g.fillRect(0, 0, W, 64);
+  g.fillStyle = '#fff'; g.textAlign = 'center';
+  g.font = '800 26px "Noto Sans Lao Looped", sans-serif';
+  g.fillText('BCEL · LAO QR', W / 2, 42);
+  g.imageSmoothingEnabled = false;
+  g.drawImage(src, 55, 106, 390, 390);
+  g.fillStyle = '#222'; g.font = '600 20px "Noto Sans Lao Looped", sans-serif';
+  g.fillText('LITHPASONG PHAKOUSON MR', W / 2, 548);
+  g.fillStyle = '#c8102e'; g.font = '800 30px "Noto Sans Lao Looped", sans-serif';
+  g.fillText(kip(ORDER.total), W / 2, 592);
+  g.fillStyle = '#666'; g.font = '400 17px "Noto Sans Lao Looped", sans-serif';
+  g.fillText('ບິນ ' + ORDER.bill, W / 2, 624);
+  const url = cv.toDataURL('image/png');
+  $('pay-qr').src = url;
+  $('pay-qr').alt = 'QR ຮັບເງິນ BCEL ພ້ອມຍອດ ' + kip(ORDER.total);
+  $('qr-dl').href = url; $('qr-dl').download = 'litpasong-' + ORDER.bill + '.png';
+  $('amt-rule').innerHTML = 'ສະແກນແລ້ວ <b>ຍອດເງິນຈະຂຶ້ນເອງ</b> ກວດໃຫ້ຕົງກັບ ' + kip(ORDER.total) + ' ແລ້ວໃສ່ <b>ເລກບິນ</b> ໃນຊ່ອງໝາຍເຫດ';
+}
 function payView() {
   show('v-pay', 2);
   $('p-bill').textContent = ORDER.bill; $('p-item').textContent = ORDER.item + ' × ' + ORDER.qty;
   $('p-total').textContent = kip(ORDER.total); $('p-due').textContent = ORDER.due;
+  amountQr();
   clearInterval(timerId);
   const tick = () => {
     const s = Math.max(0, Math.round((ORDER.dueMs - Date.now()) / 1000));
