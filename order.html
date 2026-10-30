@@ -309,7 +309,7 @@ function amountQr() {
   $('pay-qr').src = url;
   $('pay-qr').alt = 'QR ຮັບເງິນ BCEL ພ້ອມຍອດ ' + kip(ORDER.total);
   $('qr-dl').href = url; $('qr-dl').download = 'litpasong-' + ORDER.bill + '.png';
-  $('amt-rule').innerHTML = 'ສະແກນແລ້ວ <b>ຍອດເງິນຈະຂຶ້ນເອງ</b> ກວດໃຫ້ຕົງກັບ ' + kip(ORDER.total) + ' ແລ້ວໃສ່ <b>ເລກບິນ</b> ໃນຊ່ອງໝາຍເຫດ';
+  $('amt-rule').innerHTML = 'ໃສ່ຍອດ <b>' + kip(ORDER.total) + '</b> ໃຫ້ຕົງ ແລະ ໃສ່ <b>ເລກບິນ</b> ໃນຊ່ອງໝາຍເຫດ';
 }
 function payView() {
   show('v-pay', 2);
