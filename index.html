@@ -149,6 +149,8 @@ td:last-child{text-align:right;font-weight:600;white-space:nowrap}
 .social span{font-size:13px;color:var(--muted)}
 footer{border-top:1px solid var(--line);color:var(--muted);font-size:14px}
 footer .wrap{padding-block:20px}
+footer .visits{margin-top:6px;font-size:13px}
+footer .visits b{color:var(--fg);font-variant-numeric:tabular-nums}
 </style>
 
 </head>
@@ -325,7 +327,21 @@ footer .wrap{padding-block:20px}
 </div>
 </main>
 
-<footer><div class="wrap">© ຮ້ານຄຳ ລິດປະສົງ · Litpasong Jewelry · ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ ຄຳມ່ວນ</div></footer>
+<footer><div class="wrap">© ຮ້ານຄຳ ລິດປະສົງ · Litpasong Jewelry · ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ ຄຳມ່ວນ<div class="visits" id="visits" hidden>👀 ມີຜູ້ເຂົ້າຊົມແລ້ວ <b id="v-total"></b> ຄັ້ງ · ມື້ນີ້ <b id="v-today"></b> ຄັ້ງ</div></div></footer>
+<script>
+// ນັບຜູ້ເຂົ້າຊົມ: ນັບ 1 ຄັ້ງຕໍ່ການເປີດເວັບ (ກົດ refresh ບໍ່ນັບຊ້ຳ)
+(function(){
+  var U='https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4PY_Xt5TtnErjBkAryQ8Sb8N1cwv67FImKLI7E33VxF4jfO361g/exec';
+  var add='1';
+  try{ if(sessionStorage.getItem('lps-v')) add='0'; else sessionStorage.setItem('lps-v','1'); }catch(e){}
+  fetch(U+'?action=hit&add='+add,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+    if(!j||!j.ok||!j.total) return;
+    document.getElementById('v-total').textContent=Number(j.total).toLocaleString('en-US');
+    document.getElementById('v-today').textContent=Number(j.today||0).toLocaleString('en-US');
+    document.getElementById('visits').hidden=false;
+  }).catch(function(){});
+})();
+</script>
 
 <script id="price-data" type="application/json">{"stamp": "ອັບເດດ ວັນທີ 31/10/2026 ເວລາ 10:43 ໂມງ", "baht1": "43,925,000", "salung2": "22,110,000", "salung1": "11,080,000", "hun5": "5,630,000", "hun3": "3,520,000", "hun2": "2,450,000", "hun1": "1,270,000", "bar_gram": "3,130,000", "bar_sell": "43,880,000", "buy_jewelry": "42,260,000", "buy_bar_max": "43,240,000"}</script>
 <script>

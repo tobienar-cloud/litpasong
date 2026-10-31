@@ -16,6 +16,7 @@ const CFG = {
   ADMIN_WHATSAPP: '+8562097170747', // WhatsApp ແອັດມິນ ຮັບແຈ້ງເຕືອນບິນໃໝ່
   // ກະແຈ CallMeBot ເກັບໃນ Project Settings → Script properties ຊື່ CALLMEBOT_APIKEY (ບໍ່ໃສ່ໃນໂຄດ)
   PAY_MINUTES: 30,             // ລັອກລາຄາ 30 ນາທີ
+  STATS_SHEET: 'ສະຖິຕິເຂົ້າເວັບ',
   LATE_SLIP_HOURS: 24,         // ໝົດເວລາແລ້ວ ຍັງແນບສະລິບໄດ້ພາຍໃນ 24 ຊົ່ວໂມງ (ແອັດມິນກວດເວລາໂອນ)
   PICKUP_MONTHS: 3,            // ຮັບຄຳພາຍໃນ 3 ເດືອນ
   MAX_GRAMS: 15,               // ສູງສຸດ 1 ບາດ (15 ກຣາມ) ຕໍ່ບິນ
@@ -74,6 +75,7 @@ function doGet(e) {
   try {
     if (p.action === 'items') return json_({ ok: true, items: items_(), rules: rules_() });
     if (p.action === 'order') return json_({ ok: true, order: publicOrder_(find_(p.bill, p.t)) });
+    if (p.action === 'hit') return json_(Object.assign({ ok: true }, hit_(p.add === '1')));
     return json_({ ok: false, error: 'unknown action' });
   } catch (err) {
     return json_({ ok: false, error: String(err.message || err) });
@@ -162,6 +164,41 @@ function create_(b) {
     sh.appendRow(row);
     SpreadsheetApp.flush();
     return Object.assign(publicOrder_(find_(bill, token)), { t: token });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// ---------- ນັບຜູ້ເຂົ້າຊົມເວັບ ----------
+// ລວມທັງໝົດເກັບໃນ Script Properties, ລາຍວັນເກັບໃນແຖບ "ສະຖິຕິເຂົ້າເວັບ"
+function hit_(add) {
+  const props = PropertiesService.getScriptProperties();
+  const today = Utilities.formatDate(new Date(), CFG.TZ, 'yyyy-MM-dd');
+  if (!add) {
+    return { total: Number(props.getProperty('VISITS_TOTAL') || 0),
+             today: props.getProperty('VISITS_DAY') === today ? Number(props.getProperty('VISITS_TODAY') || 0) : 0 };
+  }
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) return hit_(false);
+  try {
+    const total = Number(props.getProperty('VISITS_TOTAL') || 0) + 1;
+    const day = props.getProperty('VISITS_DAY');
+    const todayN = (day === today ? Number(props.getProperty('VISITS_TODAY') || 0) : 0) + 1;
+    props.setProperties({ VISITS_TOTAL: String(total), VISITS_DAY: today, VISITS_TODAY: String(todayN) });
+    const ss = SpreadsheetApp.getActive();
+    let sh = ss.getSheetByName(CFG.STATS_SHEET);
+    if (!sh) {
+      sh = ss.insertSheet(CFG.STATS_SHEET);
+      sh.appendRow(['ວັນທີ', 'ຈຳນວນເຂົ້າເວັບ', 'ລວມທັງໝົດ']);
+      sh.setFrozenRows(1);
+    }
+    const last = sh.getLastRow();
+    if (last > 1 && String(sh.getRange(last, 1).getDisplayValue()) === today) {
+      sh.getRange(last, 2, 1, 2).setValues([[todayN, total]]);
+    } else {
+      sh.appendRow(["'" + today, todayN, total]);
+    }
+    return { total: total, today: todayN };
   } finally {
     lock.releaseLock();
   }
