@@ -145,7 +145,7 @@ function link(o) { return 'order.html?bill=' + encodeURIComponent(o.bill) + '&t=
 function card(o) {
   const k = stage(o.status);
   const bars = STEPS.map((_, i) => '<span class="' + (k < 0 ? (i === 0 ? 'bad' : '') : (i < k ? 'on' : '')) + '"></span>').join('');
-  const extra = [o.paidAt && ('ຢືນຢັນເງິນ ' + o.paidAt), o.doneAt ? ('ຮັບຄຳແລ້ວ ' + o.doneAt) : (k === 3 ? 'ມາຮັບຄຳພາຍໃນ ' + o.pickup : '')].filter(Boolean).join(' · ');
+  const extra = [o.paidAt && ('ຢືນຢັນເງິນ ' + o.paidAt), o.doneAt ? ('ຮັບຄຳແລ້ວ ' + o.doneAt) : (k === 3 ? 'ມາຮັບຄຳທີ່ຮ້ານໄດ້ ບໍ່ຈຳກັດເວລາ' : '')].filter(Boolean).join(' · ');
   return '<a class="ord" href="' + link(o) + '">' +
     '<div><b>' + esc(o.bill) + '</b><br><small>' + esc(o.created) + '</small></div><div class="amt">' + kip(o.total) + '</div>' +
     '<div>' + esc(o.item) + ' × ' + esc(o.qty) + '</div><div>' + pill(o.status) + '</div>' +

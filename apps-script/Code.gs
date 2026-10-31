@@ -18,7 +18,7 @@ const CFG = {
   PAY_MINUTES: 30,             // ລັອກລາຄາ 30 ນາທີ
   STATS_SHEET: 'ສະຖິຕິເຂົ້າເວັບ',
   LATE_SLIP_HOURS: 24,         // ໝົດເວລາແລ້ວ ຍັງແນບສະລິບໄດ້ພາຍໃນ 24 ຊົ່ວໂມງ (ແອັດມິນກວດເວລາໂອນ)
-  PICKUP_MONTHS: 3,            // ຮັບຄຳພາຍໃນ 3 ເດືອນ
+  PICKUP_MONTHS: 0,            // 0 = ຮັບຄຳໄດ້ບໍ່ຈຳກັດເວລາ (ຕັ້ງແຕ່ 31/10/2026)
   MAX_GRAMS: 15,               // ສູງສຸດ 1 ບາດ (15 ກຣາມ) ຕໍ່ບິນ
   TZ: 'Asia/Vientiane',
 };
@@ -151,7 +151,8 @@ function create_(b) {
     }
     const bill = prefix + ('000' + (n + 1)).slice(-4);
     const due = new Date(now.getTime() + CFG.PAY_MINUTES * 60000);
-    const pickup = new Date(now); pickup.setMonth(pickup.getMonth() + CFG.PICKUP_MONTHS);
+    let pickup = 'ບໍ່ຈຳກັດເວລາ';
+    if (CFG.PICKUP_MONTHS > 0) { pickup = new Date(now); pickup.setMonth(pickup.getMonth() + CFG.PICKUP_MONTHS); }
     const token = Utilities.getUuid().replace(/-/g, '');
     const row = new Array(HEAD.length).fill('');
     row[COL['ເລກບິນ'] - 1] = bill;
@@ -334,7 +335,7 @@ function publicOrder_(o) {
     item: o.item, qty: o.qty, grams: o.grams, price: o.price, total: o.total,
     due: f(o.due), dueMs: (o.due instanceof Date) ? o.due.getTime() : 0, slipAt: f(o.slipAt),
     late: (o.slipAt instanceof Date) && (o.due instanceof Date) && o.slipAt.getTime() > o.due.getTime() + 5 * 60000,
-    status: o.status, pickup: fd(o.pickup), paidAt: f(o.paidAt), doneAt: f(o.doneAt),
+    status: o.status, pickup: CFG.PICKUP_MONTHS > 0 ? fd(o.pickup) : 'ບໍ່ຈຳກັດເວລາ', paidAt: f(o.paidAt), doneAt: f(o.doneAt),
     jewelry: String(o.item).indexOf('ຮູບປະພັນ') >= 0,
   };
 }
@@ -493,7 +494,9 @@ function savePublic_(t) {
   const f = d => (d instanceof Date) ? Utilities.formatDate(d, CFG.TZ, 'dd/MM/yyyy HH:mm') : '';
   return { id: t.id, time: f(t.time), type: t.type, amount: t.amount, fee: t.fee, item: t.item || '',
            grams: t.grams || '', status: t.status, slipAt: f(t.slipAt), okAt: f(t.okAt), payout: t.payout || '',
-           name: t.name, timeMs: (t.time instanceof Date) ? t.time.getTime() : 0 };
+           name: t.name, timeMs: (t.time instanceof Date) ? t.time.getTime() : 0,
+           phone: t.phone.length > 4 ? t.phone.slice(0, -4).replace(/[0-9]/g, '•') + t.phone.slice(-4) : t.phone,
+           jewelry: String(t.item || '').indexOf('ຮູບປະພັນ') >= 0, pickup: 'ບໍ່ຈຳກັດເວລາ' };
 }
 
 // ໜ້າບັນຊີ: ຍອດ + ທຽບນ້ຳໜັກປະມານ + ປະຫວັດ
@@ -505,7 +508,7 @@ function saveAccount_(b) {
     cap: ref.cap, perGram: ref.perGram, priceAt: ref.at, fee: SAVE.FEE,
     items: ref.items.map(i => ({ id: i.id, name: i.name, grams: i.grams, kind: i.kind, price: i.price })),
     txs: a.mine.slice().reverse().map(t => Object.assign(savePublic_(t),
-      (t.type === STYPE.DEP && (t.status === SSTATUS.DEP_WAIT || t.status === SSTATUS.DEP_CHECK)) ? { t: t.token } : {})),
+      ((t.type === STYPE.DEP && (t.status === SSTATUS.DEP_WAIT || t.status === SSTATUS.DEP_CHECK)) || t.type === STYPE.RED) ? { t: t.token } : {})),
   };
 }
 
@@ -591,7 +594,7 @@ function saveRedeem_(b) {
     saveNotify_('ອອມຄຳ: ລູກຄ້າແລກເປັນຄຳ\n\nເລກລາຍການ: ' + id + '\nລູກຄ້າ: ' + last.name + ' ' + last.phone +
       '\nລາຍການ: ' + item.name + '\nລາຄາ ณ ເວລາແລກ: ' + item.price.toLocaleString('en-US') + ' ກີບ (ຫັກຈາກຍອດອອມແລ້ວ)' +
       '\n\nລູກຄ້າມາຮັບທີ່ຮ້ານ ແລ້ວປ່ຽນສະຖານະເປັນ "' + SSTATUS.RED_DONE + '"');
-    return { tx: savePublic_(saveRows_().find(x => x.id === id)), balance: bal.balance - item.price };
+    return { tx: savePublic_(saveRows_().find(x => x.id === id)), t: token, balance: bal.balance - item.price };
   } finally {
     lock.releaseLock();
   }

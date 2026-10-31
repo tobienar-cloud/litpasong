@@ -199,6 +199,34 @@ input[type=number],input[type=password]{font:inherit;padding:10px 12px;border:1p
     </div>
   </section>
 
+  <!-- ໃບຮັບຄຳ (ແລກຈາກເງິນອອມ) -->
+  <section class="card receipt" id="v-red" hidden>
+    <div class="top">
+      <div><h2>ໃບຮັບຄຳ · ແລກຈາກເງິນອອມ</h2><span class="pill wait" id="q-status"></span></div>
+      <div id="billqr" aria-label="QR ເລກລາຍການ"></div>
+    </div>
+    <dl class="kv">
+      <dt>ເລກລາຍການ</dt><dd id="q-id"></dd>
+      <dt>ເວລາແລກ</dt><dd id="q-time"></dd>
+      <dt>ຊື່</dt><dd id="q-name"></dd>
+      <dt>ເບີໂທ</dt><dd id="q-phone"></dd>
+      <dt>ລາຍການຄຳ</dt><dd id="q-item"></dd>
+      <dt>ນ້ຳໜັກ</dt><dd id="q-grams"></dd>
+      <dt>ລາຄາ ณ ເວລາແລກ</dt><dd class="big" id="q-price"></dd>
+      <dt>ຈ່າຍດ້ວຍ</dt><dd>ຫັກຈາກຍອດອອມ</dd>
+      <dt>ຮັບຄຳທີ່ຮ້ານ</dt><dd>ບໍ່ຈຳກັດເວລາ</dd>
+      <dt>ຮັບຄຳແລ້ວເມື່ອ</dt><dd id="q-done"></dd>
+    </dl>
+    <div class="err" style="background:var(--warn-bg);color:var(--warn)"><b>📸 ກະລຸນາແຄັບໜ້າຈໍໃບຮັບຄຳນີ້ ເກັບໄວ້</b><br>ນຳມາສະແດງພ້ອມບັດປະຈຳຕົວ ຕອນຮັບຄຳທີ່ໜ້າຮ້ານ</div>
+    <p class="note" id="q-lab"></p>
+    <p class="note">ມາຮັບຄຳທີ່ຮ້ານ ເປີດທຸກມື້ 8:00–15:30 · ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ</p>
+    <div class="row">
+      <button class="btn gold" type="button" id="q-acct">ກັບໄປບັນຊີອອມ</button>
+      <button class="btn line" type="button" id="q-copy">ກັອບປີ້ລິ້ງໃບຮັບຄຳ</button>
+      <a class="btn line" href="https://www.google.com/maps/dir/?api=1&amp;destination=17.39071,104.82948" target="_blank" rel="noopener">ນຳທາງມາຮ້ານ</a>
+    </div>
+  </section>
+
   <!-- ເຂົ້າບັນຊີ -->
   <form class="card" id="v-login" hidden novalidate>
     <h2>ບັນຊີອອມຂອງຂ້ອຍ</h2>
@@ -263,7 +291,7 @@ const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
 let INFO = null, AMT = 0, TX = null, TOKEN = '', ACCT = null, CRED = null, slipData = '', PICK = null;
 
 function err(id, msg) { const el = $(id); el.textContent = msg || ''; el.hidden = !msg; el.style.background = ''; el.style.color = ''; }
-function show(view) { ['v-closed','v-loading','v-dep','v-pay','v-done','v-login','v-acct'].forEach(v => $(v).hidden = v !== view); }
+function show(view) { ['v-closed','v-loading','v-dep','v-pay','v-done','v-red','v-login','v-acct'].forEach(v => $(v).hidden = v !== view); }
 function tab(which) { $('tab-dep').setAttribute('aria-selected', which === 'dep'); $('tab-acct').setAttribute('aria-selected', which === 'acct'); }
 async function api(method, params) {
   let res;
@@ -380,6 +408,25 @@ function doneView() {
 }
 $('r-acct').addEventListener('click', () => openAcct());
 
+// ---- ໃບຮັບຄຳ ----
+const fmtG = g => (Math.round(Number(g) * 1000) / 1000) + ' ກຣາມ';
+function redView() {
+  tab('acct'); show('v-red');
+  $('q-status').textContent = TX.status; $('q-status').className = 'pill ' + pillCls(TX.status);
+  $('q-id').textContent = TX.id; $('q-time').textContent = TX.time; $('q-name').textContent = TX.name; $('q-phone').textContent = TX.phone || '';
+  $('q-item').textContent = TX.item; $('q-grams').textContent = fmtG(TX.grams); $('q-price').textContent = kip(TX.amount);
+  $('q-done').textContent = TX.status === 'ຮັບຄຳແລ້ວ' ? (TX.okAt || '✓') : '—';
+  $('q-lab').textContent = TX.jewelry ? 'ຄ່າລາຍຂອງຄຳຮູບປະພັນ ຈ່າຍຕ່າງຫາກທີ່ຮ້ານຕອນຮັບຄຳ · ເລືອກລາຍຈິງທີ່ຮ້ານ' : 'ຄຳແທ່ງບໍ່ມີຄ່າລາຍ';
+  $('billqr').innerHTML = '';
+  if (window.QRCode) new QRCode($('billqr'), {text: TX.id, width: 116, height: 116, correctLevel: QRCode.CorrectLevel.M});
+  window.scrollTo(0, 0);
+}
+$('q-acct').addEventListener('click', () => openAcct());
+$('q-copy').addEventListener('click', () => {
+  const b = $('q-copy');
+  navigator.clipboard.writeText(location.href).then(() => { b.textContent = 'ກັອບປີ້ແລ້ວ'; setTimeout(() => b.textContent = 'ກັອບປີ້ລິ້ງໃບຮັບຄຳ', 1500); }).catch(() => prompt('ກັອບປີ້ລິ້ງນີ້', location.href));
+});
+
 // ---- ບັນຊີ ----
 function openAcct() {
   tab('acct');
@@ -429,7 +476,8 @@ function renderAcct() {
   $('tx').innerHTML = a.txs.length ? a.txs.map(t => {
     const sign = t.type === 'ຝາກ' ? '+' : '−';
     const what = t.type === 'ແລກຄຳ' ? 'ແລກຄຳ: ' + t.item : t.type === 'ຖອນເງິນ' ? 'ຖອນເງິນ (ຄ່າທຳນຽມ ' + kip(t.fee) + ') · ' + t.payout : 'ຝາກອອມ';
-    const cont = t.t && t.status === 'ລໍຖ້າໂອນເງິນ' && Date.now() - t.timeMs < 24 * 3600000 ? ` · <a href="?id=${encodeURIComponent(t.id)}&t=${t.t}">ໄປໂອນ / ແນບສະລິບ</a>` : '';
+    const cont = t.t && t.type === 'ແລກຄຳ' ? ` · <a href="?id=${encodeURIComponent(t.id)}&t=${t.t}">ເບິ່ງໃບຮັບຄຳ</a>`
+      : t.t && t.status === 'ລໍຖ້າໂອນເງິນ' && Date.now() - t.timeMs < 24 * 3600000 ? ` · <a href="?id=${encodeURIComponent(t.id)}&t=${t.t}">ໄປໂອນ / ແນບສະລິບ</a>` : '';
     return `<li><div class="h"><b>${sign} ${kip(t.amount)}</b><span class="pill ${pillCls(t.status)}">${t.status}</span></div><div>${what}</div><div class="m">${t.id} · ${t.time}${t.okAt ? ' · ຢືນຢັນ ' + t.okAt : ''}${cont}</div></li>`;
   }).join('') : '<li class="m">ຍັງບໍ່ມີລາຍການ</li>';
 }
@@ -438,9 +486,9 @@ $('x-go').addEventListener('click', async () => {
   if (!PICK) return; err('err4'); $('x-go').disabled = true; $('x-go').textContent = 'ກຳລັງແລກ…';
   try {
     const j = await api('POST', Object.assign({action: 'save_redeem', item: PICK.id}, CRED));
-    await loadAcct();
-    err('err4', '');
-    alertBox('err4', '✅ ແລກ ' + j.tx.item + ' ສຳເລັດ (' + j.tx.id + ') · ມາຮັບຄຳທີ່ຮ້ານ ເປີດທຸກມື້ 8:00–15:30 ສະແດງບັດປະຈຳຕົວ ແລະ ເລກລາຍການນີ້ · ກະລຸນາແຄັບໜ້າຈໍເກັບໄວ້');
+    TX = j.tx; TOKEN = j.t; setUrl();
+    try { await loadAcct(); } catch (e2) {}
+    redView();
   } catch (ex) { err('err4', ex.message); }
   $('x-go').disabled = false; $('x-go').textContent = 'ຢືນຢັນແລກຄຳ';
 });
@@ -480,7 +528,8 @@ $('tab-acct').addEventListener('click', () => openAcct());
     if (q.get('id') && q.get('t')) {
       const j = await api('GET', {action: 'save_tx', id: q.get('id'), t: q.get('t')});
       TX = j.tx; TOKEN = q.get('t');
-      if (TX.status === 'ລໍຖ້າໂອນເງິນ' && Date.now() - TX.timeMs < 24 * 3600000) payView(); else doneView();
+      if (TX.type === 'ແລກຄຳ') redView();
+      else if (TX.status === 'ລໍຖ້າໂອນເງິນ' && Date.now() - TX.timeMs < 24 * 3600000) payView(); else doneView();
       INFO = await api('GET', {action: 'save_info'}); renderAmts();
       return;
     }
