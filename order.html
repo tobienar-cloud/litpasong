@@ -182,9 +182,10 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
     <div class="err" id="r-late" hidden></div>
     <div class="err" style="background:var(--warn-bg);color:var(--warn)"><b>📸 ກະລຸນາແຄັບໜ້າຈໍໃບຈອງນີ້ ແລະ ສະລິບໂອນເງິນ ເກັບໄວ້ເປັນຫຼັກຖານ</b><br>ນຳມາສະແດງພ້ອມບັດປະຈຳຕົວ ຕອນຮັບຄຳທີ່ໜ້າຮ້ານ</div>
     <p class="note" id="r-lab"></p>
+    <p class="note">ແຄັບໜ້າຈໍໃບຈອງນີ້ ແລະ ສະລິບໂອນເງິນ ແລ້ວກົດປຸ່ມ WhatsApp ຂ້າງລຸ່ມ ແນບຮູບສົ່ງໃຫ້ແອັດມິນ 020 5895 4624</p>
     <p class="note">ມາຮັບຄຳທີ່ຮ້ານ ເປີດທຸກມື້ 8:00–15:30 · ສະແດງໃບຈອງນີ້ ແລະ ບັດປະຈຳຕົວທີ່ຊື່ຕົງກັບບິນ · ຖ່າຍໜ້າຈໍເກັບໄວ້ ຫຼື ບັນທຶກລິ້ງໜ້ານີ້</p>
     <div class="row">
-      <a class="btn gold" id="r-wa" target="_blank" rel="noopener">ແຈ້ງແອັດມິນທາງ WhatsApp</a>
+      <a class="btn wa" id="r-wa" target="_blank" rel="noopener">📲 ສົ່ງໃບຈອງໃຫ້ແອັດມິນ WhatsApp</a>
       <button class="btn line" type="button" id="r-copy">ກັອບປີ້ລິ້ງໃບຈອງ</button>
       <a class="btn line" href="https://www.google.com/maps/dir/?api=1&amp;destination=17.39071,104.82948" target="_blank" rel="noopener">ນຳທາງມາຮ້ານ</a>
     </div>
@@ -370,7 +371,9 @@ function receiptView() {
   err('r-late', ORDER.late && !/ພ້ອມຮັບ|ຮັບຄຳແລ້ວ/.test(st) ? 'ແນບສະລິບຫຼັງໝົດເວລາລັອກລາຄາ: ແອັດມິນຈະກວດເວລາໂອນໃນສະລິບ ແລ້ວຕິດຕໍ່ກັບທາງໂທລະສັບ' : '');
   $('r-paid').textContent = ORDER.paidAt || '—'; $('r-done').textContent = ORDER.doneAt || '—'; save();
   $('r-lab').textContent = ORDER.jewelry ? 'ຍອດໂອນເປັນລາຄາຄຳ ຍັງບໍ່ລວມຄ່າລາຍ ຈ່າຍຄ່າລາຍທີ່ຮ້ານຕອນຮັບຄຳ' : 'ຄຳແທ່ງບໍ່ມີຄ່າລາຍ';
-  $('r-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ແຈ້ງໂອນເງິນ ບິນ ' + ORDER.bill + ' ຍອດ ' + kip(ORDER.total) + '\n' + location.href);
+  $('r-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ຂ້ອຍສັ່ງຊື້ຄຳອອນລາຍ ສົ່ງໃບຈອງ ແລະ ສະລິບ\nເລກບິນ ' + ORDER.bill +
+    '\nຊື່ ' + ORDER.name + '\nລາຍການ ' + ORDER.item + ' × ' + ORDER.qty + ' (' + fmtG(ORDER.grams) + ')\nຍອດໂອນ ' + kip(ORDER.total) +
+    '\nເວລາສັ່ງ ' + ORDER.created + '\n' + location.href + '\n(ແນບຮູບແຄັບໜ້າຈໍໃບຈອງ ແລະ ສະລິບໃນແຊັດນີ້)');
   $('billqr').innerHTML = '';
   if (window.QRCode) new QRCode($('billqr'), {text: ORDER.bill, width: 116, height: 116, correctLevel: QRCode.CorrectLevel.M});
 }
