@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ອອມຄຳ · ຮ້ານຄຳ ລິດປະສົງ</title>
+<meta name="description" content="ອອມເງິນໄວ້ແລກເປັນຄຳ ເລີ່ມຕົ້ນ 100,000 ກີບ ໂອນຜ່ານ BCEL ແລກເປັນຄຳແທ່ງ ຫຼື ຄຳຮູບປະພັນ ທີ່ຮ້ານຄຳ ລິດປະສົງ ທ່າແຂກ">
+<meta property="og:title" content="ອອມຄຳ · ຮ້ານຄຳ ລິດປະສົງ">
+<meta property="og:image" content="https://tobienar-cloud.github.io/litpasong/img/front.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao+Looped:wght@400;600;800&family=Noto+Serif+Lao:wght@700;800&display=swap">
+<style>
+:root{
+  --maroon:#6e1423; --maroon-deep:#4a0d17; --gold:#c9a24a; --gold-soft:#e8d39a;
+  --bg:#fbf7f1; --surface:#ffffff; --fg:#2a1a1c; --muted:#76615f; --line:#e8ddd0;
+  --good:#1f6b2c; --good-bg:#e3f1e4; --warn:#8a5a00; --warn-bg:#fbefd2; --bad:#8a2020; --bad-bg:#f4e3e3;
+  --display:"Noto Serif Lao","Noto Sans Lao Looped",serif;
+  --body:"Noto Sans Lao Looped","Noto Sans Lao",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#1a1213; --surface:#241819; --fg:#f3e9df; --muted:#b8a49c; --line:#3a2a2b; --gold:#d8b45c;
+  --good:#9fd8a8; --good-bg:#1d3322; --warn:#f0c870; --warn-bg:#3a2e14; --bad:#f0a0a0; --bad-bg:#3a1c1c; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.65}
+img{max-width:100%}
+[hidden]{display:none!important}
+.wrap{max-width:640px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left,0px)) 48px max(16px,env(safe-area-inset-right,0px))}
+header{background:radial-gradient(120% 140% at 20% 0%,var(--maroon),var(--maroon-deep) 70%);color:#fbf1df;border-bottom:3px solid var(--gold)}
+header .wrap{padding-top:22px;padding-bottom:20px;display:grid;gap:4px}
+header a{color:var(--gold-soft);font-size:14px;text-decoration:none}
+h1{font-family:var(--display);font-size:clamp(26px,6vw,34px);margin:0;line-height:1.3;color:#f6dc8f}
+h2{font-family:var(--display);font-size:20px;margin:0 0 4px}
+.sub{margin:0;color:#ead9c6;font-size:15px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:14px;margin-top:18px}
+.steps{display:flex;gap:6px;margin-top:18px;font-size:13px;color:var(--muted)}
+.steps span{flex:1;text-align:center;padding:6px 4px;border-radius:999px;border:1px solid var(--line)}
+.steps span.on{background:var(--maroon);color:#fbf1df;border-color:var(--maroon)}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.item{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg);color:var(--fg);text-align:left;font-family:var(--body);cursor:pointer;display:grid;gap:2px}
+.item b{font-size:15px}
+.item span{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.item[aria-pressed="true"]{border:2px solid var(--maroon);padding:9px 11px;background:var(--surface)}
+.item:disabled{opacity:.45;cursor:not-allowed}
+.group-t{font-size:14px;color:var(--muted);margin:4px 0 -6px}
+label{display:grid;gap:4px;font-size:15px}
+input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
+.qty{display:flex;align-items:center;gap:10px}
+.qty button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:20px;cursor:pointer}
+.qty output{min-width:32px;text-align:center;font-size:20px;font-weight:600}
+.total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:12px;gap:8px;flex-wrap:wrap}
+.wa-help{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.wa-help .note{margin:0 0 8px}
+.btn.wa,.btn.wa:visited{background:#25d366;color:#fff;border-color:#25d366;text-decoration:none}
+.wa-help.hot{background:var(--warn-bg);border:2px solid #25d366;border-radius:12px;padding:12px}
+.total b{font-family:var(--display);font-size:26px;font-variant-numeric:tabular-nums}
+.note{font-size:14px;color:var(--muted);margin:0}
+.rules{margin:0;padding-left:20px;font-size:14px;color:var(--muted);display:grid;gap:2px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.check input{margin-top:5px;width:18px;height:18px}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;font:600 16px var(--body);border:0;cursor:pointer;text-decoration:none}
+.btn.gold{background:linear-gradient(180deg,#f3d886,#c9a24a);color:#3a0a12}
+.btn.line{border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn:focus-visible,.item:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.err{background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:10px 12px;font-size:15px}
+.pay{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:520px){.pay{grid-template-columns:1fr}}
+.pay img,.pay canvas{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);background:#fff}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:15px;margin:0}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-weight:600;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.big{font-family:var(--display);font-size:24px}
+.timer{font-variant-numeric:tabular-nums;font-weight:700}
+.pill{display:inline-block;padding:2px 12px;border-radius:999px;font-size:14px;font-weight:600}
+.pill.wait{background:var(--warn-bg);color:var(--warn)}
+.pill.good{background:var(--good-bg);color:var(--good)}
+.pill.bad{background:var(--bad-bg);color:var(--bad)}
+.receipt{border:2px solid var(--gold)}
+.receipt .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+#billqr{background:#fff;padding:8px;border-radius:8px;width:132px;height:132px}
+#billqr img,#billqr canvas{width:116px!important;height:116px!important}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.closed{text-align:center}
+.tabs{display:flex;gap:6px;margin-top:18px}
+.tabs button{flex:1;padding:10px 8px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:600 15px var(--body);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--maroon);color:#fbf1df;border-color:var(--maroon)}
+.amts{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.amts .item b{font-size:17px;font-variant-numeric:tabular-nums}
+input[type=number],input[type=password]{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
+.bal{background:radial-gradient(120% 140% at 20% 0%,var(--maroon),var(--maroon-deep) 70%);color:#fbf1df;border:0}
+.bal .lab{font-size:14px;color:#ead9c6;margin:0}
+.bal .amt{font-family:var(--display);font-size:clamp(30px,8vw,40px);color:#f6dc8f;line-height:1.2;font-variant-numeric:tabular-nums}
+.bal .eq{font-size:18px;font-weight:600}
+.bal .fine{font-size:13px;color:#ead9c6;margin:0}
+.bar{height:10px;border-radius:999px;background:rgba(255,255,255,.18);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#f3d886,#c9a24a)}
+.est{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:14px}
+.tx{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.tx li{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:2px;font-size:14px}
+.tx .h{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
+.tx .h b{font-size:16px;font-variant-numeric:tabular-nums}
+.tx .m{color:var(--muted)}
+.radio{display:flex;gap:16px;flex-wrap:wrap;font-size:15px}
+.radio label{display:flex;gap:6px;align-items:center}
+.confirm{border:2px solid var(--maroon);border-radius:12px;padding:12px;display:grid;gap:10px;background:var(--bg)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><a href="./">← ກັບໜ້າຮ້ານ</a><a href="order.html">ສັ່ງຊື້ຄຳອອນລາຍ →</a></div>
+  <h1>ອອມຄຳ</h1>
+  <p class="sub">ອອມເງິນເທື່ອລະໜ້ອຍ ເລີ່ມຕົ້ນ 100,000 ກີບ · ຄົບແລ້ວແລກເປັນຄຳແທ່ງ ຫຼື ຄຳຮູບປະພັນ</p>
+</div></header>
+
+<main class="wrap">
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="tab-dep" aria-selected="true">ຝາກອອມ</button>
+    <button type="button" role="tab" id="tab-acct" aria-selected="false">ບັນຊີອອມຂອງຂ້ອຍ</button>
+  </div>
+
+  <section class="card closed" id="v-closed" hidden>
+    <h2>ກຳລັງຈະເປີດໃຫ້ບໍລິການ</h2>
+    <p class="note">ລະບົບອອມຄຳກຳລັງຕັ້ງຄ່າ ສອບຖາມໄດ້ທາງ WhatsApp 020 5895 4624</p>
+    <div class="row" style="justify-content:center"><a class="btn wa" href="https://wa.me/8562058954624" target="_blank" rel="noopener">ທັກ WhatsApp</a></div>
+  </section>
+
+  <section class="card" id="v-loading"><p class="note">ກຳລັງໂຫຼດ…</p></section>
+
+  <!-- ຝາກ -->
+  <form class="card" id="v-dep" hidden novalidate>
+    <h2>ເລືອກຍອດທີ່ຈະອອມຄັ້ງນີ້</h2>
+    <div class="amts" id="amts"></div>
+    <p class="est" id="dep-est">ເລືອກຍອດເພື່ອເບິ່ງວ່າທຽບເປັນນ້ຳໜັກຄຳໄດ້ປະມານເທົ່າໃດ</p>
+    <label>ຊື່ ແລະ ນາມສະກຸນ (ຕາມບັດປະຈຳຕົວ)<input type="text" id="d-name" autocomplete="name" maxlength="80"></label>
+    <label>ເບີໂທ (ໃຊ້ເປັນເລກບັນຊີອອມ)<input type="tel" id="d-phone" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="020 xxxx xxxx"></label>
+    <label>ລະຫັດ PIN 6 ຕົວເລກ<input type="password" id="d-pin" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="off"></label>
+    <p class="note">ຝາກຄັ້ງທຳອິດ = ຕັ້ງ PIN ໃໝ່. ຄັ້ງຕໍ່ໄປໃຊ້ເບີໂທ ແລະ PIN ເດີມ ຍອດຈະລວມເຂົ້າບັນຊີດຽວກັນ. ຈື່ PIN ໄວ້ ເພື່ອເບິ່ງຍອດ ແລກຄຳ ຫຼື ຖອນເງິນ</p>
+    <details>
+      <summary><b>ເງື່ອນໄຂການອອມຄຳ</b> (ກົດອ່ານ)</summary>
+      <ol class="rules" style="margin-top:8px">
+        <li>ອອມຄັ້ງລະ 100,000 – 1,000,000 ກີບ ໂອນຜ່ານ BCEL ແລ້ວແນບສະລິບ</li>
+        <li><b>ຍອດອອມນັບເປັນເງິນກີບ</b> ບໍ່ແມ່ນນ້ຳໜັກຄຳ. ນ້ຳໜັກທີ່ສະແດງເປັນພຽງການທຽບໂດຍປະມານ ຕາມລາຄາຄຳປັດຈຸບັນ ແລະ ປ່ຽນແປງຂຶ້ນລົງຕາມລາຄາຄຳ</li>
+        <li>ຍອດອອມສະສົມສູງສຸດບໍ່ເກີນລາຄາຄຳ 1 ບາດ ຕໍ່ຄົນ</li>
+        <li>ແລກເປັນຄຳໄດ້ຕັ້ງແຕ່ 1 ຫຸນຂຶ້ນໄປ ທັງຄຳແທ່ງ ແລະ ຄຳຮູບປະພັນ ຕາມລາຄາ ณ ເວລາແລກ ເມື່ອຍອດອອມພໍກັບລາຄາ. ຄຳຮູບປະພັນຈ່າຍຄ່າລາຍຕ່າງຫາກທີ່ຮ້ານ</li>
+        <li>ບໍ່ມີກຳນົດເວລາ ອອມໄດ້ດົນເທົ່າທີ່ຕ້ອງການ</li>
+        <li>ຖອນເປັນເງິນສົດ ຫຼື ໂອນເຂົ້າບັນຊີໄດ້ ຫັກຄ່າທຳນຽມ 100,000 ກີບ ຕໍ່ຄັ້ງ</li>
+        <li>ຮັບຄຳ ຫຼື ຮັບເງິນສົດທີ່ຮ້ານ ສະແດງບັດປະຈຳຕົວທີ່ຊື່ຕົງກັບບັນຊີ</li>
+      </ol>
+    </details>
+    <label class="check"><input type="checkbox" id="d-agree"><span>ຂ້ອຍອ່ານ ແລະ ຍອມຮັບເງື່ອນໄຂການອອມຄຳ</span></label>
+    <div class="err" id="err1" hidden></div>
+    <button class="btn gold" type="submit" id="go1">ໄປໂອນເງິນ</button>
+  </form>
+
+  <!-- ໂອນ -->
+  <section class="card" id="v-pay" hidden>
+    <h2>ໂອນເງິນ ແລ້ວແນບສະລິບ</h2>
+    <div class="pay">
+      <img id="pay-qr" src="img/pay/bcel-qr.png" alt="QR ຮັບເງິນ BCEL ບັນຊີ LITHPASONG PHAKOUSON MR" width="500" height="558">
+      <dl class="kv">
+        <dt>ເລກລາຍການ</dt><dd id="p-id"></dd>
+        <dt>ຍອດອອມ</dt><dd class="big" id="p-amt"></dd>
+        <dt>ຊື່ບັນຊີ</dt><dd>LITHPASONG PHAKOUSON MR</dd>
+        <dt>ເລກບັນຊີ</dt><dd><span>020-12-00-01117122-001</span> <button type="button" class="btn line" id="copy-acct" style="padding:2px 10px;font-size:13px">ກັອບປີ້</button></dd>
+        <dt>ທະນາຄານ</dt><dd>BCEL · ກີບ (LAK)</dd>
+      </dl>
+    </div>
+    <div class="row"><a class="btn line" id="qr-dl" href="img/pay/bcel-qr.png" download="litpasong-bcel-qr.png">ບັນທຶກຮູບ QR</a></div>
+    <ol class="rules">
+      <li>ສະແກນ QR ດ້ວຍແອັບທະນາຄານ (BCEL One ຫຼື ທະນາຄານອື່ນຜ່ານ LAPNet)</li>
+      <li id="amt-rule">ໃສ່ຍອດໃຫ້ຕົງ ແລະ ໃສ່ເລກລາຍການໃນຊ່ອງໝາຍເຫດ</li>
+      <li>ແນບຮູບສະລິບຂ້າງລຸ່ມ ພາຍໃນ 24 ຊົ່ວໂມງ</li>
+    </ol>
+    <div class="err" style="background:var(--warn-bg);color:var(--warn)"><b>📸 ກະລຸນາແຄັບໜ້າຈໍ ຫຼັງໂອນເງິນສຳເລັດ</b><br>ເກັບສະລິບໄວ້ເປັນຫຼັກຖານ ຍອດຈະເຂົ້າບັນຊີອອມ ຫຼັງແອັດມິນກວດເງິນແລ້ວ</div>
+    <label for="f-slip">ຮູບສະລິບໂອນເງິນ<input type="file" id="f-slip" accept="image/*"></label>
+    <img id="slip-prev" alt="ຕົວຢ່າງສະລິບ" hidden style="max-height:260px;width:auto;border-radius:10px;border:1px solid var(--line)">
+    <div class="err" id="err2" hidden></div>
+    <button class="btn gold" type="button" id="go2" disabled>ສົ່ງສະລິບ</button>
+    <div class="wa-help" id="wa-help">
+      <p class="note">ໂອນເງິນແລ້ວ ແຕ່ແນບສະລິບບໍ່ໄດ້? ສົ່ງສະລິບ ແລະ ເລກລາຍການ ໃຫ້ແອັດມິນທາງ WhatsApp ໄດ້ເລີຍ</p>
+      <a class="btn wa" id="p-wa" target="_blank" rel="noopener">📲 ສົ່ງສະລິບທາງ WhatsApp 020 5895 4624</a>
+    </div>
+  </section>
+
+  <!-- ຮັບແລ້ວ -->
+  <section class="card receipt" id="v-done" hidden>
+    <div class="top"><h2>ຮັບລາຍການຝາກແລ້ວ</h2><span class="pill wait" id="r-status"></span></div>
+    <dl class="kv">
+      <dt>ເລກລາຍການ</dt><dd id="r-id"></dd>
+      <dt>ເວລາ</dt><dd id="r-time"></dd>
+      <dt>ຍອດອອມ</dt><dd class="big" id="r-amt"></dd>
+      <dt>ແນບສະລິບ</dt><dd id="r-slip"></dd>
+    </dl>
+    <p class="note">ແອັດມິນຈະກວດເງິນເຂົ້າ ແລ້ວຍອດຈະເຂົ້າບັນຊີອອມຂອງທ່ານ ກວດເບິ່ງໄດ້ທີ່ "ບັນຊີອອມຂອງຂ້ອຍ" ດ້ວຍເບີໂທ ແລະ PIN</p>
+    <div class="row">
+      <button class="btn gold" type="button" id="r-acct">ເບິ່ງບັນຊີອອມ</button>
+      <a class="btn wa" id="r-wa" target="_blank" rel="noopener">ແຈ້ງແອັດມິນທາງ WhatsApp</a>
+    </div>
+  </section>
+
+  <!-- ເຂົ້າບັນຊີ -->
+  <form class="card" id="v-login" hidden novalidate>
+    <h2>ບັນຊີອອມຂອງຂ້ອຍ</h2>
+    <label>ເບີໂທ<input type="tel" id="a-phone" autocomplete="tel" inputmode="tel" maxlength="20"></label>
+    <label>ລະຫັດ PIN 6 ຕົວເລກ<input type="password" id="a-pin" inputmode="numeric" maxlength="6" autocomplete="off"></label>
+    <div class="err" id="err3" hidden></div>
+    <button class="btn gold" type="submit" id="go3">ເຂົ້າເບິ່ງບັນຊີ</button>
+    <p class="note">ລືມ PIN? ທັກແອັດມິນ WhatsApp 020 5895 4624 ພ້ອມຊື່ຕາມບັດປະຈຳຕົວ</p>
+  </form>
+
+  <!-- ບັນຊີ -->
+  <div id="v-acct" hidden>
+    <section class="card bal">
+      <p class="lab">ຍອດອອມຂອງ <span id="b-name"></span></p>
+      <div class="amt" id="b-amt"></div>
+      <div class="eq" id="b-eq"></div>
+      <p class="fine" id="b-fine"></p>
+      <p class="fine" id="b-pend" hidden></p>
+      <div class="bar" aria-hidden="true"><i id="b-bar"></i></div>
+      <p class="fine" id="b-cap"></p>
+      <div class="row"><button class="btn gold" type="button" id="b-more">+ ຝາກອອມເພີ່ມ</button><button class="btn line" type="button" id="b-refresh" style="background:transparent;color:#fbf1df;border-color:rgba(255,255,255,.4)">ອັບເດດ</button></div>
+    </section>
+
+    <section class="card">
+      <h2>ແລກເປັນຄຳ</h2>
+      <p class="note">ລາຄາ ณ ເວລານີ້ · ແລກໄດ້ເມື່ອຍອດອອມທີ່ຢືນຢັນແລ້ວ ພໍກັບລາຄາ · ຄຳຮູບປະພັນຈ່າຍຄ່າລາຍຕ່າງຫາກທີ່ຮ້ານ</p>
+      <p class="group-t">ຄຳຮູບປະພັນ</p><div class="items" id="x-jewelry"></div>
+      <p class="group-t">ຄຳແທ່ງ</p><div class="items" id="x-bar"></div>
+      <div class="confirm" id="x-confirm" hidden>
+        <div id="x-text"></div>
+        <div class="row"><button class="btn gold" type="button" id="x-go">ຢືນຢັນແລກຄຳ</button><button class="btn line" type="button" id="x-cancel">ຍົກເລີກ</button></div>
+      </div>
+      <div class="err" id="err4" hidden></div>
+    </section>
+
+    <section class="card">
+      <h2>ຖອນເງິນ</h2>
+      <p class="note">ຫັກຄ່າທຳນຽມ 100,000 ກີບ ຕໍ່ຄັ້ງ</p>
+      <label>ຍອດທີ່ຈະຖອນອອກຈາກບັນຊີອອມ (ກີບ)<input type="number" id="w-amt" inputmode="numeric" min="100001" step="1000"></label>
+      <div class="row"><button class="btn line" type="button" id="w-all">ຖອນທັງໝົດ</button></div>
+      <div class="radio"><label><input type="radio" name="w-m" value="cash" checked> ຮັບເງິນສົດທີ່ຮ້ານ</label><label><input type="radio" name="w-m" value="transfer"> ໂອນເຂົ້າບັນຊີ</label></div>
+      <label id="w-acc-l" hidden>ທະນາຄານ · ເລກບັນຊີ · ຊື່ບັນຊີ<input type="text" id="w-acc" maxlength="120" placeholder="BCEL 0201200xxxxxxx ຊື່ ..."></label>
+      <p class="est" id="w-est" hidden></p>
+      <div class="err" id="err5" hidden></div>
+      <button class="btn line" type="button" id="w-go">ຂໍຖອນເງິນ</button>
+    </section>
+
+    <section class="card">
+      <h2>ປະຫວັດ</h2>
+      <ul class="tx" id="tx"></ul>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4PY_Xt5TtnErjBkAryQ8Sb8N1cwv67FImKLI7E33VxF4jfO361g/exec';
+const ADMIN_WA = '8562058954624';
+const AMOUNTS = [100000,200000,300000,400000,500000,600000,700000,800000,900000,1000000];
+const $ = id => document.getElementById(id);
+const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
+let INFO = null, AMT = 0, TX = null, TOKEN = '', ACCT = null, CRED = null, slipData = '', PICK = null;
+
+function err(id, msg) { const el = $(id); el.textContent = msg || ''; el.hidden = !msg; el.style.background = ''; el.style.color = ''; }
+function show(view) { ['v-closed','v-loading','v-dep','v-pay','v-done','v-login','v-acct'].forEach(v => $(v).hidden = v !== view); }
+function tab(which) { $('tab-dep').setAttribute('aria-selected', which === 'dep'); $('tab-acct').setAttribute('aria-selected', which === 'acct'); }
+async function api(method, params) {
+  let res;
+  if (method === 'GET') res = await fetch(SCRIPT_URL + '?' + new URLSearchParams(params), {cache: 'no-store'});
+  else res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(params)});
+  const j = await res.json();
+  if (!j.ok) throw new Error(j.error || 'ເກີດຂໍ້ຜິດພາດ');
+  return j;
+}
+function mem(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem('lps-save') || '{}')[k]; const o = JSON.parse(localStorage.getItem('lps-save') || '{}'); o[k] = v; localStorage.setItem('lps-save', JSON.stringify(o)); } catch (e) {} }
+
+// ທຽບເງິນເປັນນ້ຳໜັກຄຳ (ປະມານ) ຕາມລາຄາ 1 ບາດ ປັດຈຸບັນ
+function grams(money, perGram) { return perGram > 0 ? money / perGram : 0; }
+function eqText(money, perGram) {
+  const g = grams(money, perGram);
+  if (!(g > 0)) return '≈ 0 ກຣາມ';
+  const gs = g < 1 ? g.toFixed(3) : g.toFixed(2);
+  const unit = g >= 3.75 ? (g / 3.75).toFixed(2) + ' ສະຫຼຶງ' : (g / 0.375).toFixed(1) + ' ຫຸນ';
+  return 'ທຽບເທົ່າຄຳປະມານ ' + gs + ' ກຣາມ (≈ ' + unit + ')';
+}
+function refText(perGram, at) {
+  return 'ຄຳນວນປະມານ ຕາມລາຄາຄຳຮູບປະພັນ 1 ບາດ = ' + kip(Math.round(perGram * 15)) + ' (ລາຄາ ' + at + '). ' +
+    'ນ້ຳໜັກທຽບນີ້ປ່ຽນແປງຕາມລາຄາຄຳ: ຄຳຂຶ້ນ ນ້ຳໜັກທຽບຈະໜ້ອຍລົງ, ຄຳລົງ ນ້ຳໜັກທຽບຈະຫຼາຍຂຶ້ນ. ຍອດອອມຂອງທ່ານເປັນເງິນກີບ.';
+}
+
+// ---- ຝາກ ----
+function renderAmts() {
+  $('amts').innerHTML = AMOUNTS.map(a => `<button type="button" class="item" data-a="${a}" aria-pressed="${a === AMT}"><b>${a.toLocaleString('en-US')}</b><span>≈ ${grams(a, INFO.perGram).toFixed(3)} ກຣາມ</span></button>`).join('');
+  $('amts').querySelectorAll('.item').forEach(b => b.addEventListener('click', () => { AMT = Number(b.dataset.a); renderAmts(); depEst(); }));
+}
+function depEst() {
+  if (!AMT) return;
+  $('dep-est').innerHTML = '<b>' + kip(AMT) + '</b> ' + eqText(AMT, INFO.perGram) + '<br><small>' + refText(INFO.perGram, INFO.priceAt) + '</small>';
+}
+$('v-dep').addEventListener('submit', async e => {
+  e.preventDefault(); err('err1');
+  const name = $('d-name').value.trim(), phone = $('d-phone').value.trim(), pin = $('d-pin').value.trim();
+  if (!AMT) return err('err1', 'ກະລຸນາເລືອກຍອດອອມ');
+  if (!name) return err('err1', 'ກະລຸນາໃສ່ຊື່');
+  if (phone.replace(/[^0-9]/g, '').length < 8) return err('err1', 'ກະລຸນາໃສ່ເບີໂທ');
+  if (!/^[0-9]{6}$/.test(pin)) return err('err1', 'ລະຫັດ PIN ຕ້ອງເປັນຕົວເລກ 6 ໂຕ');
+  if (!$('d-agree').checked) return err('err1', 'ກະລຸນາຍອມຮັບເງື່ອນໄຂກ່ອນ');
+  $('go1').disabled = true; $('go1').textContent = 'ກຳລັງສ້າງລາຍການ…';
+  try {
+    const j = await api('POST', {action: 'save_deposit', name, phone, pin, amount: AMT});
+    mem('name', name); mem('phone', phone);
+    CRED = {phone, pin};
+    TX = {id: j.id, amount: j.amount, name: j.name, status: 'ລໍຖ້າໂອນເງິນ'}; TOKEN = j.t;
+    setUrl(); payView();
+  } catch (ex) { err('err1', ex.message); }
+  $('go1').disabled = false; $('go1').textContent = 'ໄປໂອນເງິນ';
+});
+function setUrl() { try { history.replaceState(null, '', '?id=' + encodeURIComponent(TX.id) + '&t=' + TOKEN); } catch (e) {} }
+
+// ---- QR ພ້ອມຍອດ (ຮູບ) ----
+const QR_MERCHANT = '38670016A00526628466257701082771041802030010324WXVWZQCPJEKVXNPIFTGXWBIA';
+function crc16(str) { let c = 0xFFFF; for (const b of new TextEncoder().encode(str)) { c ^= b << 8; for (let i = 0; i < 8; i++) c = (c & 0x8000) ? ((c << 1) ^ 0x1021) & 0xFFFF : (c << 1) & 0xFFFF; } return c.toString(16).toUpperCase().padStart(4, '0'); }
+function tlv(id, v) { return id + String(v.length).padStart(2, '0') + v; }
+function laoQr(amount) { const amt = String(Math.round(Number(amount))); const body = tlv('00', '01') + tlv('01', '12') + QR_MERCHANT + tlv('53', '418') + tlv('54', amt) + tlv('58', 'LA') + '6304'; return body + crc16(body); }
+function amountQr() {
+  if (!window.QRCode) return;
+  const tmp = document.createElement('div');
+  new QRCode(tmp, {text: laoQr(TX.amount), width: 390, height: 390, correctLevel: QRCode.CorrectLevel.M});
+  const src = tmp.querySelector('canvas'); if (!src) return;
+  const W = 500, H = 640, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, W, H); g.fillStyle = '#c8102e'; g.fillRect(0, 0, W, 64);
+  g.fillStyle = '#fff'; g.textAlign = 'center'; g.font = '800 26px "Noto Sans Lao Looped", sans-serif'; g.fillText('BCEL · LAO QR', W / 2, 42);
+  g.imageSmoothingEnabled = false; g.drawImage(src, 55, 106, 390, 390);
+  g.fillStyle = '#222'; g.font = '600 20px "Noto Sans Lao Looped", sans-serif'; g.fillText('LITHPASONG PHAKOUSON MR', W / 2, 548);
+  g.fillStyle = '#c8102e'; g.font = '800 30px "Noto Sans Lao Looped", sans-serif'; g.fillText(kip(TX.amount), W / 2, 592);
+  g.fillStyle = '#666'; g.font = '400 17px "Noto Sans Lao Looped", sans-serif'; g.fillText('ອອມຄຳ ' + TX.id, W / 2, 624);
+  const url = cv.toDataURL('image/png');
+  $('pay-qr').src = url; $('qr-dl').href = url; $('qr-dl').download = 'litpasong-' + TX.id + '.png';
+}
+
+// ---- ໂອນ + ສະລິບ ----
+function payView() {
+  tab('dep'); show('v-pay');
+  $('p-id').textContent = TX.id; $('p-amt').textContent = kip(TX.amount);
+  $('amt-rule').innerHTML = 'ໃສ່ຍອດ <b>' + kip(TX.amount) + '</b> ໃຫ້ຕົງ ແລະ ໃສ່ <b>' + TX.id + '</b> ໃນຊ່ອງໝາຍເຫດ';
+  $('p-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ຂ້ອຍໂອນເງິນອອມຄຳແລ້ວ ຂໍສົ່ງສະລິບ\nເລກລາຍການ ' + TX.id + '\nຍອດ ' + kip(TX.amount) + '\n' + location.href + '\n(ແນບຮູບສະລິບໃນແຊັດນີ້)');
+  amountQr(); window.scrollTo(0, 0);
+}
+$('copy-acct').addEventListener('click', () => { const b = $('copy-acct'); navigator.clipboard.writeText('020120001117122001').then(() => { b.textContent = 'ກັອບປີ້ແລ້ວ'; setTimeout(() => b.textContent = 'ກັອບປີ້', 1500); }).catch(() => {}); });
+$('f-slip').addEventListener('change', () => {
+  const f = $('f-slip').files[0]; slipData = ''; $('go2').disabled = true; err('err2');
+  if (!f) return;
+  const img = new Image();
+  img.onload = () => {
+    const sc = Math.min(1, 1400 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    slipData = c.toDataURL('image/jpeg', 0.85);
+    $('slip-prev').src = slipData; $('slip-prev').hidden = false; $('go2').disabled = false;
+    URL.revokeObjectURL(img.src);
+  };
+  img.onerror = () => err('err2', 'ອ່ານຮູບບໍ່ໄດ້ ກະລຸນາເລືອກຮູບໃໝ່');
+  img.src = URL.createObjectURL(f);
+});
+$('go2').addEventListener('click', async () => {
+  err('err2'); $('go2').disabled = true; $('go2').textContent = 'ກຳລັງສົ່ງ…';
+  try { const j = await api('POST', {action: 'save_slip', id: TX.id, t: TOKEN, image: slipData}); TX = j.tx; doneView(); }
+  catch (ex) { err('err2', ex.message + ' · ຖ້າໂອນເງິນແລ້ວ ກົດປຸ່ມ WhatsApp ຂ້າງລຸ່ມ ເພື່ອສົ່ງສະລິບໃຫ້ແອັດມິນ'); $('wa-help').classList.add('hot'); $('go2').disabled = false; }
+  $('go2').textContent = 'ສົ່ງສະລິບ';
+});
+function pillCls(st) { return /ຢືນຢັນແລ້ວ|ຮັບຄຳແລ້ວ|ຖອນແລ້ວ/.test(st) ? 'good' : /ຍົກເລີກ/.test(st) ? 'bad' : 'wait'; }
+function doneView() {
+  tab('dep'); show('v-done');
+  $('r-status').textContent = TX.status; $('r-status').className = 'pill ' + pillCls(TX.status);
+  $('r-id').textContent = TX.id; $('r-time').textContent = TX.time || ''; $('r-amt').textContent = kip(TX.amount); $('r-slip').textContent = TX.slipAt || 'ຍັງບໍ່ໄດ້ແນບ';
+  $('r-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ແຈ້ງໂອນເງິນອອມຄຳ ' + TX.id + ' ຍອດ ' + kip(TX.amount));
+  window.scrollTo(0, 0);
+}
+$('r-acct').addEventListener('click', () => openAcct());
+
+// ---- ບັນຊີ ----
+function openAcct() {
+  tab('acct');
+  if (CRED) return loadAcct();
+  $('a-phone').value = $('a-phone').value || mem('phone') || '';
+  show('v-login');
+}
+$('v-login').addEventListener('submit', async e => {
+  e.preventDefault(); err('err3');
+  const phone = $('a-phone').value.trim(), pin = $('a-pin').value.trim();
+  if (phone.replace(/[^0-9]/g, '').length < 8 || !/^[0-9]{6}$/.test(pin)) return err('err3', 'ກະລຸນາໃສ່ເບີໂທ ແລະ PIN 6 ຕົວເລກ');
+  CRED = {phone, pin}; $('go3').disabled = true;
+  try { await loadAcct(); mem('phone', phone); } catch (ex) { CRED = null; }
+  $('go3').disabled = false;
+});
+async function loadAcct() {
+  try {
+    const j = await api('POST', Object.assign({action: 'save_account'}, CRED));
+    ACCT = j; renderAcct(); show('v-acct');
+  } catch (ex) { show('v-login'); err('err3', ex.message); throw ex; }
+}
+function renderAcct() {
+  const a = ACCT;
+  $('b-name').textContent = a.name;
+  $('b-amt').textContent = kip(a.balance);
+  $('b-eq').textContent = eqText(a.balance, a.perGram);
+  $('b-fine').textContent = refText(a.perGram, a.priceAt);
+  $('b-pend').hidden = !a.pending; $('b-pend').textContent = 'ລໍຖ້າແອັດມິນກວດເງິນ: ' + kip(a.pending) + ' (ຍັງບໍ່ລວມໃນຍອດຂ້າງເທິງ)';
+  const used = a.balance + a.pending;
+  $('b-bar').style.width = Math.min(100, used / a.cap * 100).toFixed(1) + '%';
+  $('b-cap').textContent = 'ເພດານອອມ: ລາຄາຄຳ 1 ບາດ = ' + kip(a.cap) + ' · ຝາກເພີ່ມໄດ້ອີກ ' + kip(Math.max(0, Math.floor((a.cap - used) / 100000) * 100000));
+  ['jewelry','bar'].forEach(kind => {
+    $('x-' + kind).innerHTML = a.items.filter(i => i.kind === kind).map(i => {
+      const ok = i.price <= a.balance;
+      return `<button type="button" class="item" data-id="${i.id}"${ok ? '' : ' disabled'}><b>${i.name.replace('ຄຳຮູບປະພັນ ', '')}</b><span>${kip(i.price)}</span><span>${ok ? 'ແລກໄດ້ ✓' : 'ຂາດອີກ ' + kip(i.price - a.balance)}</span></button>`;
+    }).join('');
+  });
+  document.querySelectorAll('#x-jewelry .item, #x-bar .item').forEach(b => b.addEventListener('click', () => {
+    PICK = a.items.find(i => i.id === b.dataset.id);
+    $('x-text').innerHTML = 'ແລກ <b>' + PICK.name + '</b> ລາຄາ ' + kip(PICK.price) + '<br>ຍອດອອມຄົງເຫຼືອຫຼັງແລກ: <b>' + kip(a.balance - PICK.price) + '</b>' +
+      (PICK.kind === 'jewelry' ? '<br><small>ຄ່າລາຍຈ່າຍຕ່າງຫາກທີ່ຮ້ານ ຕອນຮັບຄຳ</small>' : '<br><small>ຄຳແທ່ງບໍ່ມີຄ່າລາຍ</small>');
+    $('x-confirm').hidden = false; err('err4');
+  }));
+  $('x-confirm').hidden = true;
+  $('w-all').disabled = a.balance <= a.fee; $('w-go').disabled = a.balance <= a.fee;
+  wEst();
+  $('tx').innerHTML = a.txs.length ? a.txs.map(t => {
+    const sign = t.type === 'ຝາກ' ? '+' : '−';
+    const what = t.type === 'ແລກຄຳ' ? 'ແລກຄຳ: ' + t.item : t.type === 'ຖອນເງິນ' ? 'ຖອນເງິນ (ຄ່າທຳນຽມ ' + kip(t.fee) + ') · ' + t.payout : 'ຝາກອອມ';
+    const cont = t.t && t.status === 'ລໍຖ້າໂອນເງິນ' && Date.now() - t.timeMs < 24 * 3600000 ? ` · <a href="?id=${encodeURIComponent(t.id)}&t=${t.t}">ໄປໂອນ / ແນບສະລິບ</a>` : '';
+    return `<li><div class="h"><b>${sign} ${kip(t.amount)}</b><span class="pill ${pillCls(t.status)}">${t.status}</span></div><div>${what}</div><div class="m">${t.id} · ${t.time}${t.okAt ? ' · ຢືນຢັນ ' + t.okAt : ''}${cont}</div></li>`;
+  }).join('') : '<li class="m">ຍັງບໍ່ມີລາຍການ</li>';
+}
+$('x-cancel').addEventListener('click', () => { $('x-confirm').hidden = true; PICK = null; });
+$('x-go').addEventListener('click', async () => {
+  if (!PICK) return; err('err4'); $('x-go').disabled = true; $('x-go').textContent = 'ກຳລັງແລກ…';
+  try {
+    const j = await api('POST', Object.assign({action: 'save_redeem', item: PICK.id}, CRED));
+    await loadAcct();
+    err('err4', '');
+    alertBox('err4', '✅ ແລກ ' + j.tx.item + ' ສຳເລັດ (' + j.tx.id + ') · ມາຮັບຄຳທີ່ຮ້ານ ເປີດທຸກມື້ 8:00–15:30 ສະແດງບັດປະຈຳຕົວ ແລະ ເລກລາຍການນີ້ · ກະລຸນາແຄັບໜ້າຈໍເກັບໄວ້');
+  } catch (ex) { err('err4', ex.message); }
+  $('x-go').disabled = false; $('x-go').textContent = 'ຢືນຢັນແລກຄຳ';
+});
+function alertBox(id, msg) { const el = $(id); el.textContent = msg; el.hidden = false; el.style.background = 'var(--good-bg)'; el.style.color = 'var(--good)'; el.scrollIntoView({block: 'center'}); }
+function wEst() {
+  const v = Math.round(Number($('w-amt').value) || 0);
+  $('w-est').hidden = !v;
+  if (v) $('w-est').innerHTML = 'ຫັກຈາກຍອດອອມ ' + kip(v) + ' − ຄ່າທຳນຽມ ' + kip(ACCT.fee) + ' = <b>ໄດ້ຮັບ ' + kip(Math.max(0, v - ACCT.fee)) + '</b> · ຍອດຄົງເຫຼືອ ' + kip(Math.max(0, ACCT.balance - v));
+}
+$('w-amt').addEventListener('input', wEst);
+$('w-all').addEventListener('click', () => { $('w-amt').value = ACCT.balance; wEst(); });
+document.querySelectorAll('input[name=w-m]').forEach(r => r.addEventListener('change', () => { $('w-acc-l').hidden = document.querySelector('input[name=w-m]:checked').value !== 'transfer'; }));
+$('w-go').addEventListener('click', async () => {
+  err('err5');
+  const amount = Math.round(Number($('w-amt').value) || 0), method = document.querySelector('input[name=w-m]:checked').value, account = $('w-acc').value.trim();
+  if (!(amount > ACCT.fee)) return err('err5', 'ຍອດຖອນຕ້ອງຫຼາຍກວ່າຄ່າທຳນຽມ ' + kip(ACCT.fee));
+  if (amount > ACCT.balance) return err('err5', 'ຍອດທີ່ຢືນຢັນແລ້ວມີ ' + kip(ACCT.balance));
+  if (method === 'transfer' && account.length < 6) return err('err5', 'ກະລຸນາໃສ່ທະນາຄານ ເລກບັນຊີ ແລະ ຊື່ບັນຊີ');
+  if (!$('w-go').dataset.sure) { $('w-go').dataset.sure = '1'; $('w-go').textContent = 'ກົດອີກຄັ້ງເພື່ອຢືນຢັນ: ຖອນ ' + kip(amount) + ' ໄດ້ຮັບ ' + kip(amount - ACCT.fee); return; }
+  delete $('w-go').dataset.sure; $('w-go').disabled = true; $('w-go').textContent = 'ກຳລັງສົ່ງ…';
+  try {
+    const j = await api('POST', Object.assign({action: 'save_withdraw', amount, method, account}, CRED));
+    $('w-amt').value = ''; await loadAcct();
+    alertBox('err5', '✅ ສົ່ງຄຳຂໍຖອນເງິນແລ້ວ (' + j.tx.id + ') · ແອັດມິນຈະຕິດຕໍ່ກັບ' + (method === 'cash' ? ' · ມາຮັບເງິນສົດທີ່ຮ້ານ ສະແດງບັດປະຈຳຕົວ' : ''));
+  } catch (ex) { err('err5', ex.message); }
+  $('w-go').disabled = false; $('w-go').textContent = 'ຂໍຖອນເງິນ';
+});
+$('b-more').addEventListener('click', () => { tab('dep'); show('v-dep'); $('d-phone').value = CRED.phone; $('d-pin').value = CRED.pin; $('d-name').value = ACCT.name; window.scrollTo(0, 0); });
+$('b-refresh').addEventListener('click', () => loadAcct().catch(() => {}));
+$('tab-dep').addEventListener('click', () => { tab('dep'); if (INFO) show('v-dep'); });
+$('tab-acct').addEventListener('click', () => openAcct());
+
+// ---- ເລີ່ມ ----
+(async () => {
+  const q = new URLSearchParams(location.search);
+  try {
+    if (q.get('id') && q.get('t')) {
+      const j = await api('GET', {action: 'save_tx', id: q.get('id'), t: q.get('t')});
+      TX = j.tx; TOKEN = q.get('t');
+      if (TX.status === 'ລໍຖ້າໂອນເງິນ' && Date.now() - TX.timeMs < 24 * 3600000) payView(); else doneView();
+      INFO = await api('GET', {action: 'save_info'}); renderAmts();
+      return;
+    }
+    INFO = await api('GET', {action: 'save_info'});
+    renderAmts();
+    $('d-name').value = mem('name') || ''; $('d-phone').value = mem('phone') || '';
+    if (q.get('view') === 'acct') openAcct(); else show('v-dep');
+  } catch (ex) { show('v-closed'); }
+})();
+</script>
+</body>
+</html>

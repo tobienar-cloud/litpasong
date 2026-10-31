@@ -66,6 +66,7 @@ function setup() {
   const props = PropertiesService.getScriptProperties();
   if (!props.getProperty('PIN_SALT')) props.setProperty('PIN_SALT', Utilities.getUuid());
   folder_();
+  saveSheet_();
   return 'ok';
 }
 
@@ -75,6 +76,8 @@ function doGet(e) {
   try {
     if (p.action === 'items') return json_({ ok: true, items: items_(), rules: rules_() });
     if (p.action === 'order') return json_({ ok: true, order: publicOrder_(find_(p.bill, p.t)) });
+    if (p.action === 'save_info') { const r = saveRef_(); return json_({ ok: true, cap: r.cap, perGram: r.perGram, priceAt: r.at, fee: SAVE.FEE }); }
+    if (p.action === 'save_tx') return json_({ ok: true, tx: savePublic_(saveFind_(p.id, p.t)) });
     if (p.action === 'hit') return json_(Object.assign({ ok: true }, hit_(p.add === '1')));
     return json_({ ok: false, error: 'unknown action' });
   } catch (err) {
@@ -89,6 +92,11 @@ function doPost(e) {
     if (body.action === 'create') return json_({ ok: true, order: create_(body) });
     if (body.action === 'slip') return json_({ ok: true, order: slip_(body) });
     if (body.action === 'history') return json_({ ok: true, orders: history_(body) });
+    if (body.action === 'save_deposit') return json_(Object.assign({ ok: true }, saveDeposit_(body)));
+    if (body.action === 'save_slip') return json_({ ok: true, tx: saveSlip_(body) });
+    if (body.action === 'save_account') return json_(Object.assign({ ok: true }, saveAccount_(body)));
+    if (body.action === 'save_redeem') return json_(Object.assign({ ok: true }, saveRedeem_(body)));
+    if (body.action === 'save_withdraw') return json_(Object.assign({ ok: true }, saveWithdraw_(body)));
     return json_({ ok: false, error: 'unknown action' });
   } catch (err) {
     return json_({ ok: false, error: String(err.message || err) });
@@ -273,6 +281,11 @@ function pinHash_(phone, pin) {
 function onEdit(e) {
   try {
     const sh = e.range.getSheet();
+    if (sh.getName() === SAVE.SHEET && e.range.getColumn() === SCOL['ສະຖານະ'] && e.range.getRow() >= 2) {
+      const v = e.range.getValue();
+      if (v === SSTATUS.DEP_OK || v === SSTATUS.RED_DONE || v === SSTATUS.WD_DONE) sh.getRange(e.range.getRow(), SCOL['ເວລາຢືນຢັນ']).setValue(new Date());
+      return;
+    }
     if (sh.getName() !== CFG.ORDER_SHEET || e.range.getColumn() !== COL['ສະຖານະ'] || e.range.getRow() < 2) return;
     const v = e.range.getValue();
     if (v === STATUS.READY) sh.getRange(e.range.getRow(), COL['ເວລາຢືນຢັນເງິນ']).setValue(new Date());
@@ -366,4 +379,257 @@ function clean_(s, max) {
 
 function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// =====================================================================
+// ---------- ອອມຄຳ (ອອມເງິນໄວ້ແລກເປັນຄຳ) ----------
+// ລູກຄ້າໂອນເງິນເປັນຮອບ 100,000–1,000,000 ກີບ. ຍອດອອມນັບເປັນເງິນກີບ.
+// ນ້ຳໜັກທີ່ສະແດງເປັນການທຽບໂດຍປະມານ ຕາມລາຄາຄຳ 1 ບາດ ປັດຈຸບັນ.
+// ແລກເປັນຄຳ (≥ 1 ຫຸນ) ຕາມລາຄາ ณ ເວລາແລກ · ຖອນເງິນ ຫັກຄ່າທຳນຽມ 100,000 ກີບ.
+// =====================================================================
+const SAVE = {
+  SHEET: 'ອອມຄຳ',
+  STEP: 100000, MIN: 100000, MAX: 1000000,   // ຕົວເລືອກຍອດຕໍ່ຄັ້ງ
+  FEE: 100000,                               // ຄ່າທຳນຽມຖອນເງິນ
+  CAP_ITEM: '1 ບາດ',                          // ເພດານຍອດອອມ = ລາຄາຄຳຮູບປະພັນ 1 ບາດ ປັດຈຸບັນ
+  SLIP_HOURS: 24,                            // ແນບສະລິບໄດ້ພາຍໃນ 24 ຊົ່ວໂມງ ຫຼັງສ້າງລາຍການ
+};
+const STYPE = { DEP: 'ຝາກ', RED: 'ແລກຄຳ', WD: 'ຖອນເງິນ' };
+const SSTATUS = {
+  DEP_WAIT: 'ລໍຖ້າໂອນເງິນ', DEP_CHECK: 'ລໍຖ້າກວດເງິນ', DEP_OK: 'ຢືນຢັນແລ້ວ',
+  RED_WAIT: 'ລໍຖ້າຮັບຄຳ', RED_DONE: 'ຮັບຄຳແລ້ວ',
+  WD_WAIT: 'ລໍຖ້າຖອນເງິນ', WD_DONE: 'ຖອນແລ້ວ',
+  CANCEL: 'ຍົກເລີກ',
+};
+const SHEAD = ['ເລກລາຍການ', 'ເວລາ', 'ຊື່ລູກຄ້າ', 'ເບີໂທ', 'ປະເພດ', 'ຈຳນວນເງິນ (ກີບ)', 'ຄ່າທຳນຽມ (ກີບ)',
+  'ລາຍການຄຳ', 'ນ້ຳໜັກ (g)', 'ສະລິບ', 'ເວລາແນບສະລິບ', 'ສະຖານະ', 'ຮັບເງິນຄືນທາງ', 'ໝາຍເຫດແອັດມິນ',
+  'token', 'pin', 'ເວລາຢືນຢັນ'];
+const SCOL = Object.fromEntries(SHEAD.map((h, i) => [h, i + 1]));
+
+function saveSheet_() {
+  const ss = SpreadsheetApp.getActive();
+  let sh = ss.getSheetByName(SAVE.SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(SAVE.SHEET);
+    sh.getRange(1, 1, 1, SHEAD.length).setValues([SHEAD]).setFontWeight('bold').setBackground('#6e1423').setFontColor('#fbf1df');
+    sh.setFrozenRows(1);
+    const rule = SpreadsheetApp.newDataValidation().requireValueInList(Object.values(SSTATUS), true).build();
+    sh.getRange(2, SCOL['ສະຖານະ'], 3000, 1).setDataValidation(rule);
+    sh.hideColumns(SCOL['token']);
+    sh.hideColumns(SCOL['pin']);
+  }
+  return sh;
+}
+
+function saveRows_() {
+  const sh = saveSheet_(), last = sh.getLastRow();
+  if (last < 2) return [];
+  return sh.getRange(2, 1, last - 1, SHEAD.length).getValues().map((r, i) => {
+    const g = h => r[SCOL[h] - 1];
+    return {
+      row: i + 2, id: g('ເລກລາຍການ'), time: g('ເວລາ'), name: g('ຊື່ລູກຄ້າ'), phone: String(g('ເບີໂທ')).replace(/^'/, ''),
+      type: g('ປະເພດ'), amount: Number(g('ຈຳນວນເງິນ (ກີບ)')) || 0, fee: Number(g('ຄ່າທຳນຽມ (ກີບ)')) || 0,
+      item: g('ລາຍການຄຳ'), grams: g('ນ້ຳໜັກ (g)'), slipAt: g('ເວລາແນບສະລິບ'), status: g('ສະຖານະ'),
+      payout: g('ຮັບເງິນຄືນທາງ'), token: g('token'), pin: g('pin'), okAt: g('ເວລາຢືນຢັນ'),
+    };
+  });
+}
+
+// ຍອດຄົງເຫຼືອ = ຝາກທີ່ຢືນຢັນແລ້ວ − ແລກຄຳ − ຖອນເງິນ (ທີ່ບໍ່ຍົກເລີກ)
+function saveBalance_(rows) {
+  const now = Date.now();
+  let ok = 0, used = 0, pending = 0;
+  rows.forEach(t => {
+    if (t.type === STYPE.DEP) {
+      if (t.status === SSTATUS.DEP_OK) ok += t.amount;
+      else if (t.status === SSTATUS.DEP_CHECK) pending += t.amount;
+      else if (t.status === SSTATUS.DEP_WAIT && t.time instanceof Date && now - t.time.getTime() < SAVE.SLIP_HOURS * 3600000) pending += t.amount;
+    } else if (t.status !== SSTATUS.CANCEL) {
+      used += t.amount;
+    }
+  });
+  return { balance: ok - used, pending: pending, deposited: ok };
+}
+
+function saveRef_() {
+  const items = items_();
+  const ref = items.find(i => i.id === SAVE.CAP_ITEM);
+  if (!ref) throw new Error('ລາຄາຄຳຍັງບໍ່ພ້ອມ ກະລຸນາລອງໃໝ່');
+  return { items: items, cap: ref.price, perGram: ref.price / ref.grams,
+           at: Utilities.formatDate(new Date(), CFG.TZ, 'dd/MM/yyyy HH:mm') };
+}
+
+function saveNewId_(rows) {
+  const prefix = 'SAV-' + Utilities.formatDate(new Date(), CFG.TZ, 'yyyyMMdd') + '-';
+  let n = 0;
+  rows.forEach(t => { const s = String(t.id); if (s.indexOf(prefix) === 0) n = Math.max(n, Number(s.slice(prefix.length)) || 0); });
+  return prefix + ('000' + (n + 1)).slice(-4);
+}
+
+// ກວດ PIN ຂອງບັນຊີ (ເບີໂທ). ຄືນລາຍການທັງໝົດຂອງເບີນີ້
+function saveAuth_(phone, pin, allowNew) {
+  const p8 = phone8_(phone);
+  if (p8.length < 8) throw new Error('ເບີໂທບໍ່ຖືກຕ້ອງ');
+  if (!/^[0-9]{6}$/.test(String(pin || ''))) throw new Error('ລະຫັດ PIN ຕ້ອງເປັນຕົວເລກ 6 ໂຕ');
+  const cache = CacheService.getScriptCache(), key = 'sfail_' + p8;
+  const fails = Number(cache.get(key) || 0);
+  if (fails >= 5) throw new Error('ໃສ່ PIN ຜິດຫຼາຍເທື່ອ ກະລຸນາລໍຖ້າ 15 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624');
+  const all = saveRows_();
+  const mine = all.filter(t => phone8_(t.phone) === p8);
+  const h = pinHash_(p8, pin);
+  if (mine.length && mine[0].pin !== h) {
+    cache.put(key, String(fails + 1), 900);
+    throw new Error('PIN ບໍ່ຖືກຕ້ອງ (ເບີນີ້ມີບັນຊີອອມແລ້ວ ໃຊ້ PIN ທີ່ຕັ້ງຄັ້ງທຳອິດ)');
+  }
+  if (!mine.length && !allowNew) {
+    cache.put(key, String(fails + 1), 900);
+    throw new Error('ບໍ່ພົບບັນຊີອອມຂອງເບີນີ້');
+  }
+  cache.remove(key);
+  return { all: all, mine: mine, hash: h };
+}
+
+function savePublic_(t) {
+  const f = d => (d instanceof Date) ? Utilities.formatDate(d, CFG.TZ, 'dd/MM/yyyy HH:mm') : '';
+  return { id: t.id, time: f(t.time), type: t.type, amount: t.amount, fee: t.fee, item: t.item || '',
+           grams: t.grams || '', status: t.status, slipAt: f(t.slipAt), okAt: f(t.okAt), payout: t.payout || '',
+           name: t.name, timeMs: (t.time instanceof Date) ? t.time.getTime() : 0 };
+}
+
+// ໜ້າບັນຊີ: ຍອດ + ທຽບນ້ຳໜັກປະມານ + ປະຫວັດ
+function saveAccount_(b) {
+  const a = saveAuth_(b.phone, b.pin, false);
+  const ref = saveRef_(), bal = saveBalance_(a.mine);
+  return {
+    name: a.mine[a.mine.length - 1].name, balance: bal.balance, pending: bal.pending,
+    cap: ref.cap, perGram: ref.perGram, priceAt: ref.at, fee: SAVE.FEE,
+    items: ref.items.map(i => ({ id: i.id, name: i.name, grams: i.grams, kind: i.kind, price: i.price })),
+    txs: a.mine.slice().reverse().map(t => Object.assign(savePublic_(t),
+      (t.type === STYPE.DEP && (t.status === SSTATUS.DEP_WAIT || t.status === SSTATUS.DEP_CHECK)) ? { t: t.token } : {})),
+  };
+}
+
+// ສ້າງລາຍການຝາກ
+function saveDeposit_(b) {
+  const name = clean_(b.name, 80), phone = clean_(b.phone, 30);
+  const amount = Math.round(Number(b.amount));
+  if (!(amount >= SAVE.MIN && amount <= SAVE.MAX && amount % SAVE.STEP === 0)) throw new Error('ກະລຸນາເລືອກຍອດ 100,000 – 1,000,000 ກີບ');
+  if (!/^[0-9+ ()-]{8,20}$/.test(phone)) throw new Error('ເບີໂທບໍ່ຖືກຕ້ອງ');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const a = saveAuth_(phone, b.pin, true);
+    const nm = name || (a.mine.length ? a.mine[a.mine.length - 1].name : '');
+    if (!nm) throw new Error('ກະລຸນາໃສ່ຊື່');
+    const ref = saveRef_(), bal = saveBalance_(a.mine);
+    if (bal.balance + bal.pending + amount > ref.cap) {
+      const room = Math.max(0, Math.floor((ref.cap - bal.balance - bal.pending) / SAVE.STEP) * SAVE.STEP);
+      throw new Error('ຍອດອອມສູງສຸດບໍ່ເກີນລາຄາຄຳ 1 ບາດ (' + ref.cap.toLocaleString('en-US') + ' ກີບ) · ຕອນນີ້ຝາກເພີ່ມໄດ້ອີກ ' +
+        room.toLocaleString('en-US') + ' ກີບ' + (room < SAVE.MIN ? ' — ແລກເປັນຄຳກ່ອນ ແລ້ວຄ່ອຍອອມຕໍ່' : ''));
+    }
+    const id = saveNewId_(a.all), token = Utilities.getUuid().replace(/-/g, '');
+    const row = new Array(SHEAD.length).fill('');
+    row[SCOL['ເລກລາຍການ'] - 1] = id; row[SCOL['ເວລາ'] - 1] = new Date();
+    row[SCOL['ຊື່ລູກຄ້າ'] - 1] = nm; row[SCOL['ເບີໂທ'] - 1] = "'" + phone;
+    row[SCOL['ປະເພດ'] - 1] = STYPE.DEP; row[SCOL['ຈຳນວນເງິນ (ກີບ)'] - 1] = amount; row[SCOL['ຄ່າທຳນຽມ (ກີບ)'] - 1] = 0;
+    row[SCOL['ສະຖານະ'] - 1] = SSTATUS.DEP_WAIT; row[SCOL['token'] - 1] = token; row[SCOL['pin'] - 1] = a.hash;
+    saveSheet_().appendRow(row);
+    return { id: id, t: token, amount: amount, name: nm, perGram: ref.perGram, priceAt: ref.at };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function saveFind_(id, token) {
+  const t = saveRows_().find(x => x.id === String(id || '') && x.token === String(token || '') && token);
+  if (!t) throw new Error('ບໍ່ພົບລາຍການ');
+  return t;
+}
+
+// ແນບສະລິບການຝາກ
+function saveSlip_(b) {
+  const t = saveFind_(b.id, b.t);
+  if (t.type !== STYPE.DEP || (t.status !== SSTATUS.DEP_WAIT && t.status !== SSTATUS.DEP_CHECK))
+    throw new Error('ລາຍການນີ້ແນບສະລິບບໍ່ໄດ້ແລ້ວ (ສະຖານະ: ' + t.status + ') ຖ້າໂອນເງິນແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 5895 4624');
+  if (t.time instanceof Date && Date.now() - t.time.getTime() > SAVE.SLIP_HOURS * 3600000)
+    throw new Error('ລາຍການນີ້ເກີນ 24 ຊົ່ວໂມງແລ້ວ ຖ້າໂອນເງິນແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 5895 4624');
+  const m = /^data:(image\/(jpeg|png|webp));base64,(.+)$/.exec(String(b.image || ''));
+  if (!m) throw new Error('ກະລຸນາແນບຮູບສະລິບ');
+  const bytes = Utilities.base64Decode(m[3]);
+  if (bytes.length > 4 * 1024 * 1024) throw new Error('ຮູບໃຫຍ່ເກີນໄປ');
+  const file = folder_().createFile(Utilities.newBlob(bytes, m[1], t.id + '.' + (m[2] === 'jpeg' ? 'jpg' : m[2])));
+  const sh = saveSheet_();
+  sh.getRange(t.row, SCOL['ສະລິບ']).setValue(file.getUrl());
+  sh.getRange(t.row, SCOL['ເວລາແນບສະລິບ']).setValue(new Date());
+  sh.getRange(t.row, SCOL['ສະຖານະ']).setValue(SSTATUS.DEP_CHECK);
+  saveNotify_('ອອມຄຳ: ລາຍການຝາກໃໝ່ ລໍຖ້າກວດເງິນ\n\nເລກລາຍການ: ' + t.id + '\nລູກຄ້າ: ' + t.name + ' ' + t.phone +
+    '\nຍອດຝາກ: ' + t.amount.toLocaleString('en-US') + ' ກີບ\nສະລິບ: ' + file.getUrl() +
+    '\n\nກວດເງິນເຂົ້າໃນ BCEL One ໃຫ້ຕົງຍອດ ແລ້ວປ່ຽນສະຖານະໃນຊີດ "' + SAVE.SHEET + '" ເປັນ "' + SSTATUS.DEP_OK + '"');
+  return savePublic_(saveFind_(b.id, b.t));
+}
+
+// ແລກເປັນຄຳ (ລາຄາ ณ ເວລານີ້)
+function saveRedeem_(b) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const a = saveAuth_(b.phone, b.pin, false);
+    const ref = saveRef_(), bal = saveBalance_(a.mine);
+    const item = ref.items.find(i => i.id === b.item);
+    if (!item) throw new Error('ບໍ່ພົບລາຍການຄຳນີ້');
+    if (item.price > bal.balance) throw new Error('ຍອດອອມບໍ່ພໍ: ' + item.name + ' ລາຄາ ' + item.price.toLocaleString('en-US') +
+      ' ກີບ · ຍອດທີ່ຢືນຢັນແລ້ວ ' + bal.balance.toLocaleString('en-US') + ' ກີບ');
+    const id = saveNewId_(a.all), token = Utilities.getUuid().replace(/-/g, '');
+    const last = a.mine[a.mine.length - 1];
+    const row = new Array(SHEAD.length).fill('');
+    row[SCOL['ເລກລາຍການ'] - 1] = id; row[SCOL['ເວລາ'] - 1] = new Date();
+    row[SCOL['ຊື່ລູກຄ້າ'] - 1] = last.name; row[SCOL['ເບີໂທ'] - 1] = "'" + last.phone;
+    row[SCOL['ປະເພດ'] - 1] = STYPE.RED; row[SCOL['ຈຳນວນເງິນ (ກີບ)'] - 1] = item.price; row[SCOL['ຄ່າທຳນຽມ (ກີບ)'] - 1] = 0;
+    row[SCOL['ລາຍການຄຳ'] - 1] = item.name; row[SCOL['ນ້ຳໜັກ (g)'] - 1] = item.grams;
+    row[SCOL['ສະຖານະ'] - 1] = SSTATUS.RED_WAIT; row[SCOL['token'] - 1] = token; row[SCOL['pin'] - 1] = a.hash;
+    saveSheet_().appendRow(row);
+    saveNotify_('ອອມຄຳ: ລູກຄ້າແລກເປັນຄຳ\n\nເລກລາຍການ: ' + id + '\nລູກຄ້າ: ' + last.name + ' ' + last.phone +
+      '\nລາຍການ: ' + item.name + '\nລາຄາ ณ ເວລາແລກ: ' + item.price.toLocaleString('en-US') + ' ກີບ (ຫັກຈາກຍອດອອມແລ້ວ)' +
+      '\n\nລູກຄ້າມາຮັບທີ່ຮ້ານ ແລ້ວປ່ຽນສະຖານະເປັນ "' + SSTATUS.RED_DONE + '"');
+    return { tx: savePublic_(saveRows_().find(x => x.id === id)), balance: bal.balance - item.price };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// ຖອນເງິນ (ຫັກຄ່າທຳນຽມ)
+function saveWithdraw_(b) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const a = saveAuth_(b.phone, b.pin, false);
+    const bal = saveBalance_(a.mine);
+    const amount = Math.round(Number(b.amount));
+    if (!(amount > SAVE.FEE)) throw new Error('ຍອດຖອນຕ້ອງຫຼາຍກວ່າຄ່າທຳນຽມ ' + SAVE.FEE.toLocaleString('en-US') + ' ກີບ');
+    if (amount > bal.balance) throw new Error('ຍອດທີ່ຢືນຢັນແລ້ວມີ ' + bal.balance.toLocaleString('en-US') + ' ກີບ');
+    const how = b.method === 'transfer' ? 'ໂອນເຂົ້າບັນຊີ: ' + clean_(b.account, 120) : 'ຮັບເງິນສົດທີ່ຮ້ານ';
+    if (b.method === 'transfer' && clean_(b.account, 120).length < 6) throw new Error('ກະລຸນາໃສ່ທະນາຄານ ເລກບັນຊີ ແລະ ຊື່ບັນຊີ');
+    const id = saveNewId_(a.all), token = Utilities.getUuid().replace(/-/g, '');
+    const last = a.mine[a.mine.length - 1];
+    const row = new Array(SHEAD.length).fill('');
+    row[SCOL['ເລກລາຍການ'] - 1] = id; row[SCOL['ເວລາ'] - 1] = new Date();
+    row[SCOL['ຊື່ລູກຄ້າ'] - 1] = last.name; row[SCOL['ເບີໂທ'] - 1] = "'" + last.phone;
+    row[SCOL['ປະເພດ'] - 1] = STYPE.WD; row[SCOL['ຈຳນວນເງິນ (ກີບ)'] - 1] = amount; row[SCOL['ຄ່າທຳນຽມ (ກີບ)'] - 1] = SAVE.FEE;
+    row[SCOL['ສະຖານະ'] - 1] = SSTATUS.WD_WAIT; row[SCOL['ຮັບເງິນຄືນທາງ'] - 1] = how;
+    row[SCOL['token'] - 1] = token; row[SCOL['pin'] - 1] = a.hash;
+    saveSheet_().appendRow(row);
+    saveNotify_('ອອມຄຳ: ລູກຄ້າຂໍຖອນເງິນ\n\nເລກລາຍການ: ' + id + '\nລູກຄ້າ: ' + last.name + ' ' + last.phone +
+      '\nຫັກຈາກຍອດອອມ: ' + amount.toLocaleString('en-US') + ' ກີບ\nຄ່າທຳນຽມ: ' + SAVE.FEE.toLocaleString('en-US') +
+      ' ກີບ\nຕ້ອງຈ່າຍໃຫ້ລູກຄ້າ: ' + (amount - SAVE.FEE).toLocaleString('en-US') + ' ກີບ\nທາງ: ' + how +
+      '\n\nຈ່າຍແລ້ວ ປ່ຽນສະຖານະເປັນ "' + SSTATUS.WD_DONE + '"');
+    return { tx: savePublic_(saveRows_().find(x => x.id === id)), balance: bal.balance - amount };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function saveNotify_(body) {
+  whatsapp_(body);
+  const to = CFG.NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
+  if (to) { try { MailApp.sendEmail(to, body.split('\n')[0], body); } catch (err) {} }
 }
