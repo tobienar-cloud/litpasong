@@ -235,7 +235,7 @@ function slip_(b) {
   const ext = m[2] === 'jpeg' ? 'jpg' : m[2];
   const file = folder_().createFile(Utilities.newBlob(bytes, m[1], o.bill + '.' + ext));
   sh.getRange(o.row, COL['ສະລິບ']).setValue(file.getUrl());
-  sh.getRange(o.row, COL['ເວລາແນບສະລິບ']).setValue(new Date());
+  stamp_(sh.getRange(o.row, COL['ເວລາແນບສະລິບ']));
   sh.getRange(o.row, COL['ສະຖານະ']).setValue(STATUS.WAIT_CHECK);
   if (late) {
     const nc = sh.getRange(o.row, COL['ໝາຍເຫດແອັດມິນ']);
@@ -285,13 +285,34 @@ function onEdit(e) {
     const sh = e.range.getSheet();
     if (sh.getName() === SAVE.SHEET && e.range.getColumn() === SCOL['ສະຖານະ'] && e.range.getRow() >= 2) {
       const v = e.range.getValue();
-      if (v === SSTATUS.DEP_OK || v === SSTATUS.RED_DONE || v === SSTATUS.WD_DONE) sh.getRange(e.range.getRow(), SCOL['ເວລາຢືນຢັນ']).setValue(new Date());
+      logStatus_(e);
+      if (v === SSTATUS.DEP_OK || v === SSTATUS.RED_DONE || v === SSTATUS.WD_DONE) stamp_(sh.getRange(e.range.getRow(), SCOL['ເວລາຢືນຢັນ']));
       return;
     }
     if (sh.getName() !== CFG.ORDER_SHEET || e.range.getColumn() !== COL['ສະຖານະ'] || e.range.getRow() < 2) return;
     const v = e.range.getValue();
-    if (v === STATUS.READY) sh.getRange(e.range.getRow(), COL['ເວລາຢືນຢັນເງິນ']).setValue(new Date());
-    if (v === STATUS.DONE) sh.getRange(e.range.getRow(), COL['ເວລາຮັບຄຳ']).setValue(new Date());
+    logStatus_(e);
+    if (v === STATUS.READY) stamp_(sh.getRange(e.range.getRow(), COL['ເວລາຢືນຢັນເງິນ']));
+    if (v === STATUS.DONE) stamp_(sh.getRange(e.range.getRow(), COL['ເວລາຮັບຄຳ']));
+  } catch (err) {}
+}
+
+// ບັນທຶກເວລາ ວັນ/ເດືອນ/ປີ ຊົ່ວໂມງ:ນາທີ:ວິນາທີ
+function stamp_(range) {
+  range.setValue(new Date()).setNumberFormat('dd/mm/yyyy hh:mm:ss');
+}
+
+// ບັນທຶກທຸກຄັ້ງທີ່ປ່ຽນສະຖານະ ໄວ້ໃນ Note ຂອງຊ່ອງສະຖານະ (ເອົາເມົາໄປວາງເທິງຊ່ອງເພື່ອເບິ່ງ)
+// ເວລາລະອຽດຮອດວິນາທີ ໃຊ້ທຽບກັບກ້ອງວົງຈອນປິດ. ອີເມວຜູ້ກົດ ສະແດງເມື່ອ Google ສົ່ງມາໃຫ້ເທົ່ານັ້ນ.
+function logStatus_(e) {
+  try {
+    const when = Utilities.formatDate(new Date(), CFG.TZ, 'dd/MM/yyyy HH:mm:ss');
+    let who = '';
+    try { who = (e.user && e.user.getEmail && e.user.getEmail()) || Session.getActiveUser().getEmail() || ''; } catch (x) {}
+    const from = (e.oldValue === undefined || e.oldValue === '') ? '—' : e.oldValue;
+    const line = when + '  ' + from + ' → ' + e.range.getValue() + (who ? '  (' + who + ')' : '');
+    const old = e.range.getNote();
+    e.range.setNote(old ? old + '\n' + line : line);
   } catch (err) {}
 }
 
@@ -564,7 +585,7 @@ function saveSlip_(b) {
   const file = folder_().createFile(Utilities.newBlob(bytes, m[1], t.id + '.' + (m[2] === 'jpeg' ? 'jpg' : m[2])));
   const sh = saveSheet_();
   sh.getRange(t.row, SCOL['ສະລິບ']).setValue(file.getUrl());
-  sh.getRange(t.row, SCOL['ເວລາແນບສະລິບ']).setValue(new Date());
+  stamp_(sh.getRange(t.row, SCOL['ເວລາແນບສະລິບ']));
   sh.getRange(t.row, SCOL['ສະຖານະ']).setValue(SSTATUS.DEP_CHECK);
   saveNotify_('ອອມຄຳ: ລາຍການຝາກໃໝ່ ລໍຖ້າກວດເງິນ\n\nເລກລາຍການ: ' + t.id + '\nລູກຄ້າ: ' + t.name + ' ' + t.phone +
     '\nຍອດຝາກ: ' + t.amount.toLocaleString('en-US') + ' ກີບ\nສະລິບ: ' + file.getUrl() +
