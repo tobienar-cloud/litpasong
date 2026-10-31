@@ -92,6 +92,7 @@ function doPost(e) {
     if (body.action === 'create') return json_({ ok: true, order: create_(body) });
     if (body.action === 'slip') return json_({ ok: true, order: slip_(body) });
     if (body.action === 'history') return json_({ ok: true, orders: history_(body) });
+    if (body.action === 'profile') return json_(Object.assign({ ok: true }, profile_(body)));
     if (body.action === 'save_deposit') return json_(Object.assign({ ok: true }, saveDeposit_(body)));
     if (body.action === 'save_slip') return json_({ ok: true, tx: saveSlip_(body) });
     if (body.action === 'save_account') return json_(Object.assign({ ok: true }, saveAccount_(body)));
@@ -635,4 +636,40 @@ function saveNotify_(body) {
   whatsapp_(body);
   const to = CFG.NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
   if (to) { try { MailApp.sendEmail(to, body.split('\n')[0], body); } catch (err) {} }
+}
+
+
+// ---------- ໂປຣໄຟລ໌ລູກຄ້າ (ເບີໂທ + PIN): ບິນສັ່ງຊື້ ແລະ ບັນຊີອອມ ໃນບ່ອນດຽວ ----------
+function profile_(b) {
+  const p8 = phone8_(b.phone), pin = String(b.pin || '');
+  if (p8.length < 8 || !/^[0-9]{4,6}$/.test(pin)) throw new Error('ກະລຸນາໃສ່ເບີໂທ ແລະ PIN 6 ຕົວເລກ');
+  const cache = CacheService.getScriptCache(), key = 'fail_' + p8;
+  const fails = Number(cache.get(key) || 0);
+  if (fails >= 5) throw new Error('ໃສ່ PIN ຜິດຫຼາຍເທື່ອ ກະລຸນາລໍຖ້າ 15 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624');
+  const h = pinHash_(p8, pin);
+  // ບິນສັ່ງຊື້
+  const orders = [];
+  const sh = orders_(), last = sh.getLastRow();
+  if (last > 1) {
+    sh.getRange(2, 1, last - 1, HEAD.length).getValues().forEach((r, i) => {
+      if (phone8_(r[COL['ເບີໂທ'] - 1]) === p8 && r[COL['pin'] - 1] === h) {
+        orders.push(Object.assign(publicOrder_(rowObj_(r, i + 2)), { t: r[COL['token'] - 1] }));
+      }
+    });
+  }
+  orders.reverse();
+  // ບັນຊີອອມ
+  let savings = null, name = orders.length ? orders[0].name : '';
+  const mine = saveRows_().filter(t => phone8_(t.phone) === p8 && t.pin === h);
+  if (mine.length) {
+    const bal = saveBalance_(mine), ref = saveRef_();
+    savings = { balance: bal.balance, pending: bal.pending, perGram: ref.perGram, priceAt: ref.at, cap: ref.cap, count: mine.length };
+    name = mine[mine.length - 1].name || name;
+  }
+  if (!orders.length && !savings) {
+    cache.put(key, String(fails + 1), 900);
+    throw new Error('ບໍ່ພົບຂໍ້ມູນ ກວດເບີໂທ ແລະ PIN ອີກຄັ້ງ (PIN ແມ່ນລະຫັດທີ່ຕັ້ງຕອນສັ່ງຊື້ ຫຼື ຕອນເລີ່ມອອມ)');
+  }
+  cache.remove(key);
+  return { name: name, orders: orders, savings: savings };
 }

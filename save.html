@@ -108,7 +108,7 @@ input[type=number],input[type=password]{font:inherit;padding:10px 12px;border:1p
 </head>
 <body>
 <header><div class="wrap">
-  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><a href="./">← ກັບໜ້າຮ້ານ</a><a href="order.html">ສັ່ງຊື້ຄຳອອນລາຍ →</a></div>
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><a href="./">← ກັບໜ້າຮ້ານ</a><a href="my.html" id="me-link">👤 ໂປຣໄຟລ໌ຂອງຂ້ອຍ →</a></div>
   <h1>ອອມຄຳ</h1>
   <p class="sub">ອອມເງິນເທື່ອລະໜ້ອຍ ເລີ່ມຕົ້ນ 100,000 ກີບ · ຄົບແລ້ວແລກເປັນຄຳແທ່ງ ຫຼື ຄຳຮູບປະພັນ</p>
 </div></header>
@@ -289,6 +289,10 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4P
 const ADMIN_WA = '8562058954624';
 const AMOUNTS = [100000,200000,300000,400000,500000,600000,700000,800000,900000,1000000];
 const $ = id => document.getElementById(id);
+const ME = {
+  get() { try { return JSON.parse(localStorage.getItem('lps-me') || sessionStorage.getItem('lps-me') || 'null'); } catch (e) { return null; } },
+  keep(v) { try { if (!localStorage.getItem('lps-me') && !sessionStorage.getItem('lps-me')) sessionStorage.setItem('lps-me', JSON.stringify(v)); } catch (e) {} },
+};
 const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
 let INFO = null, AMT = 0, TX = null, TOKEN = '', ACCT = null, CRED = null, slipData = '', PICK = null;
 
@@ -340,7 +344,7 @@ $('v-dep').addEventListener('submit', async e => {
   try {
     const j = await api('POST', {action: 'save_deposit', name, phone, pin, amount: AMT});
     mem('name', name); mem('phone', phone);
-    CRED = {phone, pin};
+    CRED = {phone, pin}; ME.keep({phone, pin, name});
     TX = {id: j.id, amount: j.amount, name: j.name, status: 'ລໍຖ້າໂອນເງິນ'}; TOKEN = j.t;
     setUrl(); payView();
   } catch (ex) { err('err1', ex.message); }
@@ -443,7 +447,7 @@ $('v-login').addEventListener('submit', async e => {
   const phone = $('a-phone').value.trim(), pin = $('a-pin').value.trim();
   if (phone.replace(/[^0-9]/g, '').length < 8 || !/^[0-9]{6}$/.test(pin)) return err('err3', 'ກະລຸນາໃສ່ເບີໂທ ແລະ PIN 6 ຕົວເລກ');
   CRED = {phone, pin}; $('go3').disabled = true;
-  try { await loadAcct(); mem('phone', phone); } catch (ex) { CRED = null; }
+  try { await loadAcct(); mem('phone', phone); ME.keep({phone, pin, name: ACCT.name}); } catch (ex) { CRED = null; }
   $('go3').disabled = false;
 });
 async function loadAcct() {
@@ -540,6 +544,8 @@ $('tab-acct').addEventListener('click', () => openAcct());
     INFO = await api('GET', {action: 'save_info'});
     renderAmts();
     $('d-name').value = mem('name') || ''; $('d-phone').value = mem('phone') || '';
+    const me = ME.get();
+    if (me) { CRED = {phone: me.phone, pin: me.pin}; $('d-phone').value = me.phone; $('d-pin').value = me.pin; if (me.name) $('d-name').value = me.name; $('me-link').textContent = '👤 ' + (me.name || 'ໂປຣໄຟລ໌ຂອງຂ້ອຍ') + ' →'; }
     if (q.get('view') === 'acct') openAcct(); else show('v-dep');
   } catch (ex) { show('v-closed'); }
 })();

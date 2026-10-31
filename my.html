@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ກວດສອບຄຳສັ່ງຊື້ · ຮ້ານຄຳ ລິດປະສົງ</title>
+<title>ໂປຣໄຟລ໌ຂອງຂ້ອຍ · ຮ້ານຄຳ ລິດປະສົງ</title>
 <meta name="description" content="ກວດສອບປະຫວັດການສັ່ງຊື້ຄຳອອນລາຍ ສະຖານະການໂອນເງິນ ແລະ ການຮັບຄຳ">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao+Looped:wght@400;600;800&family=Noto+Serif+Lao:wght@700;800&display=swap">
@@ -78,6 +78,14 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
 .closed{text-align:center}
 </style>
 <style>
+.me{background:radial-gradient(120% 140% at 20% 0%,var(--maroon),var(--maroon-deep) 70%);color:#fbf1df;border:0}
+.me h2{color:#f6dc8f;font-size:24px;margin:0}
+.me .lab{margin:0;font-size:14px;color:#ead9c6}
+.sv-amt{font-family:var(--display);font-size:clamp(26px,7vw,34px);font-variant-numeric:tabular-nums}
+.sv-eq{font-weight:600}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--muted)}
+.check input{margin-top:4px;width:18px;height:18px;flex:none}
+.row{display:flex;gap:10px;flex-wrap:wrap}
 .list{display:grid;gap:10px}
 .ord{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg);text-decoration:none}
 .ord:hover{border-color:var(--gold)}
@@ -98,30 +106,46 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
 <body>
 <header><div class="wrap">
   <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><a href="./">← ກັບໜ້າຮ້ານ</a><a href="order.html">ສັ່ງຊື້ຄຳອອນລາຍ →</a></div>
-  <h1>ກວດສອບຄຳສັ່ງຊື້</h1>
-  <p class="sub">ເບິ່ງສະຖານະການໂອນເງິນ ແລະ ການຮັບຄຳ ຂອງທຸກບິນທີ່ສັ່ງອອນລາຍ</p>
+  <h1>ໂປຣໄຟລ໌ຂອງຂ້ອຍ</h1>
+  <p class="sub">ເບິ່ງບິນສັ່ງຊື້ຄຳ ແລະ ຍອດອອມຄຳ ຂອງທ່ານໃນບ່ອນດຽວ</p>
 </div></header>
 
 <main class="wrap">
   <div class="tabs" role="tablist">
-    <button type="button" role="tab" id="t-login" aria-selected="true">ເຂົ້າດ້ວຍເບີໂທ + PIN</button>
+    <button type="button" role="tab" id="t-login" aria-selected="true">ໂປຣໄຟລ໌ (ເບີໂທ + PIN)</button>
     <button type="button" role="tab" id="t-device" aria-selected="false">ບິນໃນເຄື່ອງນີ້</button>
   </div>
 
   <form class="card" id="v-login" novalidate>
     <h2>ເຂົ້າສູ່ລະບົບ</h2>
-    <label for="l-phone">ເບີໂທທີ່ໃຊ້ຕອນສັ່ງຊື້<input type="tel" id="l-phone" autocomplete="tel" inputmode="tel" placeholder="020 xxxx xxxx" maxlength="20"></label>
-    <label for="l-pin">ລະຫັດ PIN 6 ຕົວເລກ (ທີ່ຕັ້ງຕອນສັ່ງຊື້)<input type="password" id="l-pin" inputmode="numeric" autocomplete="current-password" maxlength="6"></label>
+    <label for="l-phone">ເບີໂທ<input type="tel" id="l-phone" autocomplete="tel" inputmode="tel" placeholder="020 xxxx xxxx" maxlength="20"></label>
+    <label for="l-pin">ລະຫັດ PIN 6 ຕົວເລກ (ທີ່ຕັ້ງຕອນສັ່ງຊື້ ຫຼື ຕອນເລີ່ມອອມ)<input type="password" id="l-pin" inputmode="numeric" autocomplete="current-password" maxlength="6"></label>
+    <label class="check"><input type="checkbox" id="l-remember" checked><span>ຈື່ການເຂົ້າສູ່ລະບົບໃນເຄື່ອງນີ້ (ບໍ່ຕ້ອງໃສ່ PIN ໃໝ່ທຸກຄັ້ງ) — ຢ່າເລືອກ ຖ້າໃຊ້ເຄື່ອງຂອງຄົນອື່ນ</span></label>
     <div class="err" id="l-err" hidden></div>
-    <button class="btn gold" type="submit" id="l-go">ເບິ່ງປະຫວັດການສັ່ງຊື້</button>
-    <p class="note">ລືມ PIN? ທັກແອັດມິນ WhatsApp 020 9717 0747 ພ້ອມເລກບິນ ແລະ ຊື່ຕາມບັດປະຈຳຕົວ</p>
+    <button class="btn gold" type="submit" id="l-go">ເຂົ້າສູ່ລະບົບ</button>
+    <p class="note">ຍັງບໍ່ເຄີຍສັ່ງຊື້ ຫຼື ອອມ? PIN ຈະຖືກຕັ້ງຕອນ <a href="order.html">ສັ່ງຊື້ຄຳຄັ້ງທຳອິດ</a> ຫຼື <a href="save.html">ເລີ່ມອອມຄຳ</a> · ລືມ PIN? ທັກແອັດມິນ WhatsApp 020 5895 4624 ພ້ອມຊື່ຕາມບັດປະຈຳຕົວ</p>
   </form>
 
-  <section class="card" id="v-list" hidden>
-    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap"><h2 id="list-title">ປະຫວັດການສັ່ງຊື້</h2><button type="button" class="btn line" id="logout" style="padding:6px 14px;font-size:14px">ອອກຈາກລະບົບ</button></div>
-    <p class="note" id="list-sum"></p>
-    <div class="list" id="list"></div>
-  </section>
+  <div id="v-profile" hidden>
+    <section class="card me">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start">
+        <div><p class="lab">👤 ສະບາຍດີ</p><h2 id="me-name"></h2><p class="lab" id="me-phone"></p></div>
+        <button type="button" class="btn line" id="logout" style="padding:6px 14px;font-size:14px;background:transparent;color:#fbf1df;border-color:rgba(255,255,255,.4)">ອອກຈາກລະບົບ</button>
+      </div>
+      <div class="row"><a class="btn gold" href="order.html">ສັ່ງຊື້ຄຳ</a><a class="btn gold" href="save.html">ອອມຄຳ</a><button type="button" class="btn line" id="refresh" style="background:transparent;color:#fbf1df;border-color:rgba(255,255,255,.4)">ອັບເດດ</button></div>
+    </section>
+
+    <section class="card">
+      <h2>ຍອດອອມຄຳ</h2>
+      <div id="sv"></div>
+    </section>
+
+    <section class="card">
+      <h2 id="list-title">ບິນສັ່ງຊື້ຄຳ</h2>
+      <p class="note" id="list-sum"></p>
+      <div class="list" id="list"></div>
+    </section>
+  </div>
 
   <section class="card" id="v-device" hidden>
     <h2>ບິນທີ່ສັ່ງຈາກເຄື່ອງນີ້</h2>
@@ -135,6 +159,12 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4P
 const $ = id => document.getElementById(id);
 const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// ເຂົ້າສູ່ລະບົບຮ່ວມກັນທຸກໜ້າ (lps-me)
+const ME = {
+  get() { try { return JSON.parse(localStorage.getItem('lps-me') || sessionStorage.getItem('lps-me') || 'null'); } catch (e) { return null; } },
+  set(v, remember) { try { const s = JSON.stringify(v); if (remember) { localStorage.setItem('lps-me', s); sessionStorage.removeItem('lps-me'); } else { sessionStorage.setItem('lps-me', s); localStorage.removeItem('lps-me'); } } catch (e) {} },
+  clear() { try { localStorage.removeItem('lps-me'); sessionStorage.removeItem('lps-me'); } catch (e) {} },
+};
 const STEPS = ['ສັ່ງຊື້', 'ແນບສະລິບ', 'ຢືນຢັນເງິນ', 'ຮັບຄຳແລ້ວ'];
 function stage(st) {
   if (/ຍົກເລີກ|ໝົດເວລາ/.test(st)) return -1;
@@ -152,12 +182,19 @@ function card(o) {
     (extra ? '<small style="grid-column:1/-1">' + esc(extra) + '</small>' : '') +
     '<div class="tl" aria-hidden="true">' + bars + '</div><div class="legend" aria-hidden="true">' + STEPS.map(s => '<i>' + s + '</i>').join('') + '</div></a>';
 }
+function eqText(money, perGram) {
+  const g = perGram > 0 ? money / perGram : 0;
+  if (!(g > 0)) return '';
+  const unit = g >= 3.75 ? (g / 3.75).toFixed(2) + ' ສະຫຼຶງ' : (g / 0.375).toFixed(1) + ' ຫຸນ';
+  return 'ທຽບເທົ່າຄຳປະມານ ' + (g < 1 ? g.toFixed(3) : g.toFixed(2)) + ' ກຣາມ (≈ ' + unit + ')';
+}
+let LOGGED = false;
 function tab(which) {
   const login = which === 'login';
   $('t-login').setAttribute('aria-selected', String(login)); $('t-device').setAttribute('aria-selected', String(!login));
   $('v-device').hidden = login;
-  if (login) { const has = !!$('list').innerHTML; $('v-login').hidden = has; $('v-list').hidden = !has; }
-  else { $('v-login').hidden = true; $('v-list').hidden = true; renderDevice(); }
+  if (login) { $('v-login').hidden = LOGGED; $('v-profile').hidden = !LOGGED; }
+  else { $('v-login').hidden = true; $('v-profile').hidden = true; renderDevice(); }
 }
 $('t-login').onclick = () => tab('login');
 $('t-device').onclick = () => tab('device');
@@ -165,28 +202,49 @@ function renderDevice() {
   let list = [];
   try { list = JSON.parse(localStorage.getItem('lps-bills') || '[]'); } catch (e) {}
   $('dlist').innerHTML = list.length ? list.map(o => '<a class="ord" href="' + link(o) + '"><div><b>' + esc(o.bill) + '</b><br><small>' + esc(o.created || '') + '</small></div><div class="amt">' + (o.total ? kip(o.total) : '') + '</div><div style="grid-column:1/-1">' + esc(o.item || '') + '</div></a>').join('')
-    : '<p class="note">ຍັງບໍ່ມີບິນທີ່ສັ່ງຈາກເຄື່ອງນີ້ ລອງເຂົ້າດ້ວຍເບີໂທ + PIN</p>';
+    : '<p class="note">ຍັງບໍ່ມີບິນທີ່ສັ່ງຈາກເຄື່ອງນີ້ ລອງເຂົ້າສູ່ລະບົບດ້ວຍເບີໂທ + PIN</p>';
+}
+async function loadProfile(cred) {
+  const res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: 'profile', phone: cred.phone, pin: cred.pin})});
+  const j = await res.json();
+  if (!j.ok) throw new Error(j.error || 'ເກີດຂໍ້ຜິດພາດ');
+  const digits = cred.phone.replace(/[^0-9]/g, '');
+  $('me-name').textContent = j.name || 'ລູກຄ້າ';
+  $('me-phone').textContent = 'ເບີໂທ ' + digits.slice(0, -4).replace(/[0-9]/g, '•') + digits.slice(-4);
+  const s = j.savings;
+  $('sv').innerHTML = s
+    ? '<div class="sv-amt">' + kip(s.balance) + '</div><div class="sv-eq">' + esc(eqText(s.balance, s.perGram)) + '</div>' +
+      '<p class="note">ຄຳນວນປະມານ ຕາມລາຄາຄຳຮູບປະພັນ 1 ບາດ = ' + kip(Math.round(s.perGram * 15)) + ' (ລາຄາ ' + esc(s.priceAt) + ') · ປ່ຽນແປງຕາມລາຄາຄຳ · ຍອດອອມເປັນເງິນກີບ</p>' +
+      (s.pending ? '<p class="note">ລໍຖ້າແອັດມິນກວດເງິນ: ' + kip(s.pending) + '</p>' : '') +
+      '<div class="row"><a class="btn gold" href="save.html?view=acct">ເບິ່ງບັນຊີອອມ · ແລກຄຳ · ຖອນເງິນ</a></div>'
+    : '<p class="note">ຍັງບໍ່ມີບັນຊີອອມຄຳ (ຫຼື ໃຊ້ PIN ອື່ນຕອນເລີ່ມອອມ)</p><div class="row"><a class="btn gold" href="save.html">ເລີ່ມອອມຄຳ 100,000 ກີບ</a></div>';
+  const n = j.orders.length, active = j.orders.filter(o => [1, 2, 3].includes(stage(o.status))).length;
+  $('list-sum').textContent = n ? 'ທັງໝົດ ' + n + ' ບິນ · ກຳລັງດຳເນີນການ ' + active + ' ບິນ' : '';
+  $('list').innerHTML = n ? j.orders.map(card).join('') : '<p class="note">ຍັງບໍ່ມີບິນສັ່ງຊື້ (ຫຼື ໃຊ້ PIN ອື່ນຕອນສັ່ງຊື້)</p><div class="row"><a class="btn gold" href="order.html">ສັ່ງຊື້ຄຳອອນລາຍ</a></div>';
+  LOGGED = true; tab('login');
+  return j;
 }
 $('v-login').addEventListener('submit', async e => {
   e.preventDefault();
   const phone = $('l-phone').value.trim(), pin = $('l-pin').value.trim();
   $('l-err').hidden = true;
   if (phone.replace(/[^0-9]/g, '').length < 8 || !/^[0-9]{4,6}$/.test(pin)) { $('l-err').textContent = 'ກະລຸນາໃສ່ເບີໂທ ແລະ PIN 6 ຕົວເລກ'; $('l-err').hidden = false; return; }
-  $('l-go').disabled = true; $('l-go').textContent = 'ກຳລັງຊອກຫາ…';
+  $('l-go').disabled = true; $('l-go').textContent = 'ກຳລັງເຂົ້າສູ່ລະບົບ…';
   try {
-    const res = await fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify({action: 'history', phone, pin})});
-    const j = await res.json();
-    if (!j.ok) throw new Error(j.error);
-    const n = j.orders.length, active = j.orders.filter(o => [1, 2, 3].includes(stage(o.status))).length;
-    $('list-title').textContent = 'ປະຫວັດການສັ່ງຊື້ ' + (j.orders[0] ? j.orders[0].name : '');
-    $('list-sum').textContent = 'ທັງໝົດ ' + n + ' ບິນ · ກຳລັງດຳເນີນການ ' + active + ' ບິນ';
-    $('list').innerHTML = j.orders.map(card).join('');
+    const j = await loadProfile({phone, pin});
+    ME.set({phone, pin, name: j.name}, $('l-remember').checked);
     $('l-pin').value = '';
-    $('v-login').hidden = true; $('v-list').hidden = false;
   } catch (ex) { $('l-err').textContent = ex.message || 'ເກີດຂໍ້ຜິດພາດ ລອງໃໝ່ອີກຄັ້ງ'; $('l-err').hidden = false; }
-  $('l-go').disabled = false; $('l-go').textContent = 'ເບິ່ງປະຫວັດການສັ່ງຊື້';
+  $('l-go').disabled = false; $('l-go').textContent = 'ເຂົ້າສູ່ລະບົບ';
 });
-$('logout').onclick = () => { $('list').innerHTML = ''; $('l-phone').value = ''; $('v-list').hidden = true; $('v-login').hidden = false; };
+$('logout').onclick = () => { ME.clear(); LOGGED = false; $('list').innerHTML = ''; $('sv').innerHTML = ''; $('l-phone').value = ''; tab('login'); };
+$('refresh').onclick = () => { const me = ME.get(); if (me) loadProfile(me).catch(() => {}); };
+(async () => {
+  const me = ME.get();
+  if (!me) return;
+  $('l-phone').value = me.phone;
+  try { await loadProfile(me); } catch (ex) { ME.clear(); $('l-err').textContent = ex.message; $('l-err').hidden = false; }
+})();
 </script>
 </body>
 </html>

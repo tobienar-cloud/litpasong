@@ -86,7 +86,7 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
 </head>
 <body>
 <header><div class="wrap">
-  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><a href="./">← ກັບໜ້າຮ້ານ</a><a href="my.html">ກວດສອບຄຳສັ່ງຊື້ຂອງຂ້ອຍ →</a></div>
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><a href="./">← ກັບໜ້າຮ້ານ</a><a href="my.html" id="me-link">👤 ໂປຣໄຟລ໌ຂອງຂ້ອຍ →</a></div>
   <h1>ສັ່ງຊື້ຄຳອອນລາຍ</h1>
   <p class="sub">ລັອກລາຄາມື້ນີ້ · ໂອນຜ່ານ BCEL · ມາຮັບຄຳທີ່ຮ້ານ ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ</p>
 </div></header>
@@ -200,6 +200,10 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4P
 const ADMIN_WA = '8562058954624';
 
 const $ = id => document.getElementById(id);
+const ME = {
+  get() { try { return JSON.parse(localStorage.getItem('lps-me') || sessionStorage.getItem('lps-me') || 'null'); } catch (e) { return null; } },
+  keep(v) { try { if (!localStorage.getItem('lps-me') && !sessionStorage.getItem('lps-me')) sessionStorage.setItem('lps-me', JSON.stringify(v)); } catch (e) {} },
+};
 const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
 const fmtG = g => (Math.round(g * 1000) / 1000) + ' ກຣາມ';
 let ITEMS = [], RULES = {payMinutes: 30, pickupMonths: 3, maxGrams: 15}, sel = null, qty = 1, ORDER = null, TOKEN = '', timerId = 0, slipData = '';
@@ -269,6 +273,7 @@ $('v-choose').addEventListener('submit', async e => {
   try {
     const j = await api('POST', {action: 'create', item: sel.id, qty, name, phone, pin});
     ORDER = j.order; TOKEN = j.order.t;
+    ME.keep({phone, pin, name});
   } catch (ex) { err('err1', ex.message); }
   $('go1').disabled = false; $('go1').textContent = 'ລັອກລາຄາ ແລະ ໄປໂອນເງິນ';
   if (ORDER && TOKEN) { save(); setUrl(); payView(); }
@@ -403,6 +408,8 @@ async function loadOrder(bill, t) {
     const j = await api('GET', {action: 'items'});
     ITEMS = j.items; RULES = j.rules || RULES;
     renderItems(); calc(); show('v-choose', 1);
+    const me = ME.get();
+    if (me) { $('f-name').value = me.name || ''; $('f-phone').value = me.phone; $('f-pin').value = me.pin; $('me-link').textContent = '👤 ' + (me.name || 'ໂປຣໄຟລ໌ຂອງຂ້ອຍ') + ' →'; }
   } catch (ex) { show('v-closed', 1); }
 })();
 </script>
