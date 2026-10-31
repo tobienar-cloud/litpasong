@@ -219,8 +219,10 @@ input[type=number],input[type=password]{font:inherit;padding:10px 12px;border:1p
     </dl>
     <div class="err" style="background:var(--warn-bg);color:var(--warn)"><b>📸 ກະລຸນາແຄັບໜ້າຈໍໃບຮັບຄຳນີ້ ເກັບໄວ້</b><br>ນຳມາສະແດງພ້ອມບັດປະຈຳຕົວ ຕອນຮັບຄຳທີ່ໜ້າຮ້ານ</div>
     <p class="note" id="q-lab"></p>
+    <p class="note">ແຄັບໜ້າຈໍໃບຮັບຄຳນີ້ ແລ້ວກົດປຸ່ມ WhatsApp ຂ້າງລຸ່ມ ແນບຮູບສົ່ງໃຫ້ແອັດມິນ 020 5895 4624 ເພື່ອກຽມຄຳໄວ້ໃຫ້</p>
     <p class="note">ມາຮັບຄຳທີ່ຮ້ານ ເປີດທຸກມື້ 8:00–15:30 · ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ</p>
     <div class="row">
+      <a class="btn wa" id="q-wa" target="_blank" rel="noopener">📲 ສົ່ງໃບຮັບຄຳໃຫ້ແອັດມິນ WhatsApp</a>
       <button class="btn gold" type="button" id="q-acct">ກັບໄປບັນຊີອອມ</button>
       <button class="btn line" type="button" id="q-copy">ກັອບປີ້ລິ້ງໃບຮັບຄຳ</button>
       <a class="btn line" href="https://www.google.com/maps/dir/?api=1&amp;destination=17.39071,104.82948" target="_blank" rel="noopener">ນຳທາງມາຮ້ານ</a>
@@ -417,6 +419,8 @@ function redView() {
   $('q-item').textContent = TX.item; $('q-grams').textContent = fmtG(TX.grams); $('q-price').textContent = kip(TX.amount);
   $('q-done').textContent = TX.status === 'ຮັບຄຳແລ້ວ' ? (TX.okAt || '✓') : '—';
   $('q-lab').textContent = TX.jewelry ? 'ຄ່າລາຍຂອງຄຳຮູບປະພັນ ຈ່າຍຕ່າງຫາກທີ່ຮ້ານຕອນຮັບຄຳ · ເລືອກລາຍຈິງທີ່ຮ້ານ' : 'ຄຳແທ່ງບໍ່ມີຄ່າລາຍ';
+  $('q-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ຂ້ອຍແລກຄຳຈາກເງິນອອມ ສົ່ງໃບຮັບຄຳ\nເລກລາຍການ ' + TX.id +
+    '\nຊື່ ' + TX.name + '\nລາຍການ ' + TX.item + ' (' + fmtG(TX.grams) + ')\nລາຄາ ' + kip(TX.amount) + ' (ຫັກຈາກຍອດອອມ)\nເວລາແລກ ' + TX.time + '\n' + location.href + '\n(ແນບຮູບແຄັບໜ້າຈໍໃບຮັບຄຳໃນແຊັດນີ້)');
   $('billqr').innerHTML = '';
   if (window.QRCode) new QRCode($('billqr'), {text: TX.id, width: 116, height: 116, correctLevel: QRCode.CorrectLevel.M});
   window.scrollTo(0, 0);
