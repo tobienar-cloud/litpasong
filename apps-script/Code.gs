@@ -21,6 +21,8 @@ const CFG = {
   PICKUP_MONTHS: 0,            // 0 = ຮັບຄຳໄດ້ບໍ່ຈຳກັດເວລາ (ຕັ້ງແຕ່ 31/10/2026)
   MAX_GRAMS: 15,               // ສູງສຸດ 1 ບາດ (15 ກຣາມ) ຕໍ່ບິນ
   TZ: 'Asia/Vientiane',
+  SELL_FROM: '10:00',          // ເລີ່ມຊື້ຄຳ ແລະ ອອມຄຳອອນລາຍ (ເວລາລາວ)
+  SELL_TO: '16:00',            // ປິດຊື້ຄຳ ແລະ ອອມຄຳອອນລາຍ ນອກເວລານີ້ເຮັດລາຍການໃໝ່ບໍ່ໄດ້
 };
 
 // ນ້ຳໜັກ (ກຣາມ) ຂອງແຕ່ລະແຖວໃນຊີດ: 1 ບາດ = 15 g = 4 ສະຫຼຶງ = 40 ຫຸນ
@@ -76,7 +78,7 @@ function doGet(e) {
   try {
     if (p.action === 'items') return json_({ ok: true, items: items_(), rules: rules_() });
     if (p.action === 'order') return json_({ ok: true, order: publicOrder_(find_(p.bill, p.t)) });
-    if (p.action === 'save_info') { const r = saveRef_(); return json_({ ok: true, cap: r.cap, perGram: r.perGram, priceAt: r.at, fee: SAVE.FEE }); }
+    if (p.action === 'save_info') { const r = saveRef_(); return json_(Object.assign({ ok: true, cap: r.cap, perGram: r.perGram, priceAt: r.at, fee: SAVE.FEE }, sellHours_())); }
     if (p.action === 'save_tx') return json_({ ok: true, tx: savePublic_(saveFind_(p.id, p.t)) });
     if (p.action === 'hit') return json_(Object.assign({ ok: true }, hit_(p.add === '1')));
     return json_({ ok: false, error: 'unknown action' });
@@ -118,11 +120,23 @@ function items_() {
 }
 
 function rules_() {
-  return { payMinutes: CFG.PAY_MINUTES, pickupMonths: CFG.PICKUP_MONTHS, maxGrams: CFG.MAX_GRAMS };
+  return Object.assign({ payMinutes: CFG.PAY_MINUTES, pickupMonths: CFG.PICKUP_MONTHS, maxGrams: CFG.MAX_GRAMS }, sellHours_());
+}
+
+// ---------- ເວລາເປີດຊື້ຄຳ ແລະ ອອມຄຳອອນລາຍ ----------
+function sellHours_() {
+  return { sellFrom: CFG.SELL_FROM, sellTo: CFG.SELL_TO, nowMs: Date.now() };
+}
+function sellGate_() {
+  const t = Utilities.formatDate(new Date(), CFG.TZ, 'HH:mm');
+  if (t < CFG.SELL_FROM || t >= CFG.SELL_TO) {
+    throw new Error('ຊື້ຄຳ ແລະ ອອມຄຳອອນລາຍໄດ້ທຸກມື້ ເວລາ ' + CFG.SELL_FROM + '–' + CFG.SELL_TO + ' ນ. ເທົ່ານັ້ນ ກະລຸນາກັບມາໃໝ່ໃນເວລາດັ່ງກ່າວ');
+  }
 }
 
 // ---------- ສ້າງບິນ (ລັອກລາຄາ) ----------
 function create_(b) {
+  sellGate_();
   const name = clean_(b.name, 80), phone = clean_(b.phone, 30);
   if (!name) throw new Error('ກະລຸນາໃສ່ຊື່');
   if (!/^[0-9+ ()-]{8,20}$/.test(phone) || phone8_(phone).length < 8) throw new Error('ເບີໂທບໍ່ຖືກຕ້ອງ');
@@ -536,6 +550,7 @@ function saveAccount_(b) {
 
 // ສ້າງລາຍການຝາກ
 function saveDeposit_(b) {
+  sellGate_();
   const name = clean_(b.name, 80), phone = clean_(b.phone, 30);
   const amount = Math.round(Number(b.amount));
   if (!(amount >= SAVE.MIN && amount <= SAVE.MAX && amount % SAVE.STEP === 0)) throw new Error('ກະລຸນາເລືອກຍອດ 100,000 – 1,000,000 ກີບ');
@@ -595,6 +610,7 @@ function saveSlip_(b) {
 
 // ແລກເປັນຄຳ (ລາຄາ ณ ເວລານີ້)
 function saveRedeem_(b) {
+  sellGate_();
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
@@ -624,6 +640,7 @@ function saveRedeem_(b) {
 
 // ຖອນເງິນ (ຫັກຄ່າທຳນຽມ)
 function saveWithdraw_(b) {
+  sellGate_();
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {

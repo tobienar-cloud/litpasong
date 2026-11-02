@@ -125,6 +125,8 @@ input[type=number],input[type=password]{font:inherit;padding:10px 12px;border:1p
     <div class="row" style="justify-content:center"><a class="btn wa" href="https://wa.me/8562058954624" target="_blank" rel="noopener">ທັກ WhatsApp</a></div>
   </section>
 
+  <div class="err" id="off-note" role="status" style="margin:12px 0" hidden></div>
+
   <section class="card" id="v-loading"><p class="note">ກຳລັງໂຫຼດ…</p></section>
 
   <!-- ຝາກ -->
@@ -139,6 +141,7 @@ input[type=number],input[type=password]{font:inherit;padding:10px 12px;border:1p
     <details>
       <summary><b>ເງື່ອນໄຂການອອມຄຳ</b> (ກົດອ່ານ)</summary>
       <ol class="rules" style="margin-top:8px">
+        <li>ຝາກອອມ ແລກຄຳ ແລະ ຖອນເງິນ ເຮັດໄດ້ທຸກມື້ ເວລາ 10:00–16:00 ນ. ເທົ່ານັ້ນ</li>
         <li>ອອມຄັ້ງລະ 100,000 – 1,000,000 ກີບ ໂອນຜ່ານ BCEL ແລ້ວແນບສະລິບ</li>
         <li><b>ຍອດອອມນັບເປັນເງິນກີບ</b> ບໍ່ແມ່ນນ້ຳໜັກຄຳ. ນ້ຳໜັກທີ່ສະແດງເປັນພຽງການທຽບໂດຍປະມານ ຕາມລາຄາຄຳປັດຈຸບັນ ແລະ ປ່ຽນແປງຂຶ້ນລົງຕາມລາຄາຄຳ</li>
         <li>ຍອດອອມສະສົມສູງສຸດບໍ່ເກີນລາຄາຄຳ 1 ບາດ ຕໍ່ຄົນ</li>
@@ -288,6 +291,16 @@ input[type=number],input[type=password]{font:inherit;padding:10px 12px;border:1p
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4PY_Xt5TtnErjBkAryQ8Sb8N1cwv67FImKLI7E33VxF4jfO361g/exec';
 const ADMIN_WA = '8562058954624';
 const AMOUNTS = [100000,200000,300000,400000,500000,600000,700000,800000,900000,1000000];
+// ---- ເວລາເປີດຊື້ຄຳ ແລະ ອອມຄຳອອນລາຍ (ເວລາລາວ) ----
+const SELL = {from: '10:00', to: '16:00', skew: 0};
+function setHours(r) { if (r && r.sellFrom) { SELL.from = r.sellFrom; SELL.to = r.sellTo; } if (r && r.nowMs) SELL.skew = r.nowMs - Date.now(); }
+function isOpen() {
+  const d = new Date(Date.now() + SELL.skew + 7 * 3600000);
+  const t = String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0');
+  return t >= SELL.from && t < SELL.to;
+}
+const hoursText = () => SELL.from + '–' + SELL.to + ' ນ.';
+const offMsg = () => 'ຕອນນີ້ນອກເວລາ · ຝາກອອມ ແລກຄຳ ແລະ ຖອນເງິນໄດ້ທຸກມື້ ເວລາ ' + hoursText() + ' ເທົ່ານັ້ນ · ເບິ່ງຍອດອອມ ແລະ ແນບສະລິບທີ່ໂອນແລ້ວໄດ້ຕະຫຼອດ';
 const $ = id => document.getElementById(id);
 const ME = {
   get() { try { return JSON.parse(localStorage.getItem('lps-me') || sessionStorage.getItem('lps-me') || 'null'); } catch (e) { return null; } },
@@ -297,7 +310,13 @@ const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
 let INFO = null, AMT = 0, TX = null, TOKEN = '', ACCT = null, CRED = null, slipData = '', PICK = null;
 
 function err(id, msg) { const el = $(id); el.textContent = msg || ''; el.hidden = !msg; el.style.background = ''; el.style.color = ''; }
-function show(view) { ['v-closed','v-loading','v-dep','v-pay','v-done','v-red','v-login','v-acct'].forEach(v => $(v).hidden = v !== view); }
+function show(view) { ['v-closed','v-loading','v-dep','v-pay','v-done','v-red','v-login','v-acct'].forEach(v => $(v).hidden = v !== view); applyHours(); }
+function applyHours() {
+  const off = !isOpen();
+  $('off-note').hidden = !off || ($('v-dep').hidden && $('v-acct').hidden && $('v-login').hidden);
+  $('off-note').textContent = offMsg();
+  $('go1').disabled = off;
+}
 function tab(which) { $('tab-dep').setAttribute('aria-selected', which === 'dep'); $('tab-acct').setAttribute('aria-selected', which === 'acct'); }
 async function api(method, params) {
   let res;
@@ -334,6 +353,7 @@ function depEst() {
 }
 $('v-dep').addEventListener('submit', async e => {
   e.preventDefault(); err('err1');
+  if (!isOpen()) return err('err1', offMsg());
   const name = $('d-name').value.trim(), phone = $('d-phone').value.trim(), pin = $('d-pin').value.trim();
   if (!AMT) return err('err1', 'ກະລຸນາເລືອກຍອດອອມ');
   if (!name) return err('err1', 'ກະລຸນາໃສ່ຊື່');
@@ -468,8 +488,8 @@ function renderAcct() {
   $('b-cap').textContent = 'ເພດານອອມ: ລາຄາຄຳ 1 ບາດ = ' + kip(a.cap) + ' · ຝາກເພີ່ມໄດ້ອີກ ' + kip(Math.max(0, Math.floor((a.cap - used) / 100000) * 100000));
   ['jewelry','bar'].forEach(kind => {
     $('x-' + kind).innerHTML = a.items.filter(i => i.kind === kind).map(i => {
-      const ok = i.price <= a.balance;
-      return `<button type="button" class="item" data-id="${i.id}"${ok ? '' : ' disabled'}><b>${i.name.replace('ຄຳຮູບປະພັນ ', '')}</b><span>${kip(i.price)}</span><span>${ok ? 'ແລກໄດ້ ✓' : 'ຂາດອີກ ' + kip(i.price - a.balance)}</span></button>`;
+      const ok = i.price <= a.balance && isOpen();
+      return `<button type="button" class="item" data-id="${i.id}"${ok ? '' : ' disabled'}><b>${i.name.replace('ຄຳຮູບປະພັນ ', '')}</b><span>${kip(i.price)}</span><span>${ok ? 'ແລກໄດ້ ✓' : i.price <= a.balance ? 'ນອກເວລາ' : 'ຂາດອີກ ' + kip(i.price - a.balance)}</span></button>`;
     }).join('');
   });
   document.querySelectorAll('#x-jewelry .item, #x-bar .item').forEach(b => b.addEventListener('click', () => {
@@ -479,7 +499,7 @@ function renderAcct() {
     $('x-confirm').hidden = false; err('err4');
   }));
   $('x-confirm').hidden = true;
-  $('w-all').disabled = a.balance <= a.fee; $('w-go').disabled = a.balance <= a.fee;
+  $('w-all').disabled = a.balance <= a.fee; $('w-go').disabled = a.balance <= a.fee || !isOpen();
   wEst();
   $('tx').innerHTML = a.txs.length ? a.txs.map(t => {
     const sign = t.type === 'ຝາກ' ? '+' : '−';
@@ -491,7 +511,9 @@ function renderAcct() {
 }
 $('x-cancel').addEventListener('click', () => { $('x-confirm').hidden = true; PICK = null; });
 $('x-go').addEventListener('click', async () => {
-  if (!PICK) return; err('err4'); $('x-go').disabled = true; $('x-go').textContent = 'ກຳລັງແລກ…';
+  if (!PICK) return; err('err4');
+  if (!isOpen()) return err('err4', offMsg());
+  $('x-go').disabled = true; $('x-go').textContent = 'ກຳລັງແລກ…';
   try {
     const j = await api('POST', Object.assign({action: 'save_redeem', item: PICK.id}, CRED));
     TX = j.tx; TOKEN = j.t; setUrl();
@@ -511,6 +533,7 @@ $('w-all').addEventListener('click', () => { $('w-amt').value = ACCT.balance; wE
 document.querySelectorAll('input[name=w-m]').forEach(r => r.addEventListener('change', () => { $('w-acc-l').hidden = document.querySelector('input[name=w-m]:checked').value !== 'transfer'; }));
 $('w-go').addEventListener('click', async () => {
   err('err5');
+  if (!isOpen()) return err('err5', offMsg());
   const amount = Math.round(Number($('w-amt').value) || 0), method = document.querySelector('input[name=w-m]:checked').value, account = $('w-acc').value.trim();
   if (!(amount > ACCT.fee)) return err('err5', 'ຍອດຖອນຕ້ອງຫຼາຍກວ່າຄ່າທຳນຽມ ' + kip(ACCT.fee));
   if (amount > ACCT.balance) return err('err5', 'ຍອດທີ່ຢືນຢັນແລ້ວມີ ' + kip(ACCT.balance));
@@ -529,6 +552,14 @@ $('b-refresh').addEventListener('click', () => loadAcct().catch(() => {}));
 $('tab-dep').addEventListener('click', () => { tab('dep'); if (INFO) show('v-dep'); });
 $('tab-acct').addEventListener('click', () => openAcct());
 
+// ຖ້າເປີດໜ້າຄ້າງໄວ້ ໃຫ້ປ່ຽນສະຖານະເອງເມື່ອຮອດເວລາເປີດ ຫຼື ປິດ
+let wasOpen = isOpen();
+setInterval(() => {
+  if (isOpen() === wasOpen) return;
+  wasOpen = isOpen(); applyHours();
+  if (ACCT) renderAcct();
+}, 20000);
+
 // ---- ເລີ່ມ ----
 (async () => {
   const q = new URLSearchParams(location.search);
@@ -538,10 +569,10 @@ $('tab-acct').addEventListener('click', () => openAcct());
       TX = j.tx; TOKEN = q.get('t');
       if (TX.type === 'ແລກຄຳ') redView();
       else if (TX.status === 'ລໍຖ້າໂອນເງິນ' && Date.now() - TX.timeMs < 24 * 3600000) payView(); else doneView();
-      INFO = await api('GET', {action: 'save_info'}); renderAmts();
+      INFO = await api('GET', {action: 'save_info'}); setHours(INFO); renderAmts();
       return;
     }
-    INFO = await api('GET', {action: 'save_info'});
+    INFO = await api('GET', {action: 'save_info'}); setHours(INFO);
     renderAmts();
     $('d-name').value = mem('name') || ''; $('d-phone').value = mem('phone') || '';
     const me = ME.get();

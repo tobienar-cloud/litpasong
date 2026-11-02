@@ -100,6 +100,13 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
     <div class="row" style="justify-content:center"><a class="btn gold" href="https://wa.me/8562058954624" target="_blank" rel="noopener">ທັກ WhatsApp</a></div>
   </section>
 
+  <section class="card closed" id="v-off" hidden>
+    <h2>ຕອນນີ້ນອກເວລາສັ່ງຊື້ອອນລາຍ</h2>
+    <p>ສັ່ງຊື້ຄຳອອນລາຍໄດ້ທຸກມື້ ເວລາ <b id="off-hours">10:00–16:00 ນ.</b> ເທົ່ານັ້ນ</p>
+    <p class="note">ກະລຸນາກັບມາໃໝ່ໃນເວລາດັ່ງກ່າວ · ບິນທີ່ສັ່ງໄວ້ແລ້ວ ຍັງເບິ່ງ ແລະ ແນບສະລິບໄດ້ຕາມປົກກະຕິ</p>
+    <div class="row" style="justify-content:center"><a class="btn gold" href="./">ເບິ່ງລາຄາຄຳມື້ນີ້</a></div>
+  </section>
+
   <section class="card" id="v-loading"><p class="note">ກຳລັງໂຫຼດລາຄາລ່າສຸດ…</p></section>
 
   <!-- Step 1 -->
@@ -199,6 +206,15 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4PY_Xt5TtnErjBkAryQ8Sb8N1cwv67FImKLI7E33VxF4jfO361g/exec';
 const ADMIN_WA = '8562058954624';
 
+// ---- ເວລາເປີດຊື້ຄຳ ແລະ ອອມຄຳອອນລາຍ (ເວລາລາວ) ----
+const SELL = {from: '10:00', to: '16:00', skew: 0};
+function setHours(r) { if (r && r.sellFrom) { SELL.from = r.sellFrom; SELL.to = r.sellTo; } if (r && r.nowMs) SELL.skew = r.nowMs - Date.now(); }
+function isOpen() {
+  const d = new Date(Date.now() + SELL.skew + 7 * 3600000);
+  const t = String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0');
+  return t >= SELL.from && t < SELL.to;
+}
+const hoursText = () => SELL.from + '–' + SELL.to + ' ນ.';
 const $ = id => document.getElementById(id);
 const ME = {
   get() { try { return JSON.parse(localStorage.getItem('lps-me') || sessionStorage.getItem('lps-me') || 'null'); } catch (e) { return null; } },
@@ -209,7 +225,7 @@ const fmtG = g => (Math.round(g * 1000) / 1000) + ' ກຣາມ';
 let ITEMS = [], RULES = {payMinutes: 30, pickupMonths: 3, maxGrams: 15}, sel = null, qty = 1, ORDER = null, TOKEN = '', timerId = 0, slipData = '';
 
 function show(view, step) {
-  ['v-closed','v-loading','v-choose','v-pay','v-receipt'].forEach(v => $(v).hidden = v !== view);
+  ['v-closed','v-off','v-loading','v-choose','v-pay','v-receipt'].forEach(v => $(v).hidden = v !== view);
   [1,2,3].forEach(i => $('st' + i).classList.toggle('on', i === step));
 }
 function err(id, msg) { $(id).textContent = msg || ''; $(id).hidden = !msg; }
@@ -242,6 +258,7 @@ function renderItems() {
     calc();
   }));
   $('rules').innerHTML = [
+    `ສັ່ງຊື້ໄດ້ທຸກມື້ ເວລາ ${hoursText()} ເທົ່ານັ້ນ`,
     `ລາຄາລັອກໄວ້ ${RULES.payMinutes} ນາທີ ຕ້ອງໂອນ ແລະ ແນບສະລິບພາຍໃນເວລານີ້ ບໍ່ທັນຕ້ອງສັ່ງໃໝ່ຕາມລາຄາໃໝ່`,
     `ສັ່ງໄດ້ສູງສຸດ 1 ບາດ (${RULES.maxGrams} ກຣາມ) ຕໍ່ບິນ`,
     'ຈ່າຍເຕັມລາຄາຄຳຕອນສັ່ງ · ຄ່າລາຍຂອງຄຳຮູບປະພັນຈ່າຍທີ່ຮ້ານຕອນຮັບຄຳ · ເລືອກລາຍຈິງທີ່ຮ້ານ',
@@ -263,6 +280,7 @@ $('minus').onclick = () => { qty--; calc(); };
 $('plus').onclick = () => { qty++; calc(); };
 $('v-choose').addEventListener('submit', async e => {
   e.preventDefault(); err('err1');
+  if (!isOpen()) return offView();
   const name = $('f-name').value.trim(), phone = $('f-phone').value.trim(), pin = $('f-pin').value.trim();
   if (!sel) return err('err1', 'ກະລຸນາເລືອກລາຍການ');
   if (!name) return err('err1', 'ກະລຸນາໃສ່ຊື່');
@@ -399,6 +417,8 @@ async function loadOrder(bill, t) {
   } catch (ex) { show('v-closed', 1); $('v-closed').querySelector('h2').textContent = ex.message; }
 }
 
+function offView() { $('off-hours').textContent = hoursText(); show('v-off', 1); }
+
 // ---- start ----
 (async () => {
   if (!SCRIPT_URL) { show('v-closed', 1); return; }
@@ -406,7 +426,12 @@ async function loadOrder(bill, t) {
   if (q.get('bill') && q.get('t')) return loadOrder(q.get('bill'), q.get('t'));
   try {
     const j = await api('GET', {action: 'items'});
-    ITEMS = j.items; RULES = j.rules || RULES;
+    ITEMS = j.items; RULES = j.rules || RULES; setHours(j.rules);
+    setInterval(() => {
+      if (!$('v-choose').hidden && !isOpen()) offView();
+      else if (!$('v-off').hidden && isOpen()) location.reload();
+    }, 20000);
+    if (!isOpen()) return offView();
     renderItems(); calc(); show('v-choose', 1);
     const me = ME.get();
     if (me) { $('f-name').value = me.name || ''; $('f-phone').value = me.phone; $('f-pin').value = me.pin; $('me-link').textContent = '👤 ' + (me.name || 'ໂປຣໄຟລ໌ຂອງຂ້ອຍ') + ' →'; }
