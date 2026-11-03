@@ -97,9 +97,17 @@ td:last-child{text-align:right;font-weight:600;white-space:nowrap}
 .cmp .v.up{color:var(--up)}.cmp .v.down{color:var(--down)}.cmp .v.none{font-size:15px;font-weight:600;color:var(--muted)}
 .cmp .s{font-size:13px;color:var(--muted)}
 .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.tabs button{font:inherit;font-size:15px;color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:10px;padding:8px 4px;min-height:42px;cursor:pointer}
+.tabs button{font:inherit;font-size:14px;white-space:nowrap;color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:10px;padding:8px 2px;min-height:42px;cursor:pointer}
 .tabs button[aria-pressed="true"]{background:var(--maroon);border-color:var(--maroon);color:#fbf1df;font-weight:600}
 .plot{position:relative;min-width:0}
+.tr-save{justify-self:center}
+.tr-ov{position:fixed;inset:0;z-index:50;background:rgba(20,8,10,.82);display:grid;place-items:center;padding:16px;overflow:auto}
+.tr-ov[hidden]{display:none}
+.tr-ov>div{display:grid;gap:12px;justify-items:center;width:min(100%,520px)}
+.tr-ov img{width:100%;height:auto;border-radius:10px;display:block}
+.tr-ov p{margin:0;color:#fbf1df;font-size:14px;text-align:center}
+.tr-ov .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.tr-ov .btn.close{background:transparent;color:#fbf1df;border:1px solid rgba(255,255,255,.5)}
 .plot svg{display:block;width:100%;height:auto;touch-action:pan-y}
 .plot text{font-family:var(--body);font-size:12px;fill:var(--muted)}
 .plot text.last{font-size:13px;font-weight:800;fill:var(--fg);paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
@@ -253,8 +261,16 @@ footer .visits b{color:var(--fg);font-variant-numeric:tabular-nums}
       <button type="button" data-v="year" aria-pressed="false">ລາຍປີ</button>
     </div>
     <div class="plot" id="tr-plot"></div>
+    <button type="button" class="btn gold tr-save" id="tr-save">ບັນທຶກຮູບກຣາຟ</button>
     <p class="note" id="tr-note"></p>
     <details><summary>ເບິ່ງເປັນຕາຕະລາງ</summary><table class="num"><thead><tr><th>ວັນທີ</th><th>ລາຄາ (ກີບ)</th><th>ປ່ຽນແປງ</th></tr></thead><tbody id="tr-rows"></tbody></table></details>
+  </div>
+  <div class="tr-ov" id="tr-ov" role="dialog" aria-modal="true" aria-label="ຮູບກຣາຟລາຄາຄຳ" hidden>
+    <div>
+      <img id="tr-ov-img" alt="ຮູບກຣາຟລາຄາຄຳ ຮ້ານຄຳ ລິດປະສົງ">
+      <div class="row"><button type="button" class="btn gold" id="tr-ov-go">ບັນທຶກລົງເຄື່ອງ / ແຊຣ໌</button><button type="button" class="btn close" id="tr-ov-close">ປິດ</button></div>
+      <p>ຖ້າກົດແລ້ວບໍ່ບັນທຶກ ໃຫ້ກົດຄ້າງທີ່ຮູບ ແລ້ວເລືອກບັນທຶກຮູບ</p>
+    </div>
   </div>
   <div class="callout warn"><b>ລາຄາຄຳຮູບປະພັນ ຍັງບໍ່ລວມຄ່າລາຍ</b><span>ຄ່າລາຍແຕ່ລະແບບບໍ່ເທົ່າກັນ ຂຶ້ນກັບລາຍ ແລະ ນ້ຳໜັກ ສອບຖາມຄ່າລາຍໄດ້ທີ່ແອັດມິນ. ຄຳແທ່ງ 1 ບາດ ບໍ່ມີຄ່າລາຍ.</span></div>
   <div class="callout warn"><b>ສັ່ງຊື້ຄຳອອນລາຍໄດ້ແລ້ວ</b><span>ທຸກມື້ ເວລາ 10:00–16:00 ນ. · ລັອກລາຄາມື້ນີ້ ໂອນຜ່ານ BCEL ແລ້ວມາຮັບຄຳທີ່ຮ້ານ ບໍ່ຈຳກັດເວລາ · <a href="order.html">ສັ່ງຊື້ເລີຍ →</a> · <a href="my.html">ໂປຣໄຟລ໌ຂອງຂ້ອຍ →</a></span></div>
@@ -489,16 +505,22 @@ function sel(b){var a=b.previousElementSibling,r=document.createRange();r.select
     var d=b-a,p=a?d/a*100:0;
     return {d:d,cls:d>0?'up':d<0?'down':'',txt:(d>0?'▲ ຂຶ້ນ ':d<0?'▼ ລົງ ':'ເທົ່າເດີມ')+(d?kip(Math.abs(d)):''),pct:d?(d>0?'+':'−')+Math.abs(p).toFixed(2)+'%':''};
   }
-  function drawCmp(rows){
-    var cur=rows[rows.length-1],host=$('tr-cmp');host.textContent='';
-    [['day','ທຽບກັບມື້ວານ',5],['week','ທຽບກັບອາທິດກ່ອນ',4],['month','ທຽບກັບເດືອນກ່ອນ',7],['year','ທຽບກັບປີກ່ອນ',15]].forEach(function(c){
+  function cmpData(rows){
+    var cur=rows[rows.length-1];
+    return [['day','ທຽບກັບມື້ວານ',5],['week','ທຽບກັບອາທິດກ່ອນ',4],['month','ທຽບກັບເດືອນກ່ອນ',7],['year','ທຽບກັບປີກ່ອນ',15]].map(function(c){
       var target=back(cur[0],c[0]),old=null;
       rows.forEach(function(r){if(r[0]<=target)old=r;});
       if(old&&(Date.parse(target)-Date.parse(old[0]))/864e5>c[2])old=null;
-      var w=document.createElement('div'),t=document.createElement('span'),v=document.createElement('span'),s=document.createElement('span');
-      t.className='t';t.textContent=c[1];s.className='s';
+      return {kind:c[0],title:c[1],old:old};
+    });
+  }
+  function drawCmp(rows){
+    var cur=rows[rows.length-1],host=$('tr-cmp');host.textContent='';
+    cmpData(rows).forEach(function(c){
+      var old=c.old,w=document.createElement('div'),t=document.createElement('span'),v=document.createElement('span'),s=document.createElement('span');
+      t.className='t';t.textContent=c.title;s.className='s';
       if(old){var ch=change(old[col],cur[col]);v.className='v num '+ch.cls;v.textContent=ch.txt;s.textContent=(ch.pct?ch.pct+' · ':'')+dm(old[0])+': '+kip(old[col]);}
-      else{v.className='v none';v.textContent='ຍັງບໍ່ມີຂໍ້ມູນ';s.textContent='ເລີ່ມທຽບໄດ້ '+dmy(forward(FIRST,c[0]));}
+      else{v.className='v none';v.textContent='ຍັງບໍ່ມີຂໍ້ມູນ';s.textContent='ເລີ່ມທຽບໄດ້ '+dmy(forward(FIRST,c.kind));}
       w.append(t,v,s);host.append(w);
     });
   }
@@ -579,6 +601,96 @@ function sel(b){var a=b.previousElementSibling,r=document.createRange();r.select
     var base='ລາຄາສຸດທ້າຍຂອງແຕ່ລະ'+NAME[view]+' · ເລີ່ມເກັບຂໍ້ມູນ '+dmy(FIRST)+' · ລາຄາຮູບປະພັນຍັງບໍ່ລວມຄ່າລາຍ';
     $('tr-note').textContent=(pts.length<3?'ກຳລັງເກັບຂໍ້ມູນ ກຣາຟ'+NAME[view]+'ຈະສົມບູນຂຶ້ນເລື້ອຍໆ · ':'')+base;
   }
+  // ບັນທຶກຮູບກຣາຟ: ວາດເປັນຮູບ 1080×1080 ພ້ອມໂລໂກ້ ແລະ ລາຍນ້ຳຮ້ານ (ສີສະຫວ່າງສະເໝີ)
+  function loadImg(u){return new Promise(function(ok,no){var i=new Image();i.onload=function(){ok(i);};i.onerror=no;i.src=u;});}
+  function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+  async function makeImage(){
+    var SANS='"Noto Sans Lao Looped","Noto Sans Lao",system-ui,sans-serif',SERIF='"Noto Serif Lao",'+SANS;
+    try{await Promise.all([document.fonts.load('800 30px "Noto Sans Lao Looped"','ຄຳ'),document.fonts.load('600 30px "Noto Sans Lao Looped"','ຄຳ'),document.fonts.load('400 30px "Noto Sans Lao Looped"','ຄຳ')]);}catch(e){}
+    var imgs=await Promise.all([loadImg('img/logo-band.jpg'),loadImg('img/logo-mark.png')]),band=imgs[0],mark=imgs[1];
+    var S=1080,cv=document.createElement('canvas');cv.width=cv.height=S;var c=cv.getContext('2d');
+    var MAR='#600d17',GOLD='#c9a24a',FG='#2a1a1c',MUTED='#76615f',LINE='#e8ddd0',M=48;
+    var T=function(t,x,y,font,color,al){c.font=font;c.fillStyle=color;c.textAlign=al||'left';c.fillText(t,x,y);};
+    var rows=current(),pts=group(rows,view),cur=rows[rows.length-1],sel=$('tr-item'),item=sel.options[sel.selectedIndex].text;
+    c.fillStyle='#fbf7f1';c.fillRect(0,0,S,S);
+    // ຫົວຮູບ
+    c.fillStyle=MAR;c.fillRect(0,0,S,170);c.fillStyle=GOLD;c.fillRect(0,170,S,6);
+    c.drawImage(band,0,0,568,178,24,8,483,151);
+    T('ລາຄາຄຳ ວັນທີ',S-M,78,'600 28px '+SANS,'#f3dfa8','right');
+    T(dmy(cur[0]),S-M,126,'800 42px '+SANS,'#ffffff','right');
+    // ຊື່ລາຍການ ແລະ ລາຄາ
+    T(item+' · ລາຍ'+NAME[view],M,232,'600 30px '+SANS,MUTED);
+    T(kip(cur[col]),M,300,'800 62px '+SANS,FG);
+    var pw=c.measureText(kip(cur[col])).width;
+    T('ກີບ',M+pw+14,300,'600 30px '+SANS,MUTED);
+    if(col===1)T('ຍັງບໍ່ລວມຄ່າລາຍ',S-M,300,'400 24px '+SANS,MUTED,'right');
+    // ກ່ອງທຽບລາຄາ
+    var gap=12,bw=(S-M*2-gap*3)/4;
+    cmpData(rows).forEach(function(d,i){
+      var x=M+i*(bw+gap),y=326;
+      c.fillStyle='#ffffff';rr(c,x,y,bw,124,14);c.fill();c.strokeStyle=LINE;c.lineWidth=2;c.stroke();
+      T(d.title.replace('ທຽບກັບ',''),x+14,y+36,'400 22px '+SANS,MUTED);
+      if(d.old){var ch=change(d.old[col],cur[col]);
+        T(ch.txt,x+14,y+76,'800 25px '+SANS,ch.d>0?'#1f6b2c':ch.d<0?'#a12626':FG);
+        T(ch.pct||dm(d.old[0]),x+14,y+108,'400 21px '+SANS,MUTED);
+      }else T('ຍັງບໍ່ມີຂໍ້ມູນ',x+14,y+76,'600 22px '+SANS,MUTED);
+    });
+    // ກຣາຟ
+    var bx=M,by=466,bwid=S-M*2,bh=496;
+    c.fillStyle='#ffffff';rr(c,bx,by,bwid,bh,16);c.fill();c.strokeStyle=LINE;c.lineWidth=2;c.stroke();
+    var L=bx+(pts.length>1?124:30),R=bx+bwid-30,Top=by+50,Bot=by+bh-56;
+    var mw=400,mh=mw*.635,cx=(L+R)/2,my=Top+(Bot-Top-mh-84)/2;
+    c.globalAlpha=.26;c.drawImage(mark,cx-mw/2,my,mw,mh);
+    c.globalAlpha=.34;T('ຮ້ານຄຳ ລິດປະສົງ',cx,my+mh+46,'800 38px '+SANS,MUTED,'center');
+    T('LITPASONG JEWELRY',cx,my+mh+82,'700 24px '+SERIF,MUTED,'center');c.globalAlpha=1;
+    var vals=pts.map(function(p){return p.v;}),tk=ticks(Math.min.apply(null,vals),Math.max.apply(null,vals)),lo=tk[0],hi=tk[tk.length-1],dec=(tk[1]-tk[0])<1e5?2:1;
+    var X=function(i){return pts.length>1?L+(R-L)*i/(pts.length-1):cx;},Y=function(v){return pts.length>1?Top+(Bot-Top)*(1-(v-lo)/(hi-lo)):(Top+Bot)/2;};
+    if(pts.length>1)tk.forEach(function(v){
+      c.strokeStyle=LINE;c.lineWidth=2;c.beginPath();c.moveTo(L,Y(v));c.lineTo(R,Y(v));c.stroke();
+      T((v/1e6).toFixed(dec)+' ລ້ານ',L-12,Y(v)+8,'400 22px '+SANS,MUTED,'right');
+    });
+    var maxL=6,step=Math.max(1,Math.ceil((pts.length-1)/(maxL-1)));
+    pts.forEach(function(p,i){if((pts.length-1-i)%step)return;
+      var al=pts.length===1?'center':i===pts.length-1?'right':i===0?'left':'center';
+      T(p.label,X(i),Bot+36,'400 22px '+SANS,MUTED,al);});
+    if(pts.length>1){
+      c.beginPath();pts.forEach(function(p,i){c[i?'lineTo':'moveTo'](X(i),Y(p.v));});
+      c.strokeStyle=MAR;c.lineWidth=5;c.lineJoin='round';c.lineCap='round';c.stroke();
+      c.lineTo(X(pts.length-1),Bot);c.lineTo(X(0),Bot);c.closePath();c.fillStyle='rgba(110,20,35,.08)';c.fill();
+    }
+    var n=pts.length-1;
+    c.beginPath();c.arc(X(n),Y(pts[n].v),10,0,7);c.fillStyle=MAR;c.fill();c.strokeStyle='#fff';c.lineWidth=4;c.stroke();
+    c.font='800 28px '+SANS;c.textAlign=pts.length>1?'right':'center';c.strokeStyle='#fff';c.lineWidth=8;c.lineJoin='round';
+    var ly=Math.max(Top-8,Y(pts[n].v)-24);c.strokeText(kip(pts[n].v),pts.length>1?R:cx,ly);c.fillStyle=FG;c.fillText(kip(pts[n].v),pts.length>1?R:cx,ly);
+    // ທ້າຍຮູບ
+    c.fillStyle=MAR;c.fillRect(0,S-96,S,96);c.fillStyle=GOLD;c.fillRect(0,S-96,S,4);
+    c.drawImage(mark,M-8,S-80,105,66.7);
+    T('ຮ້ານຄຳ ລິດປະສົງ · ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ · WhatsApp 020 5895 4624',M+110,S-50,'600 25px '+SANS,'#ffffff');
+    T('tobienar-cloud.github.io/litpasong',M+110,S-17,'400 22px '+SANS,'#f3dfa8');
+    return cv;
+  }
+  var ovBlob=null,ovName='',ovUrl='';
+  $('tr-save').addEventListener('click',async function(){
+    var b=this,txt=b.textContent;b.disabled=true;b.textContent='ກຳລັງສ້າງຮູບ…';
+    try{
+      var cv=await makeImage();
+      ovBlob=await new Promise(function(r){cv.toBlob(r,'image/png');});
+      ovName='litpasong-gold-'+today()+'.png';
+      if(ovUrl)URL.revokeObjectURL(ovUrl);ovUrl=URL.createObjectURL(ovBlob);
+      $('tr-ov-img').src=ovUrl;$('tr-ov').hidden=false;
+    }catch(e){alertSave();}
+    b.disabled=false;b.textContent=txt;
+  });
+  function alertSave(){$('tr-note').textContent='ສ້າງຮູບບໍ່ສຳເລັດ ກະລຸນາລອງໃໝ່ ຫຼື ແຄັບໜ້າຈໍແທນ';}
+  $('tr-ov-close').addEventListener('click',function(){$('tr-ov').hidden=true;});
+  $('tr-ov').addEventListener('click',function(e){if(e.target===this)this.hidden=true;});
+  $('tr-ov-go').addEventListener('click',async function(){
+    var f=new File([ovBlob],ovName,{type:'image/png'});
+    if(window.matchMedia('(pointer:coarse)').matches&&navigator.canShare&&navigator.canShare({files:[f]})){
+      try{await navigator.share({files:[f]});return;}catch(e){if(e.name==='AbortError')return;}
+    }
+    var a=document.createElement('a');a.href=ovUrl;a.download=ovName;document.body.append(a);a.click();a.remove();
+  });
   fetch('prices.json?h='+Math.floor(Date.now()/36e5),{cache:'no-cache'}).then(function(r){return r.json();}).then(function(j){
     hist=j.rows||[];if(!hist.length)return;
     FIRST=hist[0][0];box.hidden=false;render();
