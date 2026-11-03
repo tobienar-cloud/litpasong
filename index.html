@@ -87,6 +87,8 @@ td:last-child{text-align:right;font-weight:600;white-space:nowrap}
 .trend{display:grid;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
 .trend-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
 .trend-head h3{margin:0;font-size:20px}
+.tr-title{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;min-width:0}
+.tr-title img{width:170px;height:auto;border-radius:10px;display:block}
 .trend select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;max-width:100%}
 .cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .cmp>div{display:grid;gap:2px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--bg);min-width:0}
@@ -100,7 +102,12 @@ td:last-child{text-align:right;font-weight:600;white-space:nowrap}
 .plot{position:relative;min-width:0}
 .plot svg{display:block;width:100%;height:auto;touch-action:pan-y}
 .plot text{font-family:var(--body);font-size:12px;fill:var(--muted)}
-.plot text.last{font-size:13px;font-weight:800;fill:var(--fg)}
+.plot text.last{font-size:13px;font-weight:800;fill:var(--fg);paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
+.plot text.ttl{font-size:13px;font-weight:600;fill:var(--fg)}
+.plot text.brand{font-size:12px;font-weight:600;fill:var(--fg)}
+.plot .wm image{opacity:.3}
+.plot .wm text{font-weight:800;fill:var(--muted);opacity:.42;text-anchor:middle}
+.plot .wm .wm-en{font-family:var(--display);letter-spacing:.08em}
 .tip{position:absolute;top:0;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.14);white-space:nowrap;display:grid;gap:1px}
 .tip b{font-size:15px}
 .tip span{color:var(--muted)}
@@ -230,7 +237,7 @@ footer .visits b{color:var(--fg);font-variant-numeric:tabular-nums}
   </div>
   <div class="trend" id="trend" hidden>
     <div class="trend-head">
-      <h3>ລາຄາຄຳທຽບກັບຍ້ອນຫຼັງ</h3>
+      <div class="tr-title"><img src="img/logo-band.jpg" alt="ຮ້ານຄຳ ລິດປະສົງ Litpasong Jewelry" width="284" height="100"><h3>ລາຄາຄຳທຽບກັບຍ້ອນຫຼັງ</h3></div>
       <select id="tr-item" aria-label="ເລືອກລາຍການ">
         <option value="1">ຄຳຮູບປະພັນ 1 ບາດ</option>
         <option value="2">ຄຳແທ່ງ 1 ບາດ</option>
@@ -505,7 +512,7 @@ function sel(b){var a=b.previousElementSibling,r=document.createRange();r.select
   function svgEl(n,attrs,txt){var e=document.createElementNS('http://www.w3.org/2000/svg',n);Object.keys(attrs).forEach(function(k){e.setAttribute(k,attrs[k]);});if(txt!=null)e.textContent=txt;return e;}
   function drawPlot(pts){
     var host=$('tr-plot');host.textContent='';
-    var W=Math.max(280,host.clientWidth||320),H=250,L=pts.length>1?68:14,R=14,T=26,B=28;
+    var W=Math.max(280,host.clientWidth||320),H=292,L=pts.length>1?68:14,R=14,T=46,B=60;
     var s=svgEl('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'ກຣາຟລາຄາຄຳ'+NAME[view]});
     var vals=pts.map(function(p){return p.v;}),tk=ticks(Math.min.apply(null,vals),Math.max.apply(null,vals)),lo=tk[0],hi=tk[tk.length-1];
     var x=function(i){return pts.length>1?L+(W-L-R)*i/(pts.length-1):(L+W-R)/2;},y=function(v){return pts.length>1?T+(H-T-B)*(1-(v-lo)/(hi-lo)):(T+H-B)/2;};
@@ -514,12 +521,23 @@ function sel(b){var a=b.previousElementSibling,r=document.createRange();r.select
       s.append(svgEl('line',{x1:L,x2:W-R,y1:y(v),y2:y(v),stroke:'var(--line)','stroke-width':1}));
       s.append(svgEl('text',{x:L-8,y:y(v)+4,'text-anchor':'end'},(v/1e6).toFixed(dec)+' ລ້ານ'));
     });
-    var maxL=Math.max(2,Math.floor((W-L-R)/62)),gap=Math.max(1,Math.ceil((pts.length-1)/(maxL-1)));
+    // ລາຍນ້ຳຮ້ານ: ຢູ່ໃນ SVG ຈຶ່ງຕິດໄປກັບກຣາຟທຸກຄັ້ງທີ່ແຄັບໜ້າຈໍ
+    var mw=Math.min(132,(W-L-R)*.42),mh=mw*.635,cx=(L+W-R)/2,my=T+(H-T-B-mh-34)/2,wm=svgEl('g',{'class':'wm','aria-hidden':'true'});
+    wm.append(svgEl('image',{href:'img/logo-mark.png',x:cx-mw/2,y:my,width:mw,height:mh}));
+    wm.append(svgEl('text',{x:cx,y:my+mh+17,'font-size':15},'ຮ້ານຄຳ ລິດປະສົງ'));
+    wm.append(svgEl('text',{'class':'wm-en',x:cx,y:my+mh+32,'font-size':10},'LITPASONG JEWELRY'));
+    s.append(wm);
+    var item=$('tr-item');
+    s.append(svgEl('text',{'class':'ttl',x:0,y:15},item.options[item.selectedIndex].text+' · ລາຍ'+NAME[view]+' · '+dmy(pts[pts.length-1].date)));
+    s.append(svgEl('line',{x1:0,x2:W,y1:H-30,y2:H-30,stroke:'var(--line)','stroke-width':1}));
+    s.append(svgEl('image',{href:'img/logo-mark.png',x:0,y:H-25,width:30,height:19}));
+    s.append(svgEl('text',{'class':'brand',x:33,y:H-10},'ຮ້ານຄຳ ລິດປະສົງ · WhatsApp 020 5895 4624'));
+    var maxL=Math.max(2,Math.floor((W-L-R)/52)),gap=Math.max(1,Math.ceil((pts.length-1)/(maxL-1)));
     pts.forEach(function(p,i){
       if((pts.length-1-i)%gap)return;
       var a=pts.length===1||i===pts.length-1&&pts.length>1?'end':i===0?'start':'middle';
       if(pts.length===1)a='middle';
-      s.append(svgEl('text',{x:x(i),y:H-8,'text-anchor':a},p.label));
+      s.append(svgEl('text',{x:x(i),y:H-B+18,'text-anchor':a},p.label));
     });
     if(pts.length>1){
       var d=pts.map(function(p,i){return (i?'L':'M')+x(i).toFixed(1)+' '+y(p.v).toFixed(1);}).join(' ');
@@ -528,7 +546,7 @@ function sel(b){var a=b.previousElementSibling,r=document.createRange();r.select
     }
     var n=pts.length-1;
     if(pts.length<=31)pts.forEach(function(p,i){s.append(svgEl('circle',{cx:x(i),cy:y(p.v),r:i===n?5:pts.length>12?0:3,fill:'var(--chart)',stroke:'var(--surface)','stroke-width':2}));});
-    s.append(svgEl('text',{'class':'last num',x:Math.min(x(n),W-R),y:Math.max(14,y(pts[n].v)-11),'text-anchor':pts.length>1?'end':'middle'},kip(pts[n].v)));
+    s.append(svgEl('text',{'class':'last num',x:Math.min(x(n),W-R),y:Math.max(38,y(pts[n].v)-11),'text-anchor':pts.length>1?'end':'middle'},kip(pts[n].v)));
     var cross=svgEl('line',{y1:T,y2:H-B,stroke:'var(--muted)','stroke-width':1,visibility:'hidden'}),dot=svgEl('circle',{r:6,fill:'var(--chart)',stroke:'var(--surface)','stroke-width':2,visibility:'hidden'});
     s.append(cross,dot);host.append(s);
     var tip=document.createElement('div');tip.className='tip num';tip.hidden=true;host.append(tip);
