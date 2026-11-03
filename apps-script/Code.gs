@@ -76,7 +76,7 @@ function setup() {
 function doGet(e) {
   const p = e.parameter || {};
   try {
-    if (p.action === 'items') return json_({ ok: true, items: items_(), rules: rules_() });
+    if (p.action === 'items') return json_({ ok: true, items: items_(), rules: rules_(), buy: buy_() });
     if (p.action === 'order') return json_({ ok: true, order: publicOrder_(find_(p.bill, p.t)) });
     if (p.action === 'save_info') { const r = saveRef_(); return json_(Object.assign({ ok: true, cap: r.cap, perGram: r.perGram, priceAt: r.at, fee: SAVE.FEE }, sellHours_())); }
     if (p.action === 'save_tx') return json_({ ok: true, tx: savePublic_(saveFind_(p.id, p.t)) });
@@ -115,6 +115,19 @@ function items_() {
     const info = ITEMS[label];
     const price = Number(String(r[2]).replace(/[^0-9.]/g, ''));
     if (info && price > 0) out.push({ id: label, name: info.name, grams: info.grams, kind: info.kind, price: price });
+  });
+  return out;
+}
+
+// ລາຄາຮັບຊື້ສຳລັບສະແດງໜ້າເວັບ (ບໍ່ສົ່ງແຖວ "ຊື້ເຂົ້າ ຮູບປະພັນດີ")
+function buy_() {
+  const BUY = { 'ຊື້ເຂົ້າຮູບປະພັນ': 'buy_jewelry', 'ຊື້ເຂົ້າຄຳແທ່ງສູງສຸດ': 'buy_bar_max' };
+  const rows = SpreadsheetApp.getActive().getSheetByName(CFG.PRICE_SHEET).getRange(CFG.PRICE_RANGE).getValues();
+  const out = {};
+  rows.forEach(r => {
+    const key = BUY[String(r[0]).replace(/\s+/g, '')];
+    const price = Number(String(r[2]).replace(/[^0-9.]/g, ''));
+    if (key && price > 0) out[key] = price;
   });
   return out;
 }

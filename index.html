@@ -379,7 +379,7 @@ fetch('gallery.json',{cache:'no-store'}).then(function(r){return r.json()}).then
 function sel(b){var a=b.previousElementSibling,r=document.createRange();r.selectNodeContents(a);var s=getSelection();s.removeAllRanges();s.addRange(r);}
 </script>
 <script>
-// ລາຄາສົດຈາກ Google Sheet: ໜ້າເວັບດຶງລາຄາຂາຍລ່າສຸດທຸກຄັ້ງທີ່ເປີດ ແລະ ທຸກ 1 ນາທີ ຖ້າດຶງບໍ່ໄດ້ຈະສະແດງລາຄາໃນ price-data ຕາມເດີມ
+// ລາຄາສົດຈາກ Google Sheet: ໜ້າເວັບດຶງລາຄາຂາຍ ແລະ ຮັບຊື້ລ່າສຸດທຸກຄັ້ງທີ່ເປີດ ແລະ ທຸກ 1 ນາທີ ຖ້າດຶງບໍ່ໄດ້ຈະສະແດງລາຄາໃນ price-data ຕາມເດີມ
 (function(){
   var U='https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4PY_Xt5TtnErjBkAryQ8Sb8N1cwv67FImKLI7E33VxF4jfO361g/exec';
   var MAP={'1 ບາດ':'baht1','2 ສະຫຼຶງ':'salung2','1 ສະຫຼຶງ':'salung1','5 ຫຸນ':'hun5','3 ຫຸນ':'hun3','2 ຫຸນ':'hun2','1 ຫຸນ':'hun1','ຄຳແທ່ງ 1 ກຣາມ':'bar_gram','ລາຄາຂາຍຄຳແທ່ງ 1 ບາດ':'bar_sell'};
@@ -395,6 +395,7 @@ function sel(b){var a=b.previousElementSibling,r=document.createRange();r.select
       var next={},n=0;
       (j&&j.ok&&j.items||[]).forEach(function(i){var k=MAP[i.id],v=Number(i.price);if(k&&v>0&&!next[k]){next[k]=v.toLocaleString('en-US');n++;}});
       if(n!==NEED)throw new Error('incomplete');
+      ['buy_jewelry','buy_bar_max'].forEach(function(k){var v=Number(j.buy&&j.buy[k]);if(v>0)next[k]=v.toLocaleString('en-US');});
       Object.keys(next).forEach(function(k){document.querySelectorAll('[data-p="'+k+'"]').forEach(function(el){el.textContent=next[k];});});
       got=true;if(stamp)stamp.textContent=checkedAt();
     }).catch(function(){if(!got&&stamp)stamp.textContent=oldStamp;}).then(function(){busy=false;});
