@@ -17,12 +17,13 @@
 :root{
   --maroon:#6e1423; --maroon-deep:#4a0d17; --gold:#c9a24a; --gold-soft:#e8d39a;
   --bg:#fbf7f1; --surface:#ffffff; --fg:#2a1a1c; --muted:#76615f; --line:#e8ddd0;
+  --chart:#6e1423; --up:#1f6b2c; --down:#a12626;
   --display:"Noto Serif Lao","Noto Sans Lao Looped",serif;
   --body:"Noto Sans Lao Looped","Noto Sans Lao",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#1a1213; --surface:#241819; --fg:#f3e9df; --muted:#b8a49c; --line:#3a2a2b; --gold:#d8b45c; --gold-soft:#e8d39a; color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#1a1213; --surface:#241819; --fg:#f3e9df; --muted:#b8a49c; --line:#3a2a2b; --gold:#d8b45c; --gold-soft:#e8d39a; color-scheme:dark}
+  --bg:#1a1213; --surface:#241819; --fg:#f3e9df; --muted:#b8a49c; --line:#3a2a2b; --gold:#d8b45c; --gold-soft:#e8d39a; --chart:#d8b45c; --up:#9fd8a8; --down:#f0a0a0; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1a1213; --surface:#241819; --fg:#f3e9df; --muted:#b8a49c; --line:#3a2a2b; --gold:#d8b45c; --gold-soft:#e8d39a; --chart:#d8b45c; --up:#9fd8a8; --down:#f0a0a0; color-scheme:dark}
 
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.7}
 .wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -82,6 +83,32 @@ td:last-child{text-align:right;font-weight:600;white-space:nowrap}
 .svc p{margin:0;color:var(--muted)}
 
 /* Callouts */
+/* ກຣາຟລາຄາຄຳຍ້ອນຫຼັງ */
+.trend{display:grid;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.trend-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.trend-head h3{margin:0;font-size:20px}
+.trend select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;max-width:100%}
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.cmp>div{display:grid;gap:2px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--bg);min-width:0}
+.cmp .t{font-size:14px;color:var(--muted)}
+.cmp .v{font-size:16px;font-weight:800;white-space:nowrap}
+.cmp .v.up{color:var(--up)}.cmp .v.down{color:var(--down)}.cmp .v.none{font-size:15px;font-weight:600;color:var(--muted)}
+.cmp .s{font-size:13px;color:var(--muted)}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tabs button{font:inherit;font-size:15px;color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:10px;padding:8px 4px;min-height:42px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--maroon);border-color:var(--maroon);color:#fbf1df;font-weight:600}
+.plot{position:relative;min-width:0}
+.plot svg{display:block;width:100%;height:auto;touch-action:pan-y}
+.plot text{font-family:var(--body);font-size:12px;fill:var(--muted)}
+.plot text.last{font-size:13px;font-weight:800;fill:var(--fg)}
+.tip{position:absolute;top:0;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.14);white-space:nowrap;display:grid;gap:1px}
+.tip b{font-size:15px}
+.tip span{color:var(--muted)}
+.trend details summary{cursor:pointer;color:var(--muted);font-size:14px}
+.trend table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
+.trend th,.trend td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}
+.trend th:first-child,.trend td:first-child{text-align:left}
+.trend th{color:var(--muted);font-weight:600}
 .callout{display:grid;gap:2px;padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--surface)}
 .callout b{font-size:16px}
 .callout span{color:var(--muted);font-size:15px}
@@ -200,6 +227,27 @@ footer .visits b{color:var(--fg);font-variant-numeric:tabular-nums}
         <tr><td>ຮັບຊື້ ຄຳແທ່ງ ສູງສຸດ</td><td><span data-p="buy_bar_max">44,100,000</span> ກີບ</td></tr>
       </tbody></table>
     </div>
+  </div>
+  <div class="trend" id="trend" hidden>
+    <div class="trend-head">
+      <h3>ລາຄາຄຳທຽບກັບຍ້ອນຫຼັງ</h3>
+      <select id="tr-item" aria-label="ເລືອກລາຍການ">
+        <option value="1">ຄຳຮູບປະພັນ 1 ບາດ</option>
+        <option value="2">ຄຳແທ່ງ 1 ບາດ</option>
+        <option value="3">ຮັບຊື້ ຄຳຮູບປະພັນ</option>
+        <option value="4">ຮັບຊື້ ຄຳແທ່ງ ສູງສຸດ</option>
+      </select>
+    </div>
+    <div class="cmp" id="tr-cmp"></div>
+    <div class="tabs" id="tr-tabs">
+      <button type="button" data-v="day" aria-pressed="true">ລາຍວັນ</button>
+      <button type="button" data-v="week" aria-pressed="false">ລາຍອາທິດ</button>
+      <button type="button" data-v="month" aria-pressed="false">ລາຍເດືອນ</button>
+      <button type="button" data-v="year" aria-pressed="false">ລາຍປີ</button>
+    </div>
+    <div class="plot" id="tr-plot"></div>
+    <p class="note" id="tr-note"></p>
+    <details><summary>ເບິ່ງເປັນຕາຕະລາງ</summary><table class="num"><thead><tr><th>ວັນທີ</th><th>ລາຄາ (ກີບ)</th><th>ປ່ຽນແປງ</th></tr></thead><tbody id="tr-rows"></tbody></table></details>
   </div>
   <div class="callout warn"><b>ລາຄາຄຳຮູບປະພັນ ຍັງບໍ່ລວມຄ່າລາຍ</b><span>ຄ່າລາຍແຕ່ລະແບບບໍ່ເທົ່າກັນ ຂຶ້ນກັບລາຍ ແລະ ນ້ຳໜັກ ສອບຖາມຄ່າລາຍໄດ້ທີ່ແອັດມິນ. ຄຳແທ່ງ 1 ບາດ ບໍ່ມີຄ່າລາຍ.</span></div>
   <div class="callout warn"><b>ສັ່ງຊື້ຄຳອອນລາຍໄດ້ແລ້ວ</b><span>ທຸກມື້ ເວລາ 10:00–16:00 ນ. · ລັອກລາຄາມື້ນີ້ ໂອນຜ່ານ BCEL ແລ້ວມາຮັບຄຳທີ່ຮ້ານ ບໍ່ຈຳກັດເວລາ · <a href="order.html">ສັ່ງຊື້ເລີຍ →</a> · <a href="my.html">ໂປຣໄຟລ໌ຂອງຂ້ອຍ →</a></span></div>
@@ -379,6 +427,151 @@ fetch('gallery.json',{cache:'no-store'}).then(function(r){return r.json()}).then
 function sel(b){var a=b.previousElementSibling,r=document.createRange();r.selectNodeContents(a);var s=getSelection();s.removeAllRanges();s.addRange(r);}
 </script>
 <script>
+// ກຣາຟລາຄາຄຳ: ປະຫວັດຈາກ prices.json (ລາຄາສຸດທ້າຍຂອງແຕ່ລະມື້) + ລາຄາປັດຈຸບັນໃນໜ້ານີ້
+(function(){
+  var box=document.getElementById('trend'); if(!box)return;
+  var $=function(id){return document.getElementById(id);};
+  var KEYS=[null,'baht1','bar_sell','buy_jewelry','buy_bar_max'];
+  var hist=[],col=1,view='day',FIRST='';
+  var LIMIT={day:30,week:26,month:24,year:10};
+  var NAME={day:'ວັນ',week:'ອາທິດ',month:'ເດືອນ',year:'ປີ'};
+  var kip=function(n){return Number(n).toLocaleString('en-US');};
+  function today(){var p={};new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Vientiane',day:'2-digit',month:'2-digit',year:'numeric'}).formatToParts(new Date()).forEach(function(x){p[x.type]=x.value;});return p.year+'-'+p.month+'-'+p.day;}
+  var dmy=function(d){return d.slice(8)+'/'+d.slice(5,7)+'/'+d.slice(0,4);};
+  var dm=function(d){return d.slice(8)+'/'+d.slice(5,7);};
+  function iso(y,m,d){return new Date(Date.UTC(y,m,d)).toISOString().slice(0,10);}
+  function back(s,kind){ // ວັນທີຍ້ອນຫຼັງ 1 ມື້ / ອາທິດ / ເດືອນ / ປີ
+    var y=+s.slice(0,4),m=+s.slice(5,7)-1,d=+s.slice(8);
+    if(kind==='day')return iso(y,m,d-1);
+    if(kind==='week')return iso(y,m,d-7);
+    var yy=kind==='year'?y-1:y, mm=kind==='month'?m-1:m;
+    var last=new Date(Date.UTC(yy,mm+1,0)).getUTCDate();
+    return iso(yy,mm,Math.min(d,last));
+  }
+  function forward(s,kind){ // ມື້ທຳອິດທີ່ຈະທຽບກັບຂໍ້ມູນເລີ່ມຕົ້ນໄດ້
+    var y=+s.slice(0,4),m=+s.slice(5,7)-1,d=+s.slice(8);
+    if(kind==='day')return iso(y,m,d+1);
+    if(kind==='week')return iso(y,m,d+7);
+    return kind==='month'?iso(y,m+1,d):iso(y+1,m,d);
+  }
+  function current(){ // ປະຫວັດ + ລາຄາທີ່ສະແດງຢູ່ຕອນນີ້ເປັນແຖວຂອງມື້ນີ້
+    var t=today(),rows=hist.filter(function(r){return r[0]<t;}),now=[t];
+    var mine=hist.filter(function(r){return r[0]===t;})[0],last=hist[hist.length-1];
+    KEYS.slice(1).forEach(function(k,i){
+      var el=document.querySelector('[data-p="'+k+'"]'),v=el?Number(el.textContent.replace(/[^0-9]/g,'')):0;
+      now.push(v>0?v:(mine||last)[i+1]);
+    });
+    rows.push(now);return rows;
+  }
+  function group(rows,kind){
+    var map={},order=[];
+    rows.forEach(function(r){
+      var d=r[0],k=d;
+      if(kind==='month')k=d.slice(0,7);
+      else if(kind==='year')k=d.slice(0,4);
+      else if(kind==='week'){var o=new Date(d+'T00:00:00Z'),w=(o.getUTCDay()+6)%7;k=iso(o.getUTCFullYear(),o.getUTCMonth(),o.getUTCDate()-w);}
+      if(!(k in map))order.push(k);
+      map[k]=r;
+    });
+    return order.map(function(k){
+      var r=map[k],label=kind==='year'?k:kind==='month'?k.slice(5)+'/'+k.slice(0,4):dm(r[0]);
+      return {label:label,date:r[0],v:r[col]};
+    }).slice(-LIMIT[kind]);
+  }
+  function change(a,b){
+    var d=b-a,p=a?d/a*100:0;
+    return {d:d,cls:d>0?'up':d<0?'down':'',txt:(d>0?'▲ ຂຶ້ນ ':d<0?'▼ ລົງ ':'ເທົ່າເດີມ')+(d?kip(Math.abs(d)):''),pct:d?(d>0?'+':'−')+Math.abs(p).toFixed(2)+'%':''};
+  }
+  function drawCmp(rows){
+    var cur=rows[rows.length-1],host=$('tr-cmp');host.textContent='';
+    [['day','ທຽບກັບມື້ວານ',5],['week','ທຽບກັບອາທິດກ່ອນ',4],['month','ທຽບກັບເດືອນກ່ອນ',7],['year','ທຽບກັບປີກ່ອນ',15]].forEach(function(c){
+      var target=back(cur[0],c[0]),old=null;
+      rows.forEach(function(r){if(r[0]<=target)old=r;});
+      if(old&&(Date.parse(target)-Date.parse(old[0]))/864e5>c[2])old=null;
+      var w=document.createElement('div'),t=document.createElement('span'),v=document.createElement('span'),s=document.createElement('span');
+      t.className='t';t.textContent=c[1];s.className='s';
+      if(old){var ch=change(old[col],cur[col]);v.className='v num '+ch.cls;v.textContent=ch.txt;s.textContent=(ch.pct?ch.pct+' · ':'')+dm(old[0])+': '+kip(old[col]);}
+      else{v.className='v none';v.textContent='ຍັງບໍ່ມີຂໍ້ມູນ';s.textContent='ເລີ່ມທຽບໄດ້ '+dmy(forward(FIRST,c[0]));}
+      w.append(t,v,s);host.append(w);
+    });
+  }
+  function ticks(lo,hi){
+    var span=hi-lo||hi*.01,raw=span/3,mag=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/mag,step=(f<=1?1:f<=2?2:f<=5?5:10)*mag;
+    var a=Math.floor(lo/step)*step,b=Math.ceil(hi/step)*step,out=[];
+    if(a===b){a-=step;b+=step;}
+    for(var v=a;v<=b+step/2;v+=step)out.push(v);
+    return out;
+  }
+  function svgEl(n,attrs,txt){var e=document.createElementNS('http://www.w3.org/2000/svg',n);Object.keys(attrs).forEach(function(k){e.setAttribute(k,attrs[k]);});if(txt!=null)e.textContent=txt;return e;}
+  function drawPlot(pts){
+    var host=$('tr-plot');host.textContent='';
+    var W=Math.max(280,host.clientWidth||320),H=250,L=pts.length>1?68:14,R=14,T=26,B=28;
+    var s=svgEl('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'ກຣາຟລາຄາຄຳ'+NAME[view]});
+    var vals=pts.map(function(p){return p.v;}),tk=ticks(Math.min.apply(null,vals),Math.max.apply(null,vals)),lo=tk[0],hi=tk[tk.length-1];
+    var x=function(i){return pts.length>1?L+(W-L-R)*i/(pts.length-1):(L+W-R)/2;},y=function(v){return pts.length>1?T+(H-T-B)*(1-(v-lo)/(hi-lo)):(T+H-B)/2;};
+    var dec=(tk[1]-tk[0])<1e5?2:1;
+    if(pts.length>1)tk.forEach(function(v){
+      s.append(svgEl('line',{x1:L,x2:W-R,y1:y(v),y2:y(v),stroke:'var(--line)','stroke-width':1}));
+      s.append(svgEl('text',{x:L-8,y:y(v)+4,'text-anchor':'end'},(v/1e6).toFixed(dec)+' ລ້ານ'));
+    });
+    var maxL=Math.max(2,Math.floor((W-L-R)/62)),gap=Math.max(1,Math.ceil((pts.length-1)/(maxL-1)));
+    pts.forEach(function(p,i){
+      if((pts.length-1-i)%gap)return;
+      var a=pts.length===1||i===pts.length-1&&pts.length>1?'end':i===0?'start':'middle';
+      if(pts.length===1)a='middle';
+      s.append(svgEl('text',{x:x(i),y:H-8,'text-anchor':a},p.label));
+    });
+    if(pts.length>1){
+      var d=pts.map(function(p,i){return (i?'L':'M')+x(i).toFixed(1)+' '+y(p.v).toFixed(1);}).join(' ');
+      s.append(svgEl('path',{d:d+' L'+x(pts.length-1)+' '+(H-B)+' L'+x(0)+' '+(H-B)+' Z',fill:'var(--chart)','fill-opacity':.09}));
+      s.append(svgEl('path',{d:d,fill:'none',stroke:'var(--chart)','stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'}));
+    }
+    var n=pts.length-1;
+    if(pts.length<=31)pts.forEach(function(p,i){s.append(svgEl('circle',{cx:x(i),cy:y(p.v),r:i===n?5:pts.length>12?0:3,fill:'var(--chart)',stroke:'var(--surface)','stroke-width':2}));});
+    s.append(svgEl('text',{'class':'last num',x:Math.min(x(n),W-R),y:Math.max(14,y(pts[n].v)-11),'text-anchor':pts.length>1?'end':'middle'},kip(pts[n].v)));
+    var cross=svgEl('line',{y1:T,y2:H-B,stroke:'var(--muted)','stroke-width':1,visibility:'hidden'}),dot=svgEl('circle',{r:6,fill:'var(--chart)',stroke:'var(--surface)','stroke-width':2,visibility:'hidden'});
+    s.append(cross,dot);host.append(s);
+    var tip=document.createElement('div');tip.className='tip num';tip.hidden=true;host.append(tip);
+    function at(ev){
+      var r=s.getBoundingClientRect(),px=(ev.clientX-r.left)*W/r.width,i=pts.length>1?Math.round((px-L)/(W-L-R)*n):0;
+      i=Math.max(0,Math.min(n,i));
+      cross.setAttribute('x1',x(i));cross.setAttribute('x2',x(i));cross.setAttribute('visibility','visible');
+      dot.setAttribute('cx',x(i));dot.setAttribute('cy',y(pts[i].v));dot.setAttribute('visibility','visible');
+      tip.textContent='';var b=document.createElement('b'),t=document.createElement('span'),c=document.createElement('span');
+      b.textContent=kip(pts[i].v)+' ກີບ';t.textContent=dmy(pts[i].date);tip.append(b,t);
+      if(i){var ch=change(pts[i-1].v,pts[i].v);c.textContent=ch.txt+(ch.pct?' ('+ch.pct+')':'');tip.append(c);}
+      tip.hidden=false;
+      var tw=tip.offsetWidth,hw=host.clientWidth,sx=x(i)*hw/W;
+      tip.style.left=Math.max(0,Math.min(hw-tw,sx-tw/2))+'px';
+    }
+    s.addEventListener('pointermove',at);s.addEventListener('pointerdown',at);
+    s.addEventListener('pointerleave',function(){tip.hidden=true;cross.setAttribute('visibility','hidden');dot.setAttribute('visibility','hidden');});
+  }
+  function drawTable(pts){
+    var tb=$('tr-rows');tb.textContent='';
+    pts.slice().reverse().forEach(function(p,i,a){
+      var tr=document.createElement('tr'),prev=a[i+1],ch=prev?change(prev.v,p.v):null;
+      [view==='year'||view==='month'?p.label:dmy(p.date),kip(p.v),ch?ch.txt+(ch.pct?' ('+ch.pct+')':''):'—'].forEach(function(t){var td=document.createElement('td');td.textContent=t;tr.append(td);});
+      tb.append(tr);
+    });
+  }
+  function render(){
+    var rows=current(),pts=group(rows,view);
+    drawCmp(rows);drawPlot(pts);drawTable(pts);
+    var base='ລາຄາສຸດທ້າຍຂອງແຕ່ລະ'+NAME[view]+' · ເລີ່ມເກັບຂໍ້ມູນ '+dmy(FIRST)+' · ລາຄາຮູບປະພັນຍັງບໍ່ລວມຄ່າລາຍ';
+    $('tr-note').textContent=(pts.length<3?'ກຳລັງເກັບຂໍ້ມູນ ກຣາຟ'+NAME[view]+'ຈະສົມບູນຂຶ້ນເລື້ອຍໆ · ':'')+base;
+  }
+  fetch('prices.json?h='+Math.floor(Date.now()/36e5),{cache:'no-cache'}).then(function(r){return r.json();}).then(function(j){
+    hist=j.rows||[];if(!hist.length)return;
+    FIRST=hist[0][0];box.hidden=false;render();
+    $('tr-item').addEventListener('change',function(e){col=+e.target.value;render();});
+    $('tr-tabs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;view=b.dataset.v;[].forEach.call(this.children,function(x){x.setAttribute('aria-pressed',String(x===b));});render();});
+    window.addEventListener('lps-prices',render);
+    var w=0;if(window.ResizeObserver)new ResizeObserver(function(){var n=$('tr-plot').clientWidth;if(n!==w){w=n;render();}}).observe($('tr-plot'));
+  }).catch(function(){});
+})();
+</script>
+<script>
 // ລາຄາສົດຈາກ Google Sheet: ໜ້າເວັບດຶງລາຄາຂາຍ ແລະ ຮັບຊື້ລ່າສຸດທຸກຄັ້ງທີ່ເປີດ ແລະ ທຸກ 1 ນາທີ ຖ້າດຶງບໍ່ໄດ້ຈະສະແດງລາຄາໃນ price-data ຕາມເດີມ
 (function(){
   var U='https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4PY_Xt5TtnErjBkAryQ8Sb8N1cwv67FImKLI7E33VxF4jfO361g/exec';
@@ -398,6 +591,7 @@ function sel(b){var a=b.previousElementSibling,r=document.createRange();r.select
       ['buy_jewelry','buy_bar_max'].forEach(function(k){var v=Number(j.buy&&j.buy[k]);if(v>0)next[k]=v.toLocaleString('en-US');});
       Object.keys(next).forEach(function(k){document.querySelectorAll('[data-p="'+k+'"]').forEach(function(el){el.textContent=next[k];});});
       got=true;if(stamp)stamp.textContent=checkedAt();
+      window.dispatchEvent(new Event('lps-prices'));
     }).catch(function(){if(!got&&stamp)stamp.textContent=oldStamp;}).then(function(){busy=false;});
   }
   refresh();setInterval(refresh,60000);

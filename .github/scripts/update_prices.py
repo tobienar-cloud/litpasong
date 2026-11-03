@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Read the gold price Google Sheet (as CSV) and update the price-data JSON in index.html.
+"""Read the gold price Google Sheet (as CSV), update the price-data JSON in index.html
+and record today's price in prices.json for the price chart.
 
 The sheet must be viewable by "anyone with the link" (or set SHEET_CSV_URL to a
 "Publish to web" CSV link). Only the <script id="price-data"> line is changed.
 The 10:05 daily run and manual runs always refresh the stamp; the other runs
-leave index.html untouched unless a price changed.
+leave index.html untouched unless a price changed. prices.json keeps one row per
+day (the last price of that day) and is updated on every run, because a price can
+also reach index.html from a direct push that does not touch prices.json.
 """
 import csv
 import io
@@ -21,6 +24,8 @@ CSV_URL = os.environ.get("SHEET_CSV_URL") or (
 )
 DAILY_SCHEDULE = "5 3 * * *"
 INDEX = "index.html"
+HISTORY = "prices.json"
+HISTORY_COLS = ["date", "baht1", "bar_sell", "buy_jewelry", "buy_bar_max"]
 
 # Column A label -> key in price-data (column C holds the price)
 LABELS = {
@@ -68,8 +73,28 @@ def read_prices(rows):
     return prices
 
 
+def record_history(prices, day):
+    """Upsert today's row. Returns True if prices.json changed."""
+    rows = []
+    if os.path.exists(HISTORY):
+        with open(HISTORY, encoding="utf-8") as f:
+            rows = json.load(f)["rows"]
+    row = [day] + [int(prices[k].replace(",", "")) for k in HISTORY_COLS[1:]]
+    if row in rows:
+        return False
+    rows = [r for r in rows if r[0] != day] + [row]
+    rows.sort(key=lambda r: r[0])
+    body = ",\n".join(json.dumps(r) for r in rows)
+    with open(HISTORY, "w", encoding="utf-8") as f:
+        f.write('{"cols": ' + json.dumps(HISTORY_COLS) + ', "rows": [\n' + body + "\n]}\n")
+    return True
+
+
 def main():
     prices = read_prices(fetch_rows())
+    now = datetime.now(timezone(timedelta(hours=7)))  # Asia/Vientiane
+    if record_history(prices, now.strftime("%Y-%m-%d")):
+        print("prices.json updated")
 
     with open(INDEX, encoding="utf-8") as f:
         html = f.read()
@@ -88,7 +113,6 @@ def main():
         print("Prices unchanged; leaving index.html as is")
         return
 
-    now = datetime.now(timezone(timedelta(hours=7)))  # Asia/Vientiane
     data = {"stamp": now.strftime("ອັບເດດ ວັນທີ %d/%m/%Y ເວລາ %H:%M ໂມງ"), **prices}
     new_json = json.dumps(data, ensure_ascii=False)
     html = html[: m.start(2)] + new_json + html[m.end(2):]
