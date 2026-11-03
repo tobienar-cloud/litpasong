@@ -626,7 +626,11 @@ function sel(b){var a=b.previousElementSibling,r=document.createRange();r.select
     var imgs=await Promise.all([loadImg('img/logo-band.jpg'),loadImg('img/logo-mark.png')]),band=imgs[0],mark=imgs[1];
     var S=1080,cv=document.createElement('canvas');cv.width=cv.height=S;var c=cv.getContext('2d');
     var MAR='#600d17',GOLD='#c9a24a',FG='#2a1a1c',MUTED='#76615f',LINE='#e8ddd0',M=48;
-    var T=function(t,x,y,font,color,al){c.font=font;c.fillStyle=color;c.textAlign=al||'left';c.fillText(t,x,y);};
+    // ວັດຄວາມກວ້າງຈາກ DOM ແລ້ວແຕ້ມຊິດຊ້າຍສະເໝີ: Safari ໃນ iPhone ຈັດ textAlign ຂອງໜັງສືລາວໃນ canvas ບໍ່ຖືກ
+    var ruler=document.createElement('span');ruler.style.cssText='position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre';document.body.append(ruler);
+    var leftX=function(t,x,font,al){if(!al||al==='left')return x;ruler.style.font=font;ruler.textContent=t;var w=ruler.getBoundingClientRect().width;return al==='right'?x-w:x-w/2;};
+    c.textAlign='left';
+    var T=function(t,x,y,font,color,al){c.font=font;c.fillStyle=color;c.fillText(t,leftX(t,x,font,al),y);};
     var rows=current(),pts=group(rows,view),cur=rows[rows.length-1],sel=$('tr-item'),item=sel.options[sel.selectedIndex].text;
     c.fillStyle='#fbf7f1';c.fillRect(0,0,S,S);
     // ຫົວຮູບ
@@ -676,13 +680,15 @@ function sel(b){var a=b.previousElementSibling,r=document.createRange();r.select
     }
     var n=pts.length-1;
     c.beginPath();c.arc(X(n),Y(pts[n].v),10,0,7);c.fillStyle=MAR;c.fill();c.strokeStyle='#fff';c.lineWidth=4;c.stroke();
-    c.font='800 28px '+SANS;c.textAlign=pts.length>1?'right':'center';c.strokeStyle='#fff';c.lineWidth=8;c.lineJoin='round';
-    var ly=Math.max(Top-8,Y(pts[n].v)-24);c.strokeText(kip(pts[n].v),pts.length>1?R:cx,ly);c.fillStyle=FG;c.fillText(kip(pts[n].v),pts.length>1?R:cx,ly);
+    var lf='800 28px '+SANS,lx=leftX(kip(pts[n].v),pts.length>1?R:cx,lf,pts.length>1?'right':'center');
+    c.font=lf;c.strokeStyle='#fff';c.lineWidth=8;c.lineJoin='round';
+    var ly=Math.max(Top-8,Y(pts[n].v)-24);c.strokeText(kip(pts[n].v),lx,ly);c.fillStyle=FG;c.fillText(kip(pts[n].v),lx,ly);
     // ທ້າຍຮູບ
     c.fillStyle=MAR;c.fillRect(0,S-96,S,96);c.fillStyle=GOLD;c.fillRect(0,S-96,S,4);
     c.drawImage(mark,M-8,S-80,105,66.7);
     T('ຮ້ານຄຳ ລິດປະສົງ · ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ · WhatsApp 020 5895 4624',M+110,S-50,'600 25px '+SANS,'#ffffff');
     T('tobienar-cloud.github.io/litpasong',M+110,S-17,'400 22px '+SANS,'#f3dfa8');
+    ruler.remove();
     return cv;
   }
   var ovBlob=null,ovName='',ovUrl='';
