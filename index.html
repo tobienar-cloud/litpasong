@@ -378,6 +378,31 @@ fetch('gallery.json',{cache:'no-store'}).then(function(r){return r.json()}).then
 })();
 function sel(b){var a=b.previousElementSibling,r=document.createRange();r.selectNodeContents(a);var s=getSelection();s.removeAllRanges();s.addRange(r);}
 </script>
+<script>
+// ລາຄາສົດຈາກ Google Sheet: ໜ້າເວັບດຶງລາຄາຂາຍລ່າສຸດທຸກຄັ້ງທີ່ເປີດ ແລະ ທຸກ 1 ນາທີ ຖ້າດຶງບໍ່ໄດ້ຈະສະແດງລາຄາໃນ price-data ຕາມເດີມ
+(function(){
+  var U='https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4PY_Xt5TtnErjBkAryQ8Sb8N1cwv67FImKLI7E33VxF4jfO361g/exec';
+  var MAP={'1 ບາດ':'baht1','2 ສະຫຼຶງ':'salung2','1 ສະຫຼຶງ':'salung1','5 ຫຸນ':'hun5','3 ຫຸນ':'hun3','2 ຫຸນ':'hun2','1 ຫຸນ':'hun1','ຄຳແທ່ງ 1 ກຣາມ':'bar_gram','ລາຄາຂາຍຄຳແທ່ງ 1 ບາດ':'bar_sell'};
+  var NEED=Object.keys(MAP).length, stamp=document.querySelector('[data-p="stamp"]'), oldStamp=stamp?stamp.textContent:'', got=false, busy=false;
+  function checkedAt(){
+    var p={};new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Vientiane',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date()).forEach(function(x){p[x.type]=x.value;});
+    return 'ລາຄາລ່າສຸດ ວັນທີ '+p.day+'/'+p.month+'/'+p.year+' ເວລາ '+p.hour+':'+p.minute+' ໂມງ';
+  }
+  function refresh(){
+    if(busy||document.hidden)return;busy=true;
+    if(!got&&stamp)stamp.textContent='ກຳລັງກວດລາຄາລ່າສຸດ…';
+    fetch(U+'?action=items',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+      var next={},n=0;
+      (j&&j.ok&&j.items||[]).forEach(function(i){var k=MAP[i.id],v=Number(i.price);if(k&&v>0&&!next[k]){next[k]=v.toLocaleString('en-US');n++;}});
+      if(n!==NEED)throw new Error('incomplete');
+      Object.keys(next).forEach(function(k){document.querySelectorAll('[data-p="'+k+'"]').forEach(function(el){el.textContent=next[k];});});
+      got=true;if(stamp)stamp.textContent=checkedAt();
+    }).catch(function(){if(!got&&stamp)stamp.textContent=oldStamp;}).then(function(){busy=false;});
+  }
+  refresh();setInterval(refresh,60000);
+  document.addEventListener('visibilitychange',refresh);
+})();
+</script>
 
 </body>
 </html>
