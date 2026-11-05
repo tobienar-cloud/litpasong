@@ -3,6 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#6e1423">
+<link rel="icon" href="img/app/favicon-48.png" type="image/png">
+<link rel="apple-touch-icon" href="img/app/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ລິດປະສົງ">
 <meta name="description" content="ຮ້ານຄຳ ລິດປະສົງ (ໂຕບີ້) ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ ຄຳມ່ວນ — ລາຄາຄຳມື້ນີ້, ຄຳຮູບປະພັນ, ຄຳແທ່ງ, ຮັບຊື້ຄຳ. ໂທ 020 5895 4624">
 <meta property="og:title" content="ຮ້ານຄຳ ລິດປະສົງ Litpasong Jewelry">
 <meta property="og:description" content="ລາຄາຄຳມື້ນີ້ ແລະ ສິນຄ້າຂອງຮ້ານ · ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ">
@@ -770,5 +777,24 @@ function sel(b){var a=b.previousElementSibling,r=document.createRange();r.select
 })();
 </script>
 
+<div id="install-bar" style="position:fixed;left:0;right:0;bottom:0;z-index:40;display:none;gap:10px;align-items:center;background:#4a0d17;color:#f6ead9;border-top:2px solid #c9a24a;padding:10px max(14px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 10px) max(14px,env(safe-area-inset-left,0px));font:400 15px/1.5 'Noto Sans Lao Looped','Noto Sans Lao',system-ui,sans-serif">
+  <img src="img/app/apple-touch-icon.png" alt="" width="44" height="44" style="border-radius:10px;flex:none">
+  <span style="flex:1;min-width:0">ເພີ່ມໄອຄອນຮ້ານລົງໜ້າຈໍມືຖື ເປີດງ່າຍ ບໍ່ຕ້ອງຈື່ລິ້ງ</span>
+  <a id="install-go" href="app.html" style="flex:none;background:#c9a24a;color:#4a0d17;font-weight:800;text-decoration:none;border-radius:8px;padding:9px 14px">ຕິດຕັ້ງ</a>
+  <button id="install-x" type="button" aria-label="ປິດ" style="flex:none;width:40px;height:44px;border:0;background:transparent;color:#f6ead9;font-size:22px;cursor:pointer">×</button>
+</div>
+<script>
+(function(){
+  var bar=document.getElementById('install-bar'),KEY='lps-install-hide',hide=false;
+  try{hide=Number(localStorage.getItem(KEY)||0)>Date.now()}catch(e){}
+  var phone=/Android|iPhone|iPad|iPod/.test(navigator.userAgent);
+  var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+  if(phone&&!standalone&&!hide){bar.style.display='flex';document.body.style.paddingBottom='84px'}
+  document.getElementById('install-x').onclick=function(){
+    bar.style.display='none';document.body.style.paddingBottom='';
+    try{localStorage.setItem(KEY,String(Date.now()+14*864e5))}catch(e){}
+  };
+})();
+</script>
 </body>
 </html>

@@ -1,0 +1,18 @@
+{
+  "name": "ຮ້ານຄຳ ລິດປະສົງ",
+  "short_name": "ລິດປະສົງ",
+  "description": "ລາຄາຄຳມື້ນີ້ ສັ່ງຊື້ຄຳ ແລະ ອອມຄຳ ຮ້ານຄຳ ລິດປະສົງ",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "lo",
+  "background_color": "#6e1423",
+  "theme_color": "#6e1423",
+  "icons": [
+    { "src": "img/app/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "img/app/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "img/app/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

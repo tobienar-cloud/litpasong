@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ຕິດຕັ້ງແອັບ · ຮ້ານຄຳ ລິດປະສົງ</title>
+<meta name="description" content="ເພີ່ມໄອຄອນຮ້ານຄຳ ລິດປະສົງ ລົງໜ້າຈໍມືຖື ເບິ່ງລາຄາຄຳ ສັ່ງຊື້ຄຳ ແລະ ອອມຄຳໄດ້ທັນທີ">
+<meta property="og:title" content="ຕິດຕັ້ງແອັບ ຮ້ານຄຳ ລິດປະສົງ">
+<meta property="og:description" content="ກົດຕິດຕັ້ງ ແລ້ວໄອຄອນຮ້ານຈະຢູ່ໜ້າຈໍມືຖືຂອງທ່ານ">
+<meta property="og:image" content="https://tobienar-cloud.github.io/litpasong/img/app/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#6e1423">
+<link rel="icon" href="img/app/favicon-48.png" type="image/png">
+<link rel="apple-touch-icon" href="img/app/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ລິດປະສົງ">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao+Looped:wght@400;600;800&family=Noto+Serif+Lao:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --maroon:#6e1423; --maroon-deep:#4a0d17; --gold:#c9a24a; --gold-soft:#e8d39a;
+  --bg:#fbf7f1; --surface:#ffffff; --fg:#2a1a1c; --muted:#6f5a58; --line:#e8ddd0;
+  --warn:#8a5a00; --warn-bg:#fbefd2;
+  --display:"Noto Serif Lao","Noto Sans Lao Looped",serif;
+  --body:"Noto Sans Lao Looped","Noto Sans Lao",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 17px/1.75 var(--body)}
+header{background:var(--maroon);color:#f6ead9;text-align:center;border-bottom:3px solid var(--gold);
+  padding:calc(env(safe-area-inset-top,0px) + 26px) max(18px,env(safe-area-inset-right,0px)) 24px max(18px,env(safe-area-inset-left,0px))}
+header img{display:block;width:112px;height:112px;margin:0 auto 12px;border-radius:25px;box-shadow:0 0 0 2px var(--gold)}
+h1{font:800 26px/1.5 var(--display);margin:0;color:var(--gold-soft);text-wrap:balance}
+header p{margin:4px auto 0;max-width:30em}
+main{max-width:560px;margin:0 auto;display:grid;gap:18px;
+  padding:20px max(18px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 32px) max(18px,env(safe-area-inset-left,0px))}
+h2{font:700 21px/1.6 var(--display);color:var(--maroon);margin:0}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:58px;padding:10px 18px;border:0;border-radius:10px;
+  background:var(--gold);color:var(--maroon-deep);font:800 18px/1.5 var(--body);text-align:center;text-decoration:none;cursor:pointer}
+.btn.line{background:transparent;border:1.5px solid var(--maroon);color:var(--maroon)}
+.btn:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--maroon);outline-offset:2px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tabs button{min-height:52px;border:1.5px solid var(--maroon);border-radius:10px;background:transparent;color:var(--maroon);font:600 16px/1.4 var(--body);cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--maroon);color:var(--gold-soft)}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:14px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start;counter-increment:s}
+.steps li::before{content:counter(s);width:40px;height:40px;border-radius:50%;background:var(--maroon);color:var(--gold-soft);
+  display:flex;align-items:center;justify-content:center;font:800 19px/1 var(--body)}
+.steps b{font-weight:800}
+.ico{display:inline-block;vertical-align:-5px;width:24px;height:24px;color:var(--maroon)}
+.note{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:12px 14px}
+.small{font-size:15px;color:var(--muted);margin:0}
+.qr{justify-self:center;width:220px;height:220px;display:block}
+.center{text-align:center}
+section{display:grid;gap:10px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <img src="img/app/logo-240.jpg" alt="ໂລໂກ້ຮ້ານຄຳ ລິດປະສົງ" width="112" height="112">
+  <h1>ຕິດຕັ້ງແອັບຮ້ານຄຳ ລິດປະສົງ</h1>
+  <p>ໄອຄອນຮ້ານຈະຢູ່ໜ້າຈໍມືຖື ກົດເທື່ອດຽວກໍເບິ່ງລາຄາ ຊື້ຄຳ ແລະ ອອມຄຳໄດ້ ບໍ່ຕ້ອງຈື່ລິ້ງ</p>
+</header>
+<main>
+  <section id="v-done" class="center" hidden>
+    <h2>ຕິດຕັ້ງແລ້ວ</h2>
+    <p>ເປີດຈາກໄອຄອນຮ້ານໃນໜ້າຈໍມືຖືໄດ້ເລີຍ</p>
+    <a class="btn" href="./">ເຂົ້າໜ້າຮ້ານ</a>
+  </section>
+
+  <section id="v-android-inapp" hidden>
+    <h2>ເປີດໃນ Chrome ກ່ອນ</h2>
+    <p>ແອັບ Facebook ຫຼື ແອັບແຊັດຕິດຕັ້ງບໍ່ໄດ້ ກົດປຸ່ມນີ້ເພື່ອໄປທີ່ Chrome</p>
+    <a class="btn" id="open-chrome" href="#">ເປີດໃນ Chrome</a>
+    <p class="small">ຖ້າກົດແລ້ວບໍ່ໄປ ໃຫ້ກົດ ⋮ ມຸມຂວາເທິງ ແລ້ວເລືອກ ເປີດໃນ Chrome (Open in Chrome)</p>
+  </section>
+
+  <section id="v-ios-inapp" hidden>
+    <h2>ເປີດໃນ Safari ກ່ອນ</h2>
+    <p>ແອັບ Facebook ຫຼື ແອັບແຊັດຕິດຕັ້ງບໍ່ໄດ້ ເຮັດຕາມນີ້:</p>
+    <ol class="steps">
+      <li><span>ກົດ <b>···</b> ຫຼື ໄອຄອນເຂັມທິດ ຢູ່ມຸມຈໍ</span></li>
+      <li><span>ເລືອກ <b>ເປີດໃນ Safari</b> (Open in Safari)</span></li>
+    </ol>
+    <p class="small">ຖ້າບໍ່ເຫັນ ກົດກັອບປີ້ລິ້ງ ແລ້ວວາງໃນ Safari</p>
+    <button class="btn line" type="button" id="copy-link">ກັອບປີ້ລິ້ງ</button>
+  </section>
+
+  <section id="v-android" hidden>
+    <button class="btn" type="button" id="install" hidden>ຕິດຕັ້ງແອັບ</button>
+    <div id="android-steps">
+      <h2>ວິທີຕິດຕັ້ງໃນ Android</h2>
+      <ol class="steps">
+        <li><span>ເປີດໜ້ານີ້ໃນ <b>Chrome</b> ແລ້ວກົດ <b>⋮</b> ມຸມຂວາເທິງ</span></li>
+        <li><span>ກົດ <b>ເພີ່ມໃສ່ໜ້າຈໍຫຼັກ</b> (Add to Home screen) ຫຼື <b>ຕິດຕັ້ງແອັບ</b> (Install app)</span></li>
+        <li><span>ກົດ <b>ຕິດຕັ້ງ</b> (Install) ແລ້ວໄອຄອນຮ້ານຈະຂຶ້ນໜ້າຈໍ</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="v-ios" hidden>
+    <h2>ວິທີຕິດຕັ້ງໃນ iPhone</h2>
+    <ol class="steps">
+      <li><span>ໃນ <b>Safari</b> ກົດປຸ່ມແຊຣ໌
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="ປຸ່ມແຊຣ໌"><path d="M12 15V3M8 7l4-4 4 4M6 11H5v10h14V11h-1"/></svg>
+        ຖ້າບໍ່ເຫັນ ໃຫ້ກົດ <b>···</b> ກ່ອນ</span></li>
+      <li><span>ເລື່ອນລົງ ແລ້ວກົດ <b>ເພີ່ມໃສ່ໜ້າຈໍຫຼັກ</b> (Add to Home Screen)</span></li>
+      <li><span>ກົດ <b>ເພີ່ມ</b> (Add) ມຸມຂວາເທິງ ແລ້ວໄອຄອນຮ້ານຈະຂຶ້ນໜ້າຈໍ</span></li>
+    </ol>
+  </section>
+
+  <section id="v-desktop" class="center" hidden>
+    <h2>ສະແກນດ້ວຍມືຖື</h2>
+    <p>ສະແກນ QR ນີ້ດ້ວຍກ້ອງມືຖື ເພື່ອເປີດໜ້າຕິດຕັ້ງ</p>
+    <img class="qr" src="img/app/qr-install.png" alt="QR ເປີດໜ້າຕິດຕັ້ງແອັບ" width="220" height="220">
+  </section>
+
+  <div class="tabs" id="switch" role="group" aria-label="ເລືອກປະເພດມືຖື" hidden>
+    <button type="button" id="t-android" aria-pressed="false">ຂ້ອຍໃຊ້ Android</button>
+    <button type="button" id="t-ios" aria-pressed="false">ຂ້ອຍໃຊ້ iPhone</button>
+  </div>
+
+  <div class="note" id="note" hidden>ຕິດຕັ້ງບໍ່ໄດ້? ທັກແອັດມິນ WhatsApp 020 5895 4624 ຫຼື ໃຫ້ພະນັກງານຕິດຕັ້ງໃຫ້ທີ່ຮ້ານ</div>
+  <a class="btn line" href="./">ເຂົ້າໜ້າຮ້ານເລີຍ</a>
+</main>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var ua=navigator.userAgent||'';
+  var isIOS=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  var isAndroid=/Android/.test(ua);
+  var inApp=/FBAN|FBAV|FB_IAB|FBIOS|Instagram|Line\/|TikTok|musical_ly|BytedanceWebview|WhatsApp|Messenger/i.test(ua);
+  var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+  var url='https://tobienar-cloud.github.io/litpasong/app.html';
+  var views=['v-done','v-android-inapp','v-ios-inapp','v-android','v-ios','v-desktop'];
+  function show(id){
+    views.forEach(function(v){$(v).hidden=v!==id});
+    var manual=id==='v-android'||id==='v-ios';
+    $('switch').hidden=!manual;
+    $('note').hidden=!(manual||id==='v-android-inapp'||id==='v-ios-inapp');
+    $('t-android').setAttribute('aria-pressed',String(id==='v-android'));
+    $('t-ios').setAttribute('aria-pressed',String(id==='v-ios'));
+  }
+  $('t-android').onclick=function(){show('v-android')};
+  $('t-ios').onclick=function(){show('v-ios')};
+  $('open-chrome').href='intent://tobienar-cloud.github.io/litpasong/app.html#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(url)+';end';
+  $('copy-link').onclick=function(){
+    var b=this,done=function(){b.textContent='ກັອບປີ້ແລ້ວ ວາງໃນ Safari ໄດ້ເລີຍ'};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done,function(){b.textContent=url})}
+    else{b.textContent=url}
+  };
+  var prompt=null;
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();prompt=e;
+    $('install').hidden=false;$('android-steps').hidden=true;
+  });
+  $('install').onclick=function(){
+    if(!prompt)return;
+    prompt.prompt();
+    prompt.userChoice.then(function(c){
+      if(c.outcome==='accepted'){show('v-done')}
+      else{$('android-steps').hidden=false}
+      prompt=null;$('install').hidden=true;
+    });
+  };
+  window.addEventListener('appinstalled',function(){show('v-done')});
+  if(standalone)show('v-done');
+  else if(inApp&&isIOS)show('v-ios-inapp');
+  else if(inApp&&isAndroid)show('v-android-inapp');
+  else if(isIOS)show('v-ios');
+  else if(isAndroid)show('v-android');
+  else show('v-desktop');
+})();
+</script>
+</body>
+</html>
