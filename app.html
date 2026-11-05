@@ -54,6 +54,32 @@ h2{font:700 21px/1.6 var(--display);color:var(--maroon);margin:0}
 .small{font-size:15px;color:var(--muted);margin:0}
 .qr{justify-self:center;width:220px;height:220px;display:block}
 .center{text-align:center}
+.guide{gap:22px}
+.guide p{margin:0}
+.guide li>div{display:grid;gap:8px;min-width:0}
+.guide .small+.mock{margin-top:2px}
+.mock{--ph:#f2f2f4;width:100%;max-width:310px;background:#fff;border:1.5px solid var(--line);border-radius:14px;overflow:hidden;color:#1c1c1e;font:400 14px/1.4 "Noto Sans Thai","Noto Sans Lao Looped",system-ui,sans-serif}
+.m-page{height:44px;background:var(--maroon)}
+.m-bar{display:flex;align-items:center;gap:8px;padding:10px}
+.m-url{flex:1;min-width:0;background:var(--ph);border-radius:18px;padding:8px 12px;text-align:center;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-tools{display:flex;align-items:center;justify-content:space-around;padding:10px}
+.m-tools i{font-style:normal;font-size:22px;line-height:1;color:#8e8e93}
+.m-hit{flex:none;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;color:var(--maroon);background:#fbefd2;box-shadow:0 0 0 3px var(--gold)}
+.m-hit svg{width:24px;height:24px}
+.m-hit.txt{width:auto;height:auto;padding:3px 12px;border-radius:14px;font-weight:700}
+.m-row{display:flex;align-items:center;justify-content:space-between;min-height:42px;padding:6px 12px;border-bottom:1px solid #ececef}
+.m-row:last-child{border-bottom:0}
+.m-row u{display:block;width:62%;height:10px;border-radius:5px;background:#e5e5ea;text-decoration:none}
+.m-row svg{width:22px;height:22px;flex:none}
+.m-row.on{background:#fbefd2;box-shadow:inset 0 0 0 3px var(--gold);font-weight:700;min-height:50px}
+.m-head{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px;border-bottom:1px solid #ececef;font-size:13px}
+.m-head>span:first-child{color:#8e8e93}
+.m-head b{font-weight:600;text-align:center;min-width:0}
+.m-add{display:flex;align-items:center;gap:12px;padding:12px}
+.m-add img{border-radius:11px}
+.m-home{justify-self:start;display:grid;justify-items:center;gap:4px;font-size:14px}
+.m-home img{border-radius:14px}
+body[data-browser="chrome"] .only-safari,body[data-browser="safari"] .only-chrome{display:none}
 section{display:grid;gap:10px}
 [hidden]{display:none!important}
 </style>
@@ -103,12 +129,46 @@ section{display:grid;gap:10px}
 
   <section id="v-ios" hidden>
     <h2>ວິທີຕິດຕັ້ງໃນ iPhone</h2>
-    <ol class="steps">
-      <li><span>ໃນ <b>Safari</b> ກົດປຸ່ມແຊຣ໌
-        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="ປຸ່ມແຊຣ໌"><path d="M12 15V3M8 7l4-4 4 4M6 11H5v10h14V11h-1"/></svg>
-        ຖ້າບໍ່ເຫັນ ໃຫ້ກົດ <b>···</b> ກ່ອນ</span></li>
-      <li><span>ເລື່ອນລົງ ແລ້ວກົດ <b>เพิ่มไปยังหน้าจอโฮม</b> (Add to Home Screen)</span></li>
-      <li><span>ກົດ <b>ເພີ່ມ</b> (Add) ມຸມຂວາເທິງ ແລ້ວໄອຄອນຮ້ານຈະຂຶ້ນໜ້າຈໍ</span></li>
+    <div class="tabs" id="br-switch" role="group" aria-label="ເລືອກເບຣົາເຊີ">
+      <button type="button" id="br-chrome" aria-pressed="false">ຂ້ອຍໃຊ້ Chrome</button>
+      <button type="button" id="br-safari" aria-pressed="false">ຂ້ອຍໃຊ້ Safari</button>
+    </div>
+    <ol class="steps guide">
+      <li class="only-chrome"><div>
+        <p>ກົດ <b>ປຸ່ມແຊຣ໌</b> ຢູ່<b>ມຸມຂວາເທິງ</b> ຂອງຈໍ</p>
+        <div class="mock" aria-hidden="true">
+          <div class="m-bar"><span class="m-url">tobienar-cloud.github.io</span><span class="m-hit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M6 11H5v10h14V11h-1"/></svg></span></div>
+          <div class="m-page"></div>
+        </div>
+      </div></li>
+      <li class="only-safari"><div>
+        <p>ກົດ <b>ປຸ່ມແຊຣ໌</b> ຢູ່<b>ກາງລຸ່ມຈໍ</b> ຖ້າບໍ່ເຫັນ ໃຫ້ກົດ <b>···</b> ມຸມຂວາລຸ່ມກ່ອນ</p>
+        <div class="mock" aria-hidden="true">
+          <div class="m-page"></div>
+          <div class="m-tools"><i>‹</i><i>›</i><span class="m-hit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M6 11H5v10h14V11h-1"/></svg></span><i>···</i></div>
+        </div>
+      </div></li>
+      <li><div>
+        <p>ເລື່ອນລົງ ແລ້ວກົດ <b>เพิ่มไปยังหน้าจอโฮม</b></p>
+        <p class="small">ພາສາອັງກິດຂຶ້ນວ່າ Add to Home Screen</p>
+        <div class="mock" aria-hidden="true">
+          <div class="m-row"><u></u></div>
+          <div class="m-row"><u style="width:46%"></u></div>
+          <div class="m-row on"><span>เพิ่มไปยังหน้าจอโฮม</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg></div>
+          <div class="m-row"><u style="width:54%"></u></div>
+        </div>
+      </div></li>
+      <li><div>
+        <p>ກົດ <b>เพิ่ม</b> ຢູ່<b>ມຸມຂວາເທິງ</b></p>
+        <div class="mock" aria-hidden="true">
+          <div class="m-head"><span>ยกเลิก</span><b>เพิ่มไปยังหน้าจอโฮม</b><span class="m-hit txt">เพิ่ม</span></div>
+          <div class="m-add"><img src="img/app/apple-touch-icon.png" alt="" width="48" height="48"><span>ລິດປະສົງ</span></div>
+        </div>
+      </div></li>
+      <li><div>
+        <p>ເປີດໄອຄອນຮ້ານຈາກໜ້າຈໍມືຖືໄດ້ເລີຍ</p>
+        <div class="m-home" aria-hidden="true"><img src="img/app/apple-touch-icon.png" alt="" width="64" height="64"><span>ລິດປະສົງ</span></div>
+      </div></li>
     </ol>
   </section>
 
@@ -152,6 +212,14 @@ section{display:grid;gap:10px}
     if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done,function(){b.textContent=url})}
     else{b.textContent=url}
   };
+  function browser(b){
+    document.body.setAttribute('data-browser',b);
+    $('br-chrome').setAttribute('aria-pressed',String(b==='chrome'));
+    $('br-safari').setAttribute('aria-pressed',String(b==='safari'));
+  }
+  $('br-chrome').onclick=function(){browser('chrome')};
+  $('br-safari').onclick=function(){browser('safari')};
+  browser(/CriOS/.test(ua)?'chrome':'safari');
   var prompt=null;
   window.addEventListener('beforeinstallprompt',function(e){
     e.preventDefault();prompt=e;
