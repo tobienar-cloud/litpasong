@@ -10,9 +10,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ລິດປະສົງ">
-<title>ສັ່ງຊື້ຄຳອອນລາຍ · ຮ້ານຄຳ ລິດປະສົງ</title>
-<meta name="description" content="ສັ່ງຊື້ຄຳອອນລາຍ ລັອກລາຄາມື້ນີ້ ໂອນຜ່ານ BCEL ແລ້ວມາຮັບຄຳທີ່ຮ້ານ ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ">
-<meta property="og:title" content="ສັ່ງຊື້ຄຳອອນລາຍ · ຮ້ານຄຳ ລິດປະສົງ">
+<title>ອອມຄຳເປັນນ້ຳໜັກ · ຮ້ານຄຳ ລິດປະສົງ</title>
+<meta name="description" content="ອອມຄຳເປັນນ້ຳໜັກ ເລີ່ມຕົ້ນ 1 ຫຸນ ລັອກລາຄາມື້ນີ້ ໂອນຜ່ານ BCEL ແລ້ວມາຮັບຄຳທີ່ຮ້ານ ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ">
+<meta property="og:title" content="ອອມຄຳເປັນນ້ຳໜັກ · ຮ້ານຄຳ ລິດປະສົງ">
 <meta property="og:image" content="https://tobienar-cloud.github.io/litpasong/img/front.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao+Looped:wght@400;600;800&family=Noto+Serif+Lao:wght@700;800&display=swap">
@@ -94,7 +94,7 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
 <body>
 <header><div class="wrap">
   <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><a href="./">← ກັບໜ້າຮ້ານ</a><a href="my.html" id="me-link">👤 ໂປຣໄຟລ໌ຂອງຂ້ອຍ →</a></div>
-  <h1>ສັ່ງຊື້ຄຳອອນລາຍ</h1>
+  <h1>ອອມຄຳເປັນນ້ຳໜັກ</h1>
   <p class="sub">ລັອກລາຄາມື້ນີ້ · ໂອນຜ່ານ BCEL · ມາຮັບຄຳທີ່ຮ້ານ ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ</p>
 </div></header>
 
@@ -103,13 +103,13 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
 
   <section class="card closed" id="v-closed" hidden>
     <h2>ກຳລັງຈະເປີດໃຫ້ບໍລິການ</h2>
-    <p class="note">ລະບົບສັ່ງຊື້ອອນລາຍກຳລັງຕັ້ງຄ່າ ສັ່ງຈອງໄດ້ທາງ WhatsApp 020 5895 4624</p>
+    <p class="note">ລະບົບອອມຄຳອອນລາຍກຳລັງຕັ້ງຄ່າ ຕິດຕໍ່ໄດ້ທາງ WhatsApp 020 5895 4624</p>
     <div class="row" style="justify-content:center"><a class="btn gold" href="https://wa.me/8562058954624" target="_blank" rel="noopener">ທັກ WhatsApp</a></div>
   </section>
 
   <section class="card closed" id="v-off" hidden>
-    <h2>ຕອນນີ້ນອກເວລາສັ່ງຊື້ອອນລາຍ</h2>
-    <p>ສັ່ງຊື້ຄຳອອນລາຍໄດ້ທຸກມື້ ເວລາ <b id="off-hours">10:00–16:00 ນ.</b> ເທົ່ານັ້ນ</p>
+    <h2>ຕອນນີ້ນອກເວລາອອມຄຳອອນລາຍ</h2>
+    <p>ອອມຄຳເປັນນ້ຳໜັກໄດ້ທຸກມື້ ເວລາ <b id="off-hours">10:00–16:00 ນ.</b> ເທົ່ານັ້ນ</p>
     <p class="note">ກະລຸນາກັບມາໃໝ່ໃນເວລາດັ່ງກ່າວ · ບິນທີ່ສັ່ງໄວ້ແລ້ວ ຍັງເບິ່ງ ແລະ ແນບສະລິບໄດ້ຕາມປົກກະຕິ</p>
     <div class="row" style="justify-content:center"><a class="btn gold" href="./">ເບິ່ງລາຄາຄຳມື້ນີ້</a></div>
   </section>
@@ -265,7 +265,8 @@ function renderItems() {
     calc();
   }));
   $('rules').innerHTML = [
-    `ສັ່ງຊື້ໄດ້ທຸກມື້ ເວລາ ${hoursText()} ເທົ່ານັ້ນ`,
+    `ອອມຄຳເປັນນ້ຳໜັກ ເລີ່ມຕົ້ນ 1 ຫຸນ`,
+    `ອອມໄດ້ທຸກມື້ ເວລາ ${hoursText()} ເທົ່ານັ້ນ`,
     `ລາຄາລັອກໄວ້ ${RULES.payMinutes} ນາທີ ຕ້ອງໂອນ ແລະ ແນບສະລິບພາຍໃນເວລານີ້ ບໍ່ທັນຕ້ອງສັ່ງໃໝ່ຕາມລາຄາໃໝ່`,
     `ສັ່ງໄດ້ສູງສຸດ 1 ບາດ (${RULES.maxGrams} ກຣາມ) ຕໍ່ບິນ`,
     'ຈ່າຍເຕັມລາຄາຄຳຕອນສັ່ງ · ຄ່າລາຍຂອງຄຳຮູບປະພັນຈ່າຍທີ່ຮ້ານຕອນຮັບຄຳ · ເລືອກລາຍຈິງທີ່ຮ້ານ',
@@ -401,7 +402,7 @@ function receiptView() {
   err('r-late', ORDER.late && !/ພ້ອມຮັບ|ຮັບຄຳແລ້ວ/.test(st) ? 'ແນບສະລິບຫຼັງໝົດເວລາລັອກລາຄາ: ແອັດມິນຈະກວດເວລາໂອນໃນສະລິບ ແລ້ວຕິດຕໍ່ກັບທາງໂທລະສັບ' : '');
   $('r-paid').textContent = ORDER.paidAt || '—'; $('r-done').textContent = ORDER.doneAt || '—'; save();
   $('r-lab').textContent = ORDER.jewelry ? 'ຍອດໂອນເປັນລາຄາຄຳ ຍັງບໍ່ລວມຄ່າລາຍ ຈ່າຍຄ່າລາຍທີ່ຮ້ານຕອນຮັບຄຳ' : 'ຄຳແທ່ງບໍ່ມີຄ່າລາຍ';
-  $('r-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ຂ້ອຍສັ່ງຊື້ຄຳອອນລາຍ ສົ່ງໃບຈອງ ແລະ ສະລິບ\nເລກບິນ ' + ORDER.bill +
+  $('r-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ຂ້ອຍອອມຄຳເປັນນ້ຳໜັກ ສົ່ງໃບຈອງ ແລະ ສະລິບ\nເລກບິນ ' + ORDER.bill +
     '\nຊື່ ' + ORDER.name + '\nລາຍການ ' + ORDER.item + ' × ' + ORDER.qty + ' (' + fmtG(ORDER.grams) + ')\nຍອດໂອນ ' + kip(ORDER.total) +
     '\nເວລາສັ່ງ ' + ORDER.created + '\n' + location.href + '\n(ແນບຮູບແຄັບໜ້າຈໍໃບຈອງ ແລະ ສະລິບໃນແຊັດນີ້)');
   $('billqr').innerHTML = '';

@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ລິດປະສົງ">
 <title>ໂປຣໄຟລ໌ຂອງຂ້ອຍ · ຮ້ານຄຳ ລິດປະສົງ</title>
-<meta name="description" content="ກວດສອບປະຫວັດການສັ່ງຊື້ຄຳອອນລາຍ ສະຖານະການໂອນເງິນ ແລະ ການຮັບຄຳ">
+<meta name="description" content="ກວດສອບປະຫວັດການອອມຄຳອອນລາຍ ສະຖານະການໂອນເງິນ ແລະ ການຮັບຄຳ">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao+Looped:wght@400;600;800&family=Noto+Serif+Lao:wght@700;800&display=swap">
 <style>
@@ -112,7 +112,7 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
 </head>
 <body>
 <header><div class="wrap">
-  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><a href="./">← ກັບໜ້າຮ້ານ</a><a href="order.html">ສັ່ງຊື້ຄຳອອນລາຍ →</a></div>
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><a href="./">← ກັບໜ້າຮ້ານ</a><a href="order.html">ອອມຄຳເປັນນ້ຳໜັກ →</a></div>
   <h1>ໂປຣໄຟລ໌ຂອງຂ້ອຍ</h1>
   <p class="sub">ເບິ່ງບິນສັ່ງຊື້ຄຳ ແລະ ຍອດອອມຄຳ ຂອງທ່ານໃນບ່ອນດຽວ</p>
 </div></header>
@@ -130,7 +130,7 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
     <label class="check"><input type="checkbox" id="l-remember" checked><span>ຈື່ການເຂົ້າສູ່ລະບົບໃນເຄື່ອງນີ້ (ບໍ່ຕ້ອງໃສ່ PIN ໃໝ່ທຸກຄັ້ງ) — ຢ່າເລືອກ ຖ້າໃຊ້ເຄື່ອງຂອງຄົນອື່ນ</span></label>
     <div class="err" id="l-err" hidden></div>
     <button class="btn gold" type="submit" id="l-go">ເຂົ້າສູ່ລະບົບ</button>
-    <p class="note">ຍັງບໍ່ເຄີຍສັ່ງຊື້ ຫຼື ອອມ? PIN ຈະຖືກຕັ້ງຕອນ <a href="order.html">ສັ່ງຊື້ຄຳຄັ້ງທຳອິດ</a> ຫຼື <a href="save.html">ເລີ່ມອອມຄຳ</a> · ລືມ PIN? ທັກແອັດມິນ WhatsApp 020 5895 4624 ພ້ອມຊື່ຕາມບັດປະຈຳຕົວ</p>
+    <p class="note">ຍັງບໍ່ເຄີຍສັ່ງຊື້ ຫຼື ອອມ? PIN ຈະຖືກຕັ້ງຕອນ <a href="order.html">ອອມຄຳເປັນນ້ຳໜັກ</a> ຫຼື <a href="save.html">ອອມຄຳເປັນເງິນ</a> ຄັ້ງທຳອິດ · ລືມ PIN? ທັກແອັດມິນ WhatsApp 020 5895 4624 ພ້ອມຊື່ຕາມບັດປະຈຳຕົວ</p>
   </form>
 
   <div id="v-profile" hidden>
@@ -139,16 +139,16 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
         <div><p class="lab">👤 ສະບາຍດີ</p><h2 id="me-name"></h2><p class="lab" id="me-phone"></p></div>
         <button type="button" class="btn line" id="logout" style="padding:6px 14px;font-size:14px;background:transparent;color:#fbf1df;border-color:rgba(255,255,255,.4)">ອອກຈາກລະບົບ</button>
       </div>
-      <div class="row"><a class="btn gold" href="order.html">ສັ່ງຊື້ຄຳ</a><a class="btn gold" href="save.html">ອອມຄຳ</a><button type="button" class="btn line" id="refresh" style="background:transparent;color:#fbf1df;border-color:rgba(255,255,255,.4)">ອັບເດດ</button></div>
+      <div class="row"><a class="btn gold" href="order.html">ອອມຄຳເປັນນ້ຳໜັກ</a><a class="btn gold" href="save.html">ອອມຄຳເປັນເງິນ</a><button type="button" class="btn line" id="refresh" style="background:transparent;color:#fbf1df;border-color:rgba(255,255,255,.4)">ອັບເດດ</button></div>
     </section>
 
     <section class="card">
-      <h2>ຍອດອອມຄຳ</h2>
+      <h2>ຍອດອອມຄຳເປັນເງິນ</h2>
       <div id="sv"></div>
     </section>
 
     <section class="card">
-      <h2 id="list-title">ບິນສັ່ງຊື້ຄຳ</h2>
+      <h2 id="list-title">ບິນອອມຄຳເປັນນ້ຳໜັກ</h2>
       <p class="note" id="list-sum"></p>
       <div class="list" id="list"></div>
     </section>
