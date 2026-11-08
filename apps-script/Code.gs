@@ -9,7 +9,7 @@
 // ---------- ການຕັ້ງຄ່າ ----------
 const CFG = {
   PRICE_SHEET: 'ชีต1',
-  PRICE_RANGE: 'A5:C17',
+  PRICE_RANGE: 'A5:C20',       // ແຖວ 17–19 = ຄຳແທ່ງ 1 ສະຫຼຶງ, 2 ສະຫຼຶງ, 2 ບາດ (ຕັ້ງເປີເຊັນໃນຖັນ B ກ່ອນ ຈຶ່ງຂຶ້ນໃຫ້ລູກຄ້າເລືອກ)
   ORDER_SHEET: 'ຄຳສັ່ງຊື້',
   SLIP_FOLDER: 'ສະລິບໂອນເງິນ Litpasong',
   NOTIFY_EMAIL: '',            // ອີເມວແຈ້ງເຕືອນບິນໃໝ່ (ວ່າງ = ໃຊ້ອີເມວເຈົ້າຂອງຊີດ)
@@ -19,7 +19,7 @@ const CFG = {
   STATS_SHEET: 'ສະຖິຕິເຂົ້າເວັບ',
   LATE_SLIP_HOURS: 24,         // ໝົດເວລາແລ້ວ ຍັງແນບສະລິບໄດ້ພາຍໃນ 24 ຊົ່ວໂມງ (ແອັດມິນກວດເວລາໂອນ)
   PICKUP_MONTHS: 0,            // 0 = ຮັບຄຳໄດ້ບໍ່ຈຳກັດເວລາ (ຕັ້ງແຕ່ 31/10/2026)
-  MAX_GRAMS: 15,               // ສູງສຸດ 1 ບາດ (15 ກຣາມ) ຕໍ່ບິນ
+  MAX_GRAMS: 30,               // ສູງສຸດ 2 ບາດ (30 ກຣາມ) ຕໍ່ບິນ ເພື່ອໃຫ້ສັ່ງຄຳແທ່ງ 2 ບາດໄດ້
   TZ: 'Asia/Vientiane',
   SELL_FROM: '10:00',          // ເລີ່ມຊື້ຄຳ ແລະ ອອມຄຳອອນລາຍ (ເວລາລາວ)
   SELL_TO: '16:00',            // ປິດຊື້ຄຳ ແລະ ອອມຄຳອອນລາຍ ນອກເວລານີ້ເຮັດລາຍການໃໝ່ບໍ່ໄດ້
@@ -36,6 +36,9 @@ const ITEMS = {
   '1 ຫຸນ':                 { name: 'ຄຳຮູບປະພັນ 1 ຫຸນ',    grams: 0.375, kind: 'jewelry' },
   'ຄຳແທ່ງ 1 ກຣາມ':          { name: 'ຄຳແທ່ງ 1 ກຣາມ',       grams: 1,     kind: 'bar' },
   'ລາຄາຂາຍຄຳແທ່ງ 1 ບາດ':    { name: 'ຄຳແທ່ງ 1 ບາດ',        grams: 15,    kind: 'bar' },
+  'ຄຳແທ່ງ 1 ສະຫຼຶງ':        { name: 'ຄຳແທ່ງ 1 ສະຫຼຶງ',     grams: 3.75,  kind: 'bar' },
+  'ຄຳແທ່ງ 2 ສະຫຼຶງ':        { name: 'ຄຳແທ່ງ 2 ສະຫຼຶງ',     grams: 7.5,   kind: 'bar' },
+  'ຄຳແທ່ງ 2 ບາດ':           { name: 'ຄຳແທ່ງ 2 ບາດ',        grams: 30,    kind: 'bar' },
 };
 
 const STATUS = {
@@ -116,7 +119,8 @@ function items_() {
     const price = Number(String(r[2]).replace(/[^0-9.]/g, ''));
     if (info && price > 0) out.push({ id: label, name: info.name, grams: info.grams, kind: info.kind, price: price });
   });
-  return out;
+  // ຄຳຮູບປະພັນກ່ອນ ແລ້ວຄຳແທ່ງ ລຽງຈາກໃຫຍ່ຫາໜ້ອຍ ບໍ່ຂຶ້ນກັບລຳດັບແຖວໃນຊີດ
+  return out.sort((a, b) => (a.kind === b.kind ? b.grams - a.grams : a.kind === 'jewelry' ? -1 : 1));
 }
 
 // ລາຄາຮັບຊື້ສຳລັບສະແດງໜ້າເວັບ (ບໍ່ສົ່ງແຖວ "ຊື້ເຂົ້າ ຮູບປະພັນດີ")
@@ -160,7 +164,7 @@ function create_(b) {
   const item = items_().find(i => i.id === b.item);
   if (!item) throw new Error('ບໍ່ພົບລາຍການນີ້ ຫຼື ລາຄາຍັງບໍ່ພ້ອມ');
   const grams = Math.round(item.grams * qty * 1000) / 1000;
-  if (grams > CFG.MAX_GRAMS + 1e-9) throw new Error('ສັ່ງໄດ້ສູງສຸດ 1 ບາດ (15 ກຣາມ) ຕໍ່ບິນ ຫຼາຍກວ່ານີ້ກະລຸນາທັກແອັດມິນ');
+  if (grams > CFG.MAX_GRAMS + 1e-9) throw new Error('ສັ່ງໄດ້ສູງສຸດ ' + (CFG.MAX_GRAMS / 15) + ' ບາດ (' + CFG.MAX_GRAMS + ' ກຣາມ) ຕໍ່ບິນ ຫຼາຍກວ່ານີ້ກະລຸນາທັກແອັດມິນ');
 
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);

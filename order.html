@@ -229,7 +229,7 @@ const ME = {
 };
 const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
 const fmtG = g => (Math.round(g * 1000) / 1000) + ' ກຣາມ';
-let ITEMS = [], RULES = {payMinutes: 30, pickupMonths: 3, maxGrams: 15}, sel = null, qty = 1, ORDER = null, TOKEN = '', timerId = 0, slipData = '';
+let ITEMS = [], RULES = {payMinutes: 30, pickupMonths: 3, maxGrams: 30}, sel = null, qty = 1, ORDER = null, TOKEN = '', timerId = 0, slipData = '';
 
 function show(view, step) {
   ['v-closed','v-off','v-loading','v-choose','v-pay','v-receipt'].forEach(v => $(v).hidden = v !== view);
@@ -268,7 +268,7 @@ function renderItems() {
     `ອອມຄຳເປັນນ້ຳໜັກ ເລີ່ມຕົ້ນ 1 ຫຸນ`,
     `ອອມໄດ້ທຸກມື້ ເວລາ ${hoursText()} ເທົ່ານັ້ນ`,
     `ລາຄາລັອກໄວ້ ${RULES.payMinutes} ນາທີ ຕ້ອງໂອນ ແລະ ແນບສະລິບພາຍໃນເວລານີ້ ບໍ່ທັນຕ້ອງສັ່ງໃໝ່ຕາມລາຄາໃໝ່`,
-    `ສັ່ງໄດ້ສູງສຸດ 1 ບາດ (${RULES.maxGrams} ກຣາມ) ຕໍ່ບິນ`,
+    `ສັ່ງໄດ້ສູງສຸດ ${RULES.maxGrams / 15} ບາດ (${RULES.maxGrams} ກຣາມ) ຕໍ່ບິນ`,
     'ຈ່າຍເຕັມລາຄາຄຳຕອນສັ່ງ · ຄ່າລາຍຂອງຄຳຮູບປະພັນຈ່າຍທີ່ຮ້ານຕອນຮັບຄຳ · ເລືອກລາຍຈິງທີ່ຮ້ານ',
     'ມາຮັບຄຳທີ່ຮ້ານໄດ້ທຸກເວລາ ບໍ່ຈຳກັດເວລາ (ເປີດທຸກມື້ 8:00–15:30)',
     'ບິນຈະຢືນຢັນເມື່ອແອັດມິນເຫັນເງິນເຂົ້າບັນຊີແລ້ວເທົ່ານັ້ນ',
