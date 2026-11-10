@@ -50,6 +50,11 @@ h2{font-family:var(--display);font-size:20px;margin:0 0 4px}
 .item[aria-pressed="true"]{border:2px solid var(--maroon);padding:9px 11px;background:var(--surface)}
 .item:disabled{opacity:.45;cursor:not-allowed}
 .group-t{font-size:14px;color:var(--muted);margin:4px 0 -6px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:5px}
+.seg button{font-family:var(--body);font-size:16px;font-weight:600;border:0;border-radius:10px;padding:10px 6px;background:transparent;color:var(--fg);cursor:pointer;display:grid;gap:0;line-height:1.4}
+.seg button small{font-size:13px;font-weight:400;color:var(--muted)}
+.seg button[aria-selected="true"]{background:var(--maroon);color:#fbf1df}
+.seg button[aria-selected="true"] small{color:var(--gold-soft)}
 label{display:grid;gap:4px;font-size:15px}
 input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
 .qty{display:flex;align-items:center;gap:10px}
@@ -118,11 +123,12 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
 
   <!-- Step 1 -->
   <form class="card" id="v-choose" hidden novalidate>
-    <h2>ເລືອກຄຳ</h2>
-    <p class="group-t">ຄຳຮູບປະພັນ (ຍັງບໍ່ລວມຄ່າລາຍ ຈ່າຍທີ່ຮ້ານ)</p>
-    <div class="items" id="items-jewelry" role="group" aria-label="ຄຳຮູບປະພັນ"></div>
-    <p class="group-t">ຄຳແທ່ງ (ບໍ່ມີຄ່າລາຍ)</p>
-    <div class="items" id="items-bar" role="group" aria-label="ຄຳແທ່ງ"></div>
+    <div class="seg" role="tablist" aria-label="ເລືອກປະເພດຄຳ">
+      <button type="button" role="tab" id="tab-jewelry" aria-selected="true">ອອມຄຳຮູບປະພັນ<small>1 ຫຸນ – 1 ບາດ</small></button>
+      <button type="button" role="tab" id="tab-bar" aria-selected="false">ອອມຄຳແທ່ງ<small>1 ກຣາມ – 1 ບາດ</small></button>
+    </div>
+    <p class="group-t" id="group-t"></p>
+    <div class="items" id="items" role="group" aria-labelledby="group-t"></div>
     <div class="qty"><span>ຈຳນວນ</span><button type="button" id="minus" aria-label="ລົດຈຳນວນ">−</button><output id="qty">1</output><button type="button" id="plus" aria-label="ເພີ່ມຈຳນວນ">+</button><span class="note" id="grams"></span></div>
     <div class="total"><span>ຍອດໂອນ</span><b id="total">—</b></div>
     <p class="note" id="lab-note"></p>
@@ -229,7 +235,7 @@ const ME = {
 };
 const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
 const fmtG = g => (Math.round(g * 1000) / 1000) + ' ກຣາມ';
-let ITEMS = [], RULES = {payMinutes: 30, pickupMonths: 3, maxGrams: 30}, sel = null, qty = 1, ORDER = null, TOKEN = '', timerId = 0, slipData = '';
+let ITEMS = [], RULES = {payMinutes: 30, pickupMonths: 3, maxGrams: 15}, sel = null, qty = 1, ORDER = null, TOKEN = '', timerId = 0, slipData = '';
 
 function show(view, step) {
   ['v-closed','v-off','v-loading','v-choose','v-pay','v-receipt'].forEach(v => $(v).hidden = v !== view);
@@ -254,18 +260,27 @@ function save() { try {
 function setUrl() { try { history.replaceState(null, '', '?bill=' + encodeURIComponent(ORDER.bill) + '&t=' + TOKEN); } catch (e) {} }
 
 // ---- Step 1 ----
+// ແຖບ ອອມຄຳຮູບປະພັນ (1 ຫຸນ – 1 ບາດ) ແລະ ອອມຄຳແທ່ງ (1 ກຣາມ – 1 ບາດ) ລາຄາຈາກ Google Sheet ສະເໝີ
+let KIND = new URLSearchParams(location.search).get('tab') === 'bar' ? 'bar' : 'jewelry';
+const KIND_T = {jewelry: 'ຄຳຮູບປະພັນ (ຍັງບໍ່ລວມຄ່າລາຍ ຈ່າຍທີ່ຮ້ານ)', bar: 'ຄຳແທ່ງ (ບໍ່ມີຄ່າລາຍ)'};
+function setKind(k) {
+  KIND = k; sel = null; qty = 1;
+  ['jewelry', 'bar'].forEach(x => $('tab-' + x).setAttribute('aria-selected', String(x === k)));
+  try { const u = new URL(location.href); if (k === 'bar') u.searchParams.set('tab', 'bar'); else u.searchParams.delete('tab'); history.replaceState(null, '', u); } catch (e) {}
+  renderItems(); calc();
+}
 function renderItems() {
-  ['jewelry','bar'].forEach(kind => {
-    $('items-' + kind).innerHTML = ITEMS.filter(i => i.kind === kind).map(i =>
-      `<button type="button" class="item" data-id="${i.id}" aria-pressed="false"${i.grams > RULES.maxGrams ? ' disabled' : ''}><b>${i.name.replace('ຄຳຮູບປະພັນ ','')}</b><span>${kip(i.price)}</span></button>`).join('');
-  });
+  ['jewelry', 'bar'].forEach(x => $('tab-' + x).setAttribute('aria-selected', String(x === KIND)));
+  $('group-t').textContent = KIND_T[KIND];
+  $('items').innerHTML = ITEMS.filter(i => i.kind === KIND && i.grams <= 15).sort((a, b) => b.grams - a.grams).map(i =>
+    `<button type="button" class="item" data-id="${i.id}" aria-pressed="false"${i.grams > RULES.maxGrams ? ' disabled' : ''}><b>${i.name.replace('ຄຳຮູບປະພັນ ','')}</b><span>${kip(i.price)}</span></button>`).join('');
   document.querySelectorAll('.item').forEach(b => b.addEventListener('click', () => {
     sel = ITEMS.find(i => i.id === b.dataset.id); qty = 1;
     document.querySelectorAll('.item').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     calc();
   }));
   $('rules').innerHTML = [
-    `ອອມຄຳເປັນນ້ຳໜັກ ເລີ່ມຕົ້ນ 1 ຫຸນ`,
+    `ອອມຄຳຮູບປະພັນ 1 ຫຸນ – 1 ບາດ · ອອມຄຳແທ່ງ 1 ກຣາມ – 1 ບາດ · ລາຄາຕາມລາຄາຄຳມື້ນີ້`,
     `ອອມໄດ້ທຸກມື້ ເວລາ ${hoursText()} ເທົ່ານັ້ນ`,
     `ລາຄາລັອກໄວ້ ${RULES.payMinutes} ນາທີ ຕ້ອງໂອນ ແລະ ແນບສະລິບພາຍໃນເວລານີ້ ບໍ່ທັນຕ້ອງສັ່ງໃໝ່ຕາມລາຄາໃໝ່`,
     `ສັ່ງໄດ້ສູງສຸດ ${RULES.maxGrams / 15} ບາດ (${RULES.maxGrams} ກຣາມ) ຕໍ່ບິນ`,
@@ -284,6 +299,8 @@ function calc() {
   $('total').textContent = kip(sel.price * qty);
   $('lab-note').textContent = sel.kind === 'jewelry' ? 'ຍອດນີ້ເປັນລາຄາຄຳ ຍັງບໍ່ລວມຄ່າລາຍ (ຈ່າຍທີ່ຮ້ານຕອນຮັບຄຳ)' : 'ຄຳແທ່ງບໍ່ມີຄ່າລາຍ';
 }
+$('tab-jewelry').onclick = () => setKind('jewelry');
+$('tab-bar').onclick = () => setKind('bar');
 $('minus').onclick = () => { qty--; calc(); };
 $('plus').onclick = () => { qty++; calc(); };
 $('v-choose').addEventListener('submit', async e => {

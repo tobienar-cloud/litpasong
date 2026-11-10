@@ -130,7 +130,7 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
     <label class="check"><input type="checkbox" id="l-remember" checked><span>ຈື່ການເຂົ້າສູ່ລະບົບໃນເຄື່ອງນີ້ (ບໍ່ຕ້ອງໃສ່ PIN ໃໝ່ທຸກຄັ້ງ) — ຢ່າເລືອກ ຖ້າໃຊ້ເຄື່ອງຂອງຄົນອື່ນ</span></label>
     <div class="err" id="l-err" hidden></div>
     <button class="btn gold" type="submit" id="l-go">ເຂົ້າສູ່ລະບົບ</button>
-    <p class="note">ຍັງບໍ່ເຄີຍສັ່ງຊື້ ຫຼື ອອມ? PIN ຈະຖືກຕັ້ງຕອນ <a href="order.html">ອອມຄຳເປັນນ້ຳໜັກ</a> ຫຼື <a href="save.html">ອອມຄຳເປັນເງິນ</a> ຄັ້ງທຳອິດ · ລືມ PIN? ທັກແອັດມິນ WhatsApp 020 5895 4624 ພ້ອມຊື່ຕາມບັດປະຈຳຕົວ</p>
+    <p class="note">ຍັງບໍ່ເຄີຍສັ່ງຊື້ ຫຼື ອອມ? PIN ຈະຖືກຕັ້ງຕອນ <a href="order.html">ອອມຄຳເປັນນ້ຳໜັກ</a> ຄັ້ງທຳອິດ · ລືມ PIN? ທັກແອັດມິນ WhatsApp 020 5895 4624 ພ້ອມຊື່ຕາມບັດປະຈຳຕົວ</p>
   </form>
 
   <div id="v-profile" hidden>
@@ -139,11 +139,11 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
         <div><p class="lab">👤 ສະບາຍດີ</p><h2 id="me-name"></h2><p class="lab" id="me-phone"></p></div>
         <button type="button" class="btn line" id="logout" style="padding:6px 14px;font-size:14px;background:transparent;color:#fbf1df;border-color:rgba(255,255,255,.4)">ອອກຈາກລະບົບ</button>
       </div>
-      <div class="row"><a class="btn gold" href="order.html">ອອມຄຳເປັນນ້ຳໜັກ</a><a class="btn gold" href="save.html">ອອມຄຳເປັນເງິນ</a><button type="button" class="btn line" id="refresh" style="background:transparent;color:#fbf1df;border-color:rgba(255,255,255,.4)">ອັບເດດ</button></div>
+      <div class="row"><a class="btn gold" href="order.html">ອອມຄຳຮູບປະພັນ</a><a class="btn gold" href="order.html?tab=bar">ອອມຄຳແທ່ງ</a><button type="button" class="btn line" id="refresh" style="background:transparent;color:#fbf1df;border-color:rgba(255,255,255,.4)">ອັບເດດ</button></div>
     </section>
 
-    <section class="card">
-      <h2>ຍອດອອມຄຳເປັນເງິນ</h2>
+    <section class="card" id="sv-card" hidden>
+      <h2>ຍອດອອມຄຳເປັນເງິນ (ບັນຊີເກົ່າ)</h2>
       <div id="sv"></div>
     </section>
 
@@ -224,10 +224,12 @@ async function loadProfile(cred) {
       '<p class="note">ຄຳນວນປະມານ ຕາມລາຄາຄຳຮູບປະພັນ 1 ບາດ = ' + kip(Math.round(s.perGram * 15)) + ' (ລາຄາ ' + esc(s.priceAt) + ') · ປ່ຽນແປງຕາມລາຄາຄຳ · ຍອດອອມເປັນເງິນກີບ</p>' +
       (s.pending ? '<p class="note">ລໍຖ້າແອັດມິນກວດເງິນ: ' + kip(s.pending) + '</p>' : '') +
       '<div class="row"><a class="btn gold" href="save.html?view=acct">ເບິ່ງບັນຊີອອມ · ແລກຄຳ · ຖອນເງິນ</a></div>'
-    : '<p class="note">ຍັງບໍ່ມີບັນຊີອອມຄຳ (ຫຼື ໃຊ້ PIN ອື່ນຕອນເລີ່ມອອມ)</p><div class="row"><a class="btn gold" href="save.html">ເລີ່ມອອມຄຳ 100,000 ກີບ</a></div>';
+    : '';
+  // ອອມຄຳເປັນເງິນ ປິດຮັບລູກຄ້າໃໝ່ແລ້ວ ສະແດງແຕ່ລູກຄ້າທີ່ຍັງມີຍອດເກົ່າ
+  $('sv-card').hidden = !s;
   const n = j.orders.length, active = j.orders.filter(o => [1, 2, 3].includes(stage(o.status))).length;
   $('list-sum').textContent = n ? 'ທັງໝົດ ' + n + ' ບິນ · ກຳລັງດຳເນີນການ ' + active + ' ບິນ' : '';
-  $('list').innerHTML = n ? j.orders.map(card).join('') : '<p class="note">ຍັງບໍ່ມີບິນສັ່ງຊື້ (ຫຼື ໃຊ້ PIN ອື່ນຕອນສັ່ງຊື້)</p><div class="row"><a class="btn gold" href="order.html">ສັ່ງຊື້ຄຳອອນລາຍ</a></div>';
+  $('list').innerHTML = n ? j.orders.map(card).join('') : '<p class="note">ຍັງບໍ່ມີບິນສັ່ງຊື້ (ຫຼື ໃຊ້ PIN ອື່ນຕອນສັ່ງຊື້)</p><div class="row"><a class="btn gold" href="order.html">ອອມຄຳຮູບປະພັນ</a><a class="btn gold" href="order.html?tab=bar">ອອມຄຳແທ່ງ</a></div>';
   LOGGED = true; tab('login');
   return j;
 }
