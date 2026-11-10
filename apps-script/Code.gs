@@ -53,7 +53,7 @@ const STATUS = {
 const HEAD = ['ເລກບິນ', 'ເວລາສັ່ງ', 'ຊື່ລູກຄ້າ', 'ເບີໂທ', 'ລາຍການ', 'ຈຳນວນ', 'ນ້ຳໜັກ (g)',
   'ລາຄາຕໍ່ໜ່ວຍ (ກີບ)', 'ຍອດໂອນ (ກີບ)', 'ໂອນກ່ອນ', 'ສະລິບ', 'ເວລາແນບສະລິບ',
   'ສະຖານະ', 'ຮັບຄຳພາຍໃນ', 'ໝາຍເຫດແອັດມິນ', 'token', 'pin',
-  'ລິ້ງໃບຈອງ', 'ເວລາຢືນຢັນເງິນ', 'ເວລາຮັບຄຳ'];
+  'ລິ້ງໃບຈອງ', 'ເວລາຢືນຢັນເງິນ', 'ເວລາຮັບຄຳ', 'ນັດມາຮັບ'];
 const SITE = 'https://tobienar-cloud.github.io/litpasong/';
 const COL = Object.fromEntries(HEAD.map((h, i) => [h, i + 1]));
 
@@ -164,6 +164,7 @@ function create_(b) {
   const item = items_().find(i => i.id === b.item);
   if (!item) throw new Error('ບໍ່ພົບລາຍການນີ້ ຫຼື ລາຄາຍັງບໍ່ພ້ອມ');
   const grams = Math.round(item.grams * qty * 1000) / 1000;
+  const appt = appt_(b.pickDate, b.pickTime);
   if (grams > CFG.MAX_GRAMS + 1e-9) throw new Error('ສັ່ງໄດ້ສູງສຸດ ' + (CFG.MAX_GRAMS / 15) + ' ບາດ (' + CFG.MAX_GRAMS + ' ກຣາມ) ຕໍ່ບິນ ຫຼາຍກວ່ານີ້ກະລຸນາທັກແອັດມິນ');
 
   const lock = LockService.getScriptLock();
@@ -201,6 +202,7 @@ function create_(b) {
     row[COL['ຮັບຄຳພາຍໃນ'] - 1] = pickup;
     row[COL['token'] - 1] = token;
     row[COL['pin'] - 1] = pinHash_(phone, pin);
+    row[COL['ນັດມາຮັບ'] - 1] = appt;
     row[COL['ລິ້ງໃບຈອງ'] - 1] = SITE + 'order.html?bill=' + bill + '&t=' + token;
     sh.appendRow(row);
     SpreadsheetApp.flush();
@@ -368,13 +370,26 @@ function find_(bill, token) {
   throw new Error('ບໍ່ພົບບິນ');
 }
 
+// ມື້ ແລະ ເວລາປະມານທີ່ລູກຄ້າຈະມາຮັບຄຳ: ມື້ນີ້ ຫາ 31 ມື້ ຕາມເວລາລາວ, ຊ່ວງເວລາໃນເວລາເປີດຮ້ານ 8:00–15:30
+const PICK_SLOTS = ['08:00–10:00', '10:00–12:00', '12:00–14:00', '14:00–15:30'];
+function appt_(date, slot) {
+  date = String(date || ''); slot = String(slot || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('ກະລຸນາເລືອກມື້ມາຮັບຄຳ');
+  if (PICK_SLOTS.indexOf(slot) < 0) throw new Error('ກະລຸນາເລືອກເວລາປະມານທີ່ຈະມາຮັບຄຳ');
+  const today = Utilities.formatDate(new Date(), CFG.TZ, 'yyyy-MM-dd');
+  const max = Utilities.formatDate(new Date(Date.now() + 31 * 86400000), CFG.TZ, 'yyyy-MM-dd');
+  if (date < today || date > max) throw new Error('ມື້ມາຮັບຄຳຕ້ອງເປັນມື້ນີ້ ຫາ 30 ມື້');
+  const p = date.split('-');
+  return p[2] + '/' + p[1] + '/' + p[0] + ' ເວລາ ' + slot;
+}
+
 function rowObj_(r, row) {
   const g = h => r[COL[h] - 1];
   return {
     row: row, bill: g('ເລກບິນ'), created: g('ເວລາສັ່ງ'), name: g('ຊື່ລູກຄ້າ'), phone: String(g('ເບີໂທ')),
     item: g('ລາຍການ'), qty: g('ຈຳນວນ'), grams: g('ນ້ຳໜັກ (g)'), price: g('ລາຄາຕໍ່ໜ່ວຍ (ກີບ)'),
     total: g('ຍອດໂອນ (ກີບ)'), due: g('ໂອນກ່ອນ'), slipAt: g('ເວລາແນບສະລິບ'), status: g('ສະຖານະ'),
-    pickup: g('ຮັບຄຳພາຍໃນ'), paidAt: g('ເວລາຢືນຢັນເງິນ'), doneAt: g('ເວລາຮັບຄຳ'),
+    pickup: g('ຮັບຄຳພາຍໃນ'), appt: String(g('ນັດມາຮັບ') || ''), paidAt: g('ເວລາຢືນຢັນເງິນ'), doneAt: g('ເວລາຮັບຄຳ'),
   };
 }
 
@@ -388,7 +403,7 @@ function publicOrder_(o) {
     item: o.item, qty: o.qty, grams: o.grams, price: o.price, total: o.total,
     due: f(o.due), dueMs: (o.due instanceof Date) ? o.due.getTime() : 0, slipAt: f(o.slipAt),
     late: (o.slipAt instanceof Date) && (o.due instanceof Date) && o.slipAt.getTime() > o.due.getTime() + 5 * 60000,
-    status: o.status, pickup: CFG.PICKUP_MONTHS > 0 ? fd(o.pickup) : 'ບໍ່ຈຳກັດເວລາ', paidAt: f(o.paidAt), doneAt: f(o.doneAt),
+    status: o.status, appt: o.appt || '', pickup: CFG.PICKUP_MONTHS > 0 ? fd(o.pickup) : 'ບໍ່ຈຳກັດເວລາ', paidAt: f(o.paidAt), doneAt: f(o.doneAt),
     jewelry: String(o.item).indexOf('ຮູບປະພັນ') >= 0,
   };
 }
@@ -400,7 +415,7 @@ function folder_() {
 
 function notify_(o, slipUrl, late) {
   const body = (late ? '⚠️ ແນບສະລິບຫຼັງໝົດເວລາລັອກລາຄາ ກວດເວລາໂອນໃນສະລິບ\n' : '') + 'ບິນໃໝ່ລໍຖ້າກວດເງິນ\n\nເລກບິນ: ' + o.bill + '\nລູກຄ້າ: ' + o.name + ' ' + String(o.phone).replace(/^'/, '') +
-    '\nລາຍການ: ' + o.item + ' x ' + o.qty + '\nຍອດໂອນ: ' + Number(o.total).toLocaleString('en-US') + ' ກີບ\nສະລິບ: ' + slipUrl +
+    '\nລາຍການ: ' + o.item + ' x ' + o.qty + (o.appt ? '\nນັດມາຮັບ: ' + o.appt : '') + '\nຍອດໂອນ: ' + Number(o.total).toLocaleString('en-US') + ' ກີບ\nສະລິບ: ' + slipUrl +
     '\n\nກວດເງິນເຂົ້າໃນ BCEL One ໃຫ້ຕົງຍອດ ແລ້ວປ່ຽນສະຖານະໃນຊີດ "' + CFG.ORDER_SHEET + '" ເປັນ "' + STATUS.READY + '"';
   // 1) WhatsApp ແອັດມິນ
   whatsapp_(body);

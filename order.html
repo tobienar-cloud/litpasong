@@ -56,7 +56,12 @@ h2{font-family:var(--display);font-size:20px;margin:0 0 4px}
 .seg button[aria-selected="true"]{background:var(--maroon);color:#fbf1df}
 .seg button[aria-selected="true"] small{color:var(--gold-soft)}
 label{display:grid;gap:4px;font-size:15px}
-input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
+input[type=text],input[type=tel],input[type=password],input[type=date],select{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:420px){.pick{grid-template-columns:1fr}}
+.lai{background:var(--warn-bg);border-radius:10px;padding:10px 12px;font-size:14px;display:grid;gap:8px}
+.lai p{margin:0}
+.lai .btn{justify-self:start;padding:6px 14px;font-size:14px}
 .qty{display:flex;align-items:center;gap:10px}
 .qty button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:20px;cursor:pointer}
 .qty output{min-width:32px;text-align:center;font-size:20px;font-weight:600}
@@ -129,9 +134,24 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
     </div>
     <p class="group-t" id="group-t"></p>
     <div class="items" id="items" role="group" aria-labelledby="group-t"></div>
+    <div class="lai" id="lai"><p><b>ຢາກໄດ້ລາຍໃດ?</b> ທັກຖາມແອັດມິນໄດ້ວ່າມີລາຍນີ້ບໍ ຫຼື ຖ້າຢາກສັ່ງລາຍທີ່ຕ້ອງການ ທັກແອັດມິນໄດ້ເລີຍ</p><a class="btn wa" id="lai-wa" target="_blank" rel="noopener">📲 ທັກຖາມລາຍທາງ WhatsApp</a></div>
     <div class="qty"><span>ຈຳນວນ</span><button type="button" id="minus" aria-label="ລົດຈຳນວນ">−</button><output id="qty">1</output><button type="button" id="plus" aria-label="ເພີ່ມຈຳນວນ">+</button><span class="note" id="grams"></span></div>
     <div class="total"><span>ຍອດໂອນ</span><b id="total">—</b></div>
     <p class="note" id="lab-note"></p>
+    <fieldset style="border:0;padding:0;margin:0;display:grid;gap:6px">
+      <legend style="font-size:15px;padding:0;margin-bottom:4px">ມື້ ແລະ ເວລາປະມານທີ່ຈະມາຮັບຄຳ (ໃຫ້ຮ້ານກຽມຄຳໄວ້)</legend>
+      <div class="pick">
+        <label for="f-date">ວັນທີ<input type="date" id="f-date" required></label>
+        <label for="f-time">ເວລາປະມານ<select id="f-time" required>
+          <option value="">ເລືອກເວລາ</option>
+          <option value="08:00–10:00">ເຊົ້າ 8:00–10:00</option>
+          <option value="10:00–12:00">ສວາຍ 10:00–12:00</option>
+          <option value="12:00–14:00">ທ່ຽງ 12:00–14:00</option>
+          <option value="14:00–15:30">ບ່າຍ 14:00–15:30</option>
+        </select></label>
+      </div>
+      <p class="note" style="margin:0">ຮ້ານເປີດທຸກມື້ 8:00–15:30 · ຖ້າປ່ຽນມື້ ທັກແອັດມິນ</p>
+    </fieldset>
     <label for="f-name">ຊື່ ແລະ ນາມສະກຸນ (ຕາມບັດປະຈຳຕົວ)<input type="text" id="f-name" autocomplete="name" maxlength="80" required></label>
     <label for="f-phone">ເບີໂທ / WhatsApp<input type="tel" id="f-phone" autocomplete="tel" inputmode="tel" placeholder="020 xxxx xxxx" maxlength="20" required></label>
     <label for="f-pin">ຕັ້ງລະຫັດ PIN 6 ຕົວເລກ (ໃຊ້ກັບເບີໂທ ເພື່ອເບິ່ງປະຫວັດການສັ່ງຊື້)<input type="password" id="f-pin" inputmode="numeric" autocomplete="new-password" pattern="[0-9]{6}" minlength="6" maxlength="6" required></label>
@@ -196,6 +216,7 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
       <dt>ຍອດໂອນ</dt><dd class="big" id="r-total"></dd>
       <dt>ແນບສະລິບ</dt><dd id="r-slip"></dd>
       <dt>ຢືນຢັນເງິນເຂົ້າ</dt><dd id="r-paid"></dd>
+      <dt>ນັດມາຮັບຄຳ</dt><dd id="r-appt"></dd>
       <dt>ຮັບຄຳທີ່ຮ້ານ</dt><dd id="r-pickup"></dd>
       <dt>ຮັບຄຳແລ້ວເມື່ອ</dt><dd id="r-done"></dd>
     </dl>
@@ -272,6 +293,9 @@ function setKind(k) {
 function renderItems() {
   ['jewelry', 'bar'].forEach(x => $('tab-' + x).setAttribute('aria-selected', String(x === KIND)));
   $('group-t').textContent = KIND_T[KIND];
+  $('lai').hidden = KIND !== 'jewelry';
+  $('lai-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ຂໍຖາມລາຍຄຳຮູບປະພັນ\nຢາກໄດ້ລາຍ: \nນ້ຳໜັກ: \n(ແນບຮູບລາຍທີ່ຢາກໄດ້ໃນແຊັດນີ້)');
+  setupPick();
   $('items').innerHTML = ITEMS.filter(i => i.kind === KIND && i.grams <= 15).sort((a, b) => b.grams - a.grams).map(i =>
     `<button type="button" class="item" data-id="${i.id}" aria-pressed="false"${i.grams > RULES.maxGrams ? ' disabled' : ''}><b>${i.name.replace('ຄຳຮູບປະພັນ ','')}</b><span>${kip(i.price)}</span></button>`).join('');
   document.querySelectorAll('.item').forEach(b => b.addEventListener('click', () => {
@@ -284,11 +308,28 @@ function renderItems() {
     `ອອມໄດ້ທຸກມື້ ເວລາ ${hoursText()} ເທົ່ານັ້ນ`,
     `ລາຄາລັອກໄວ້ ${RULES.payMinutes} ນາທີ ຕ້ອງໂອນ ແລະ ແນບສະລິບພາຍໃນເວລານີ້ ບໍ່ທັນຕ້ອງສັ່ງໃໝ່ຕາມລາຄາໃໝ່`,
     `ສັ່ງໄດ້ສູງສຸດ ${RULES.maxGrams / 15} ບາດ (${RULES.maxGrams} ກຣາມ) ຕໍ່ບິນ`,
-    'ຈ່າຍເຕັມລາຄາຄຳຕອນສັ່ງ · ຄ່າລາຍຂອງຄຳຮູບປະພັນຈ່າຍທີ່ຮ້ານຕອນຮັບຄຳ · ເລືອກລາຍຈິງທີ່ຮ້ານ',
-    'ມາຮັບຄຳທີ່ຮ້ານໄດ້ທຸກເວລາ ບໍ່ຈຳກັດເວລາ (ເປີດທຸກມື້ 8:00–15:30)',
+    'ຈ່າຍເຕັມລາຄາຄຳຕອນສັ່ງ · ຄ່າລາຍຂອງຄຳຮູບປະພັນຈ່າຍທີ່ຮ້ານຕອນຮັບຄຳ · ຢາກໄດ້ລາຍໃດ ທັກຖາມແອັດມິນກ່ອນ ຫຼື ສັ່ງລາຍທີ່ຕ້ອງການໄດ້',
+    'ເລືອກມື້ ແລະ ເວລາປະມານທີ່ຈະມາຮັບ ຮ້ານຈະກຽມຄຳໄວ້ໃຫ້ (ເປີດທຸກມື້ 8:00–15:30) ຖ້າປ່ຽນມື້ ທັກແອັດມິນ',
     'ບິນຈະຢືນຢັນເມື່ອແອັດມິນເຫັນເງິນເຂົ້າບັນຊີແລ້ວເທົ່ານັ້ນ',
   ].map(t => `<li>${t}</li>`).join('');
 }
+// ມື້ມາຮັບ: ມື້ນີ້ ຫາ 30 ມື້ ຕາມເວລາລາວ, ມື້ນີ້ເລືອກໄດ້ແຕ່ຊ່ວງເວລາທີ່ຍັງບໍ່ຜ່ານ
+const laoNow = () => new Date(Date.now() + 7 * 3600000);
+const ymd = d => d.toISOString().slice(0, 10);
+function setupPick() {
+  const now = laoNow(), max = new Date(now.getTime() + 30 * 86400000);
+  $('f-date').min = ymd(now); $('f-date').max = ymd(max);
+  if (!$('f-date').value || $('f-date').value < $('f-date').min) $('f-date').value = ymd(now);
+  syncSlots();
+}
+function syncSlots() {
+  const now = laoNow(), today = $('f-date').value === ymd(now);
+  const hm = String(now.getUTCHours()).padStart(2, '0') + ':' + String(now.getUTCMinutes()).padStart(2, '0');
+  [...$('f-time').options].forEach(o => { if (o.value) o.disabled = today && o.value.slice(-5) <= hm; });
+  if ($('f-time').selectedOptions[0]?.disabled) $('f-time').value = '';
+}
+$('f-date').addEventListener('change', syncSlots);
+const pickText = () => { const [y, m, d] = $('f-date').value.split('-'); return d + '/' + m + '/' + y + ' ເວລາ ' + $('f-time').value; };
 function calc() {
   if (!sel) { $('total').textContent = '—'; $('grams').textContent = ''; $('lab-note').textContent = ''; $('qty').textContent = qty; return; }
   const max = Math.floor(RULES.maxGrams / sel.grams + 1e-9);
@@ -311,10 +352,13 @@ $('v-choose').addEventListener('submit', async e => {
   if (!name) return err('err1', 'ກະລຸນາໃສ່ຊື່');
   if (!/^[0-9+ ()-]{8,20}$/.test(phone)) return err('err1', 'ເບີໂທບໍ່ຖືກຕ້ອງ');
   if (!/^[0-9]{6}$/.test(pin)) return err('err1', 'ລະຫັດ PIN ຕ້ອງເປັນຕົວເລກ 6 ໂຕ');
+  syncSlots();
+  if (!$('f-date').value || $('f-date').value < $('f-date').min || $('f-date').value > $('f-date').max) return err('err1', 'ກະລຸນາເລືອກມື້ມາຮັບຄຳ (ມື້ນີ້ ຫາ 30 ມື້)');
+  if (!$('f-time').value) return err('err1', 'ກະລຸນາເລືອກເວລາປະມານທີ່ຈະມາຮັບຄຳ');
   if (!$('f-agree').checked) return err('err1', 'ກະລຸນາຍອມຮັບເງື່ອນໄຂ');
   $('go1').disabled = true; $('go1').textContent = 'ກຳລັງລັອກລາຄາ…';
   try {
-    const j = await api('POST', {action: 'create', item: sel.id, qty, name, phone, pin});
+    const j = await api('POST', {action: 'create', item: sel.id, qty, name, phone, pin, pickDate: $('f-date').value, pickTime: $('f-time').value});
     ORDER = j.order; TOKEN = j.order.t;
     ME.keep({phone, pin, name});
   } catch (ex) { err('err1', ex.message); }
@@ -415,13 +459,13 @@ function receiptView() {
   $('r-bill').textContent = ORDER.bill; $('r-created').textContent = ORDER.created; $('r-name').textContent = ORDER.name; $('r-phone').textContent = ORDER.phone;
   $('r-item').textContent = ORDER.item + ' × ' + ORDER.qty; $('r-grams').textContent = fmtG(ORDER.grams);
   $('r-price').textContent = kip(ORDER.price); $('r-total').textContent = kip(ORDER.total);
-  $('r-slip').textContent = ORDER.slipAt || 'ຍັງບໍ່ໄດ້ແນບ'; $('r-pickup').textContent = ORDER.pickup || 'ບໍ່ຈຳກັດເວລາ';
+  $('r-slip').textContent = ORDER.slipAt || 'ຍັງບໍ່ໄດ້ແນບ'; $('r-pickup').textContent = ORDER.pickup || 'ບໍ່ຈຳກັດເວລາ'; $('r-appt').textContent = ORDER.appt || '—';
   err('r-late', ORDER.late && !/ພ້ອມຮັບ|ຮັບຄຳແລ້ວ/.test(st) ? 'ແນບສະລິບຫຼັງໝົດເວລາລັອກລາຄາ: ແອັດມິນຈະກວດເວລາໂອນໃນສະລິບ ແລ້ວຕິດຕໍ່ກັບທາງໂທລະສັບ' : '');
   $('r-paid').textContent = ORDER.paidAt || '—'; $('r-done').textContent = ORDER.doneAt || '—'; save();
   $('r-lab').textContent = ORDER.jewelry ? 'ຍອດໂອນເປັນລາຄາຄຳ ຍັງບໍ່ລວມຄ່າລາຍ ຈ່າຍຄ່າລາຍທີ່ຮ້ານຕອນຮັບຄຳ' : 'ຄຳແທ່ງບໍ່ມີຄ່າລາຍ';
   $('r-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ຂ້ອຍອອມຄຳເປັນນ້ຳໜັກ ສົ່ງໃບຈອງ ແລະ ສະລິບ\nເລກບິນ ' + ORDER.bill +
     '\nຊື່ ' + ORDER.name + '\nລາຍການ ' + ORDER.item + ' × ' + ORDER.qty + ' (' + fmtG(ORDER.grams) + ')\nຍອດໂອນ ' + kip(ORDER.total) +
-    '\nເວລາສັ່ງ ' + ORDER.created + '\n' + location.href + '\n(ແນບຮູບແຄັບໜ້າຈໍໃບຈອງ ແລະ ສະລິບໃນແຊັດນີ້)');
+    '\nເວລາສັ່ງ ' + ORDER.created + (ORDER.appt ? '\nນັດມາຮັບ ' + ORDER.appt : '') + '\n' + location.href + '\n(ແນບຮູບແຄັບໜ້າຈໍໃບຈອງ ແລະ ສະລິບໃນແຊັດນີ້)');
   $('billqr').innerHTML = '';
   if (window.QRCode) new QRCode($('billqr'), {text: ORDER.bill, width: 116, height: 116, correctLevel: QRCode.CorrectLevel.M});
 }
