@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#6e1423">
+<meta name="theme-color" content="#c8142a">
 <link rel="icon" href="img/app/favicon-48.png" type="image/png">
 <link rel="apple-touch-icon" href="img/app/apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -22,15 +22,15 @@
 <style>
 /* Layout: maroon shop-sign band on top, today's price board as the hero, then services, units, hours/contact */
 :root{
-  --maroon:#6e1423; --maroon-deep:#4a0d17; --gold:#c9a24a; --gold-soft:#e8d39a;
-  --bg:#fbf7f1; --surface:#ffffff; --fg:#2a1a1c; --muted:#76615f; --line:#e8ddd0;
-  --chart:#6e1423; --up:#1f6b2c; --down:#a12626;
+  --maroon:#c8142a; --maroon-deep:#9a0c1d; --gold:#f0b92b; --gold-soft:#ffe27a;
+  --bg:#fff9f5; --surface:#ffffff; --fg:#2a1a1c; --muted:#76615f; --line:#f1dcd3;
+  --chart:#c8142a; --up:#1f6b2c; --down:#a12626;
   --display:"Noto Serif Lao","Noto Sans Lao Looped",serif;
   --body:"Noto Sans Lao Looped","Noto Sans Lao",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#1a1213; --surface:#241819; --fg:#f3e9df; --muted:#b8a49c; --line:#3a2a2b; --gold:#d8b45c; --gold-soft:#e8d39a; --chart:#d8b45c; --up:#9fd8a8; --down:#f0a0a0; color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#1a1213; --surface:#241819; --fg:#f3e9df; --muted:#b8a49c; --line:#3a2a2b; --gold:#d8b45c; --gold-soft:#e8d39a; --chart:#d8b45c; --up:#9fd8a8; --down:#f0a0a0; color-scheme:dark}
+  --bg:#1a1213; --surface:#241819; --fg:#f3e9df; --muted:#b8a49c; --line:#3a2a2b; --gold:#d8b45c; --gold-soft:#ffe27a; --chart:#d8b45c; --up:#9fd8a8; --down:#f0a0a0; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1a1213; --surface:#241819; --fg:#f3e9df; --muted:#b8a49c; --line:#3a2a2b; --gold:#d8b45c; --gold-soft:#ffe27a; --chart:#d8b45c; --up:#9fd8a8; --down:#f0a0a0; color-scheme:dark}
 
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.7}
 .wrap{max-width:960px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -215,6 +215,7 @@ footer .visits b{color:var(--fg);font-variant-numeric:tabular-nums}
 <header class="sign">
   <div class="wrap">
     <div class="txt">
+    <img src="img/logo-round.png" alt="ຮ້ານຄຳ ລິດປະສົງ LITPASONG JEWELRY" width="132" height="132" style="display:block;width:132px;height:132px;border-radius:50%;margin:0 0 12px;box-shadow:0 0 0 3px #f0b92b">
     <div class="eyebrow">Litpasong Jewelry · ໂຕບີ້</div>
     <h1>ຮ້ານຄຳ ລິດປະສົງ</h1>
     <p>ຂາຍຄຳຮູບປະພັນ ຄຳແທ່ງ ຮັບຊື້ຄຳລາຄາສູງ ຮັບຈຳຄຳດອກເບ້ຍຕ່ຳ ຕັ້ງຢູ່ເທິງຕະຫຼາດຫຼັກ 3 ເມືອງທ່າແຂກ ແຂວງຄຳມ່ວນ</p>
@@ -752,10 +753,10 @@ function sel(b){var a=b.previousElementSibling,r=document.createRange();r.select
 })();
 </script>
 
-<div id="install-bar" style="position:fixed;left:0;right:0;bottom:0;z-index:40;display:none;gap:10px;align-items:center;background:#4a0d17;color:#f6ead9;border-top:2px solid #c9a24a;padding:10px max(14px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 10px) max(14px,env(safe-area-inset-left,0px));font:400 15px/1.5 'Noto Sans Lao Looped','Noto Sans Lao',system-ui,sans-serif">
+<div id="install-bar" style="position:fixed;left:0;right:0;bottom:0;z-index:40;display:none;gap:10px;align-items:center;background:#9a0c1d;color:#f6ead9;border-top:2px solid #c9a24a;padding:10px max(14px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 10px) max(14px,env(safe-area-inset-left,0px));font:400 15px/1.5 'Noto Sans Lao Looped','Noto Sans Lao',system-ui,sans-serif">
   <img src="img/app/apple-touch-icon.png" alt="" width="44" height="44" style="border-radius:10px;flex:none">
   <span style="flex:1;min-width:0">ເພີ່ມໄອຄອນຮ້ານລົງໜ້າຈໍມືຖື ເປີດງ່າຍ ບໍ່ຕ້ອງຈື່ລິ້ງ</span>
-  <a id="install-go" href="app.html" style="flex:none;background:#c9a24a;color:#4a0d17;font-weight:800;text-decoration:none;border-radius:8px;padding:9px 14px">ຕິດຕັ້ງ</a>
+  <a id="install-go" href="app.html" style="flex:none;background:#f0b92b;color:#9a0c1d;font-weight:800;text-decoration:none;border-radius:8px;padding:9px 14px">ຕິດຕັ້ງ</a>
   <button id="install-x" type="button" aria-label="ປິດ" style="flex:none;width:40px;height:44px;border:0;background:transparent;color:#f6ead9;font-size:22px;cursor:pointer">×</button>
 </div>
 <script>
