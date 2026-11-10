@@ -12,6 +12,7 @@ const CFG = {
   PRICE_RANGE: 'A5:C20',       // ແຖວ 17–19 = ຄຳແທ່ງ 1 ສະຫຼຶງ, 2 ສະຫຼຶງ, 2 ບາດ (ຕັ້ງເປີເຊັນໃນຖັນ B ກ່ອນ ຈຶ່ງຂຶ້ນໃຫ້ລູກຄ້າເລືອກ)
   ORDER_SHEET: 'ຄຳສັ່ງຊື້',
   SLIP_FOLDER: 'ສະລິບໂອນເງິນ Litpasong',
+  PHOTO_FOLDER: 'ຮູບລູກຄ້າ Litpasong',
   NOTIFY_EMAIL: '',            // ອີເມວແຈ້ງເຕືອນບິນໃໝ່ (ວ່າງ = ໃຊ້ອີເມວເຈົ້າຂອງຊີດ)
   ADMIN_WHATSAPP: '+8562097170747', // WhatsApp ແອັດມິນ ຮັບແຈ້ງເຕືອນບິນໃໝ່
   // ກະແຈ CallMeBot ເກັບໃນ Project Settings → Script properties ຊື່ CALLMEBOT_APIKEY (ບໍ່ໃສ່ໃນໂຄດ)
@@ -53,7 +54,8 @@ const STATUS = {
 const HEAD = ['ເລກບິນ', 'ເວລາສັ່ງ', 'ຊື່ລູກຄ້າ', 'ເບີໂທ', 'ລາຍການ', 'ຈຳນວນ', 'ນ້ຳໜັກ (g)',
   'ລາຄາຕໍ່ໜ່ວຍ (ກີບ)', 'ຍອດໂອນ (ກີບ)', 'ໂອນກ່ອນ', 'ສະລິບ', 'ເວລາແນບສະລິບ',
   'ສະຖານະ', 'ຮັບຄຳພາຍໃນ', 'ໝາຍເຫດແອັດມິນ', 'token', 'pin',
-  'ລິ້ງໃບຈອງ', 'ເວລາຢືນຢັນເງິນ', 'ເວລາຮັບຄຳ', 'ນັດມາຮັບ'];
+  'ລິ້ງໃບຈອງ', 'ເວລາຢືນຢັນເງິນ', 'ເວລາຮັບຄຳ', 'ນັດມາຮັບ',
+  'ວັນເດືອນປີເກີດ', 'ບ້ານ', 'ເມືອງ', 'ແຂວງ', 'ຮູບລູກຄ້າ'];
 const SITE = 'https://tobienar-cloud.github.io/litpasong/';
 const COL = Object.fromEntries(HEAD.map((h, i) => [h, i + 1]));
 
@@ -95,6 +97,7 @@ function doPost(e) {
   try { body = JSON.parse(e.postData.contents); } catch (err) { return json_({ ok: false, error: 'bad request' }); }
   try {
     if (body.action === 'create') return json_({ ok: true, order: create_(body) });
+    if (body.action === 'appt') return json_({ ok: true, order: setAppt_(body) });
     if (body.action === 'slip') return json_({ ok: true, order: slip_(body) });
     if (body.action === 'history') return json_({ ok: true, orders: history_(body) });
     if (body.action === 'profile') return json_(Object.assign({ ok: true }, profile_(body)));
@@ -154,8 +157,15 @@ function sellGate_() {
 // ---------- ສ້າງບິນ (ລັອກລາຄາ) ----------
 function create_(b) {
   sellGate_();
-  const name = clean_(b.name, 80), phone = clean_(b.phone, 30);
-  if (!name) throw new Error('ກະລຸນາໃສ່ຊື່');
+  const first = clean_(b.first, 40), last = clean_(b.last, 40), phone = clean_(b.phone, 30);
+  if (!first) throw new Error('ກະລຸນາໃສ່ຊື່');
+  if (!last) throw new Error('ກະລຸນາໃສ່ນາມສະກຸນ');
+  const name = first + ' ' + last;
+  const dob = String(b.dob || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dob) || dob < '1900-01-01' || dob > Utilities.formatDate(new Date(), CFG.TZ, 'yyyy-MM-dd')) throw new Error('ກະລຸນາໃສ່ວັນເດືອນປີເກີດໃຫ້ຖືກຕ້ອງ');
+  const village = clean_(b.village, 60), district = clean_(b.district, 60), province = clean_(b.province, 60);
+  if (!village || !district || !province) throw new Error('ກະລຸນາໃສ່ທີ່ຢູ່ ບ້ານ ເມືອງ ແຂວງ ໃຫ້ຄົບ');
+  const photo = /^data:(image\/(jpeg|png|webp));base64,(.+)$/.exec(String(b.photo || ''));
   if (!/^[0-9+ ()-]{8,20}$/.test(phone) || phone8_(phone).length < 8) throw new Error('ເບີໂທບໍ່ຖືກຕ້ອງ');
   const pin = String(b.pin || '');
   if (!/^[0-9]{6}$/.test(pin)) throw new Error('ລະຫັດ PIN ຕ້ອງເປັນຕົວເລກ 6 ໂຕ');
@@ -203,6 +213,19 @@ function create_(b) {
     row[COL['token'] - 1] = token;
     row[COL['pin'] - 1] = pinHash_(phone, pin);
     row[COL['ນັດມາຮັບ'] - 1] = appt;
+    const dp = dob.split('-');
+    row[COL['ວັນເດືອນປີເກີດ'] - 1] = "'" + dp[2] + '/' + dp[1] + '/' + dp[0];
+    row[COL['ບ້ານ'] - 1] = village;
+    row[COL['ເມືອງ'] - 1] = district;
+    row[COL['ແຂວງ'] - 1] = province;
+    if (photo) {
+      const bytes = Utilities.base64Decode(photo[3]);
+      if (bytes.length <= 4 * 1024 * 1024) {
+        const it = DriveApp.getFoldersByName(CFG.PHOTO_FOLDER);
+        const fd = it.hasNext() ? it.next() : DriveApp.createFolder(CFG.PHOTO_FOLDER);
+        row[COL['ຮູບລູກຄ້າ'] - 1] = fd.createFile(Utilities.newBlob(bytes, photo[1], bill + '-' + phone8_(phone) + '.' + (photo[2] === 'jpeg' ? 'jpg' : photo[2]))).getUrl();
+      }
+    }
     row[COL['ລິ້ງໃບຈອງ'] - 1] = SITE + 'order.html?bill=' + bill + '&t=' + token;
     sh.appendRow(row);
     SpreadsheetApp.flush();
@@ -353,6 +376,9 @@ function logStatus_(e) {
 function orders_() {
   const sh = SpreadsheetApp.getActive().getSheetByName(CFG.ORDER_SHEET);
   if (!sh) throw new Error('ລະບົບຍັງບໍ່ໄດ້ຕັ້ງຄ່າ (ແລ່ນ setup ກ່ອນ)');
+  // ເພີ່ມຖັນ ແລະ ຫົວຖັນໃໝ່ເອງ ເມື່ອ HEAD ຍາວຂຶ້ນ
+  if (sh.getMaxColumns() < HEAD.length) sh.insertColumnsAfter(sh.getMaxColumns(), HEAD.length - sh.getMaxColumns());
+  if (String(sh.getRange(1, HEAD.length).getValue()) !== HEAD[HEAD.length - 1]) sh.getRange(1, 1, 1, HEAD.length).setValues([HEAD]);
   return sh;
 }
 
@@ -374,6 +400,7 @@ function find_(bill, token) {
 const PICK_SLOTS = ['08:00–10:00', '10:00–12:00', '12:00–14:00', '14:00–15:30'];
 function appt_(date, slot) {
   date = String(date || ''); slot = String(slot || '');
+  if (!date && !slot) return ''; // ເລືອກພາຍຫຼັງໄດ້ໃນໃບຈອງ
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('ກະລຸນາເລືອກມື້ມາຮັບຄຳ');
   if (PICK_SLOTS.indexOf(slot) < 0) throw new Error('ກະລຸນາເລືອກເວລາປະມານທີ່ຈະມາຮັບຄຳ');
   const today = Utilities.formatDate(new Date(), CFG.TZ, 'yyyy-MM-dd');
@@ -381,6 +408,17 @@ function appt_(date, slot) {
   if (date < today || date > max) throw new Error('ມື້ມາຮັບຄຳຕ້ອງເປັນມື້ນີ້ ຫາ 30 ມື້');
   const p = date.split('-');
   return p[2] + '/' + p[1] + '/' + p[0] + ' ເວລາ ' + slot;
+}
+
+// ລູກຄ້າເລືອກ ຫຼື ປ່ຽນມື້ມາຮັບຄຳພາຍຫຼັງ ຈາກໜ້າໃບຈອງ
+function setAppt_(b) {
+  const o = find_(b.bill, b.t);
+  if ([STATUS.DONE, STATUS.CANCEL, STATUS.EXPIRED].indexOf(o.status) >= 0) throw new Error('ບິນນີ້ປ່ຽນມື້ມາຮັບບໍ່ໄດ້ແລ້ວ');
+  const appt = appt_(b.pickDate, b.pickTime);
+  if (!appt) throw new Error('ກະລຸນາເລືອກມື້ ແລະ ເວລາ');
+  orders_().getRange(o.row, COL['ນັດມາຮັບ']).setValue(appt);
+  SpreadsheetApp.flush();
+  return publicOrder_(find_(b.bill, b.t));
 }
 
 function rowObj_(r, row) {

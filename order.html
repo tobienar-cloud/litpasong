@@ -56,7 +56,7 @@ h2{font-family:var(--display);font-size:20px;margin:0 0 4px}
 .seg button[aria-selected="true"]{background:var(--maroon);color:#fbf1df}
 .seg button[aria-selected="true"] small{color:var(--gold-soft)}
 label{display:grid;gap:4px;font-size:15px}
-input[type=text],input[type=tel],input[type=password],input[type=date],select{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
+input[type=text],input[type=tel],input[type=password],input[type=date],input[type=file],select{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);width:100%}
 .pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:420px){.pick{grid-template-columns:1fr}}
 .lai{background:var(--warn-bg);border-radius:10px;padding:10px 12px;font-size:14px;display:grid;gap:8px}
@@ -139,20 +139,35 @@ input[type=text],input[type=tel],input[type=password],input[type=date],select{fo
     <div class="total"><span>ຍອດໂອນ</span><b id="total">—</b></div>
     <p class="note" id="lab-note"></p>
     <fieldset style="border:0;padding:0;margin:0;display:grid;gap:6px">
-      <legend style="font-size:15px;padding:0;margin-bottom:4px">ມື້ ແລະ ເວລາປະມານທີ່ຈະມາຮັບຄຳ (ໃຫ້ຮ້ານກຽມຄຳໄວ້)</legend>
+      <legend style="font-size:15px;padding:0;margin-bottom:4px">ມື້ ແລະ ເວລາປະມານທີ່ຈະມາຮັບຄຳ (ບໍ່ບັງຄັບ)</legend>
       <div class="pick">
-        <label for="f-date">ວັນທີ<input type="date" id="f-date" required></label>
-        <label for="f-time">ເວລາປະມານ<select id="f-time" required>
-          <option value="">ເລືອກເວລາ</option>
+        <label for="f-date">ວັນທີ<input type="date" id="f-date"></label>
+        <label for="f-time">ເວລາປະມານ<select id="f-time">
+          <option value="">ເລືອກພາຍຫຼັງ</option>
           <option value="08:00–10:00">ເຊົ້າ 8:00–10:00</option>
           <option value="10:00–12:00">ສວາຍ 10:00–12:00</option>
           <option value="12:00–14:00">ທ່ຽງ 12:00–14:00</option>
           <option value="14:00–15:30">ບ່າຍ 14:00–15:30</option>
         </select></label>
       </div>
-      <p class="note" style="margin:0">ຮ້ານເປີດທຸກມື້ 8:00–15:30 · ຖ້າປ່ຽນມື້ ທັກແອັດມິນ</p>
+      <p class="note" style="margin:0">ຍັງບໍ່ແນ່ໃຈ ປ່ອຍວ່າງໄວ້ ແລ້ວເລືອກພາຍຫຼັງໃນໃບຈອງໄດ້ · ຮ້ານເປີດທຸກມື້ 8:00–15:30</p>
     </fieldset>
-    <label for="f-name">ຊື່ ແລະ ນາມສະກຸນ (ຕາມບັດປະຈຳຕົວ)<input type="text" id="f-name" autocomplete="name" maxlength="80" required></label>
+    <fieldset style="border:0;padding:0;margin:0;display:grid;gap:10px">
+      <legend style="font-size:15px;padding:0;margin-bottom:4px"><b>ຂໍ້ມູນລູກຄ້າ</b> (ຕາມບັດປະຈຳຕົວ)</legend>
+      <div class="pick">
+        <label for="f-first">ຊື່<input type="text" id="f-first" autocomplete="given-name" maxlength="40" required></label>
+        <label for="f-last">ນາມສະກຸນ<input type="text" id="f-last" autocomplete="family-name" maxlength="40" required></label>
+      </div>
+      <label for="f-dob">ວັນເດືອນປີເກີດ<input type="date" id="f-dob" min="1900-01-01" autocomplete="bday" required></label>
+      <div class="pick">
+        <label for="f-village">ບ້ານ<input type="text" id="f-village" maxlength="60" required></label>
+        <label for="f-district">ເມືອງ<input type="text" id="f-district" maxlength="60" required></label>
+      </div>
+      <label for="f-province">ແຂວງ<select id="f-province" required><option value="">ເລືອກແຂວງ</option><option>ນະຄອນຫຼວງວຽງຈັນ</option><option>ຄຳມ່ວນ</option><option>ສະຫວັນນະເຂດ</option><option>ບໍລິຄຳໄຊ</option><option>ວຽງຈັນ</option><option>ຈຳປາສັກ</option><option>ສາລະວັນ</option><option>ເຊກອງ</option><option>ອັດຕະປື</option><option>ຫຼວງພະບາງ</option><option>ອຸດົມໄຊ</option><option>ຫຼວງນ້ຳທາ</option><option>ບໍ່ແກ້ວ</option><option>ຜົ້ງສາລີ</option><option>ຫົວພັນ</option><option>ຊຽງຂວາງ</option><option>ໄຊຍະບູລີ</option><option>ໄຊສົມບູນ</option><option>ຕ່າງປະເທດ</option></select></label>
+      <label for="f-photo">ຮູບລູກຄ້າ (ບໍ່ບັງຄັບ) ຖ່າຍໜ້າຕົງ ເຫັນໜ້າຊັດ<input type="file" id="f-photo" accept="image/*" capture="user"></label>
+      <img id="photo-prev" alt="ຮູບລູກຄ້າ" hidden style="max-height:160px;width:auto;border-radius:10px;border:1px solid var(--line);justify-self:start">
+      <p class="note" style="margin:0">ຮ້ານເກັບຂໍ້ມູນນີ້ໄວ້ເປັນຫຼັກຖານການຊື້ ແລະ ຕິດຕໍ່ກໍລະນີຈຳເປັນເທົ່ານັ້ນ ບໍ່ເປີດເຜີຍໃຫ້ຜູ້ອື່ນ</p>
+    </fieldset>
     <label for="f-phone">ເບີໂທ / WhatsApp<input type="tel" id="f-phone" autocomplete="tel" inputmode="tel" placeholder="020 xxxx xxxx" maxlength="20" required></label>
     <label for="f-pin">ຕັ້ງລະຫັດ PIN 6 ຕົວເລກ (ໃຊ້ກັບເບີໂທ ເພື່ອເບິ່ງປະຫວັດການສັ່ງຊື້)<input type="password" id="f-pin" inputmode="numeric" autocomplete="new-password" pattern="[0-9]{6}" minlength="6" maxlength="6" required></label>
     <p class="note" style="margin-top:-8px">ຈື່ PIN ໄວ້ ແລະ ໃຊ້ PIN ດຽວກັນທຸກຄັ້ງທີ່ສັ່ງ ຢ່າບອກ PIN ໃຫ້ຄົນອື່ນ</p>
@@ -221,6 +236,15 @@ input[type=text],input[type=tel],input[type=password],input[type=date],select{fo
       <dt>ຮັບຄຳແລ້ວເມື່ອ</dt><dd id="r-done"></dd>
     </dl>
     <div class="err" id="r-late" hidden></div>
+    <div class="lai" id="r-appt-box" hidden>
+      <p><b id="r-appt-h">ເລືອກມື້ ແລະ ເວລາປະມານທີ່ຈະມາຮັບຄຳ</b> ໃຫ້ຮ້ານກຽມຄຳໄວ້</p>
+      <div class="pick">
+        <label for="a-date">ວັນທີ<input type="date" id="a-date"></label>
+        <label for="a-time">ເວລາປະມານ<select id="a-time"><option value="">ເລືອກເວລາ</option><option value="08:00–10:00">ເຊົ້າ 8:00–10:00</option><option value="10:00–12:00">ສວາຍ 10:00–12:00</option><option value="12:00–14:00">ທ່ຽງ 12:00–14:00</option><option value="14:00–15:30">ບ່າຍ 14:00–15:30</option></select></label>
+      </div>
+      <div class="err" id="err3" hidden></div>
+      <button class="btn gold" type="button" id="a-save">ບັນທຶກມື້ມາຮັບ</button>
+    </div>
     <div class="err" style="background:var(--warn-bg);color:var(--warn)"><b>📸 ກະລຸນາແຄັບໜ້າຈໍໃບຈອງນີ້ ແລະ ສະລິບໂອນເງິນ ເກັບໄວ້ເປັນຫຼັກຖານ</b><br>ນຳມາສະແດງພ້ອມບັດປະຈຳຕົວ ຕອນຮັບຄຳທີ່ໜ້າຮ້ານ</div>
     <p class="note" id="r-lab"></p>
     <p class="note">ແຄັບໜ້າຈໍໃບຈອງນີ້ ແລະ ສະລິບໂອນເງິນ ແລ້ວກົດປຸ່ມ WhatsApp ຂ້າງລຸ່ມ ແນບຮູບສົ່ງໃຫ້ແອັດມິນ 020 5895 4624</p>
@@ -253,7 +277,10 @@ const $ = id => document.getElementById(id);
 const ME = {
   get() { try { return JSON.parse(localStorage.getItem('lps-me') || sessionStorage.getItem('lps-me') || 'null'); } catch (e) { return null; } },
   keep(v) { try { if (!localStorage.getItem('lps-me') && !sessionStorage.getItem('lps-me')) sessionStorage.setItem('lps-me', JSON.stringify(v)); } catch (e) {} },
+  // ຈື່ຂໍ້ມູນລູກຄ້າໄວ້ໃນບ່ອນດຽວກັບ lps-me ເພື່ອສັ່ງຄັ້ງຕໍ່ໄປບໍ່ຕ້ອງພິມໃໝ່
+  merge(v) { try { const st = localStorage.getItem('lps-me') ? localStorage : sessionStorage; st.setItem('lps-me', JSON.stringify(Object.assign(ME.get() || {}, v))); } catch (e) {} },
 };
+let photoData = '';
 const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
 const fmtG = g => (Math.round(g * 1000) / 1000) + ' ກຣາມ';
 let ITEMS = [], RULES = {payMinutes: 30, pickupMonths: 3, maxGrams: 15}, sel = null, qty = 1, ORDER = null, TOKEN = '', timerId = 0, slipData = '';
@@ -319,7 +346,8 @@ const ymd = d => d.toISOString().slice(0, 10);
 function setupPick() {
   const now = laoNow(), max = new Date(now.getTime() + 30 * 86400000);
   $('f-date').min = ymd(now); $('f-date').max = ymd(max);
-  if (!$('f-date').value || $('f-date').value < $('f-date').min) $('f-date').value = ymd(now);
+  if ($('f-date').value && $('f-date').value < $('f-date').min) $('f-date').value = '';
+  $('f-dob').max = ymd(now);
   syncSlots();
 }
 function syncSlots() {
@@ -347,20 +375,25 @@ $('plus').onclick = () => { qty++; calc(); };
 $('v-choose').addEventListener('submit', async e => {
   e.preventDefault(); err('err1');
   if (!isOpen()) return offView();
-  const name = $('f-name').value.trim(), phone = $('f-phone').value.trim(), pin = $('f-pin').value.trim();
+  const first = $('f-first').value.trim(), last = $('f-last').value.trim(), name = first + ' ' + last;
+  const phone = $('f-phone').value.trim(), pin = $('f-pin').value.trim(), dob = $('f-dob').value;
+  const village = $('f-village').value.trim(), district = $('f-district').value.trim(), province = $('f-province').value;
   if (!sel) return err('err1', 'ກະລຸນາເລືອກລາຍການ');
-  if (!name) return err('err1', 'ກະລຸນາໃສ່ຊື່');
+  if (!first) return err('err1', 'ກະລຸນາໃສ່ຊື່');
+  if (!last) return err('err1', 'ກະລຸນາໃສ່ນາມສະກຸນ');
+  if (!dob || dob > $('f-dob').max || dob < '1900-01-01') return err('err1', 'ກະລຸນາໃສ່ວັນເດືອນປີເກີດ');
+  if (!village || !district || !province) return err('err1', 'ກະລຸນາໃສ່ທີ່ຢູ່ ບ້ານ ເມືອງ ແຂວງ ໃຫ້ຄົບ');
   if (!/^[0-9+ ()-]{8,20}$/.test(phone)) return err('err1', 'ເບີໂທບໍ່ຖືກຕ້ອງ');
   if (!/^[0-9]{6}$/.test(pin)) return err('err1', 'ລະຫັດ PIN ຕ້ອງເປັນຕົວເລກ 6 ໂຕ');
   syncSlots();
-  if (!$('f-date').value || $('f-date').value < $('f-date').min || $('f-date').value > $('f-date').max) return err('err1', 'ກະລຸນາເລືອກມື້ມາຮັບຄຳ (ມື້ນີ້ ຫາ 30 ມື້)');
-  if (!$('f-time').value) return err('err1', 'ກະລຸນາເລືອກເວລາປະມານທີ່ຈະມາຮັບຄຳ');
+  if ($('f-date').value && ($('f-date').value < $('f-date').min || $('f-date').value > $('f-date').max)) return err('err1', 'ມື້ມາຮັບຄຳຕ້ອງເປັນມື້ນີ້ ຫາ 30 ມື້');
+  if (!!$('f-date').value !== !!$('f-time').value) return err('err1', $('f-date').value ? 'ກະລຸນາເລືອກເວລາປະມານທີ່ຈະມາຮັບຄຳ' : 'ກະລຸນາເລືອກມື້ມາຮັບຄຳ');
   if (!$('f-agree').checked) return err('err1', 'ກະລຸນາຍອມຮັບເງື່ອນໄຂ');
   $('go1').disabled = true; $('go1').textContent = 'ກຳລັງລັອກລາຄາ…';
   try {
-    const j = await api('POST', {action: 'create', item: sel.id, qty, name, phone, pin, pickDate: $('f-date').value, pickTime: $('f-time').value});
+    const j = await api('POST', {action: 'create', item: sel.id, qty, first, last, dob, village, district, province, photo: photoData, phone, pin, pickDate: $('f-date').value, pickTime: $('f-time').value});
     ORDER = j.order; TOKEN = j.order.t;
-    ME.keep({phone, pin, name});
+    ME.keep({phone, pin, name}); ME.merge({name, first, last, dob, village, district, province});
   } catch (ex) { err('err1', ex.message); }
   $('go1').disabled = false; $('go1').textContent = 'ລັອກລາຄາ ແລະ ໄປໂອນເງິນ';
   if (ORDER && TOKEN) { save(); setUrl(); payView(); }
@@ -429,6 +462,20 @@ function payView() {
   };
   tick(); timerId = setInterval(tick, 1000);
 }
+function shrink(file, max, done, fail) {
+  const img = new Image();
+  img.onload = () => {
+    const sc = Math.min(1, max / Math.max(img.width, img.height));
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(img.src); done(c.toDataURL('image/jpeg', 0.85));
+  };
+  img.onerror = fail; img.src = URL.createObjectURL(file);
+}
+$('f-photo').addEventListener('change', () => {
+  const f = $('f-photo').files[0]; photoData = ''; $('photo-prev').hidden = true; err('err1');
+  if (f) shrink(f, 900, d => { photoData = d; $('photo-prev').src = d; $('photo-prev').hidden = false; }, () => err('err1', 'ອ່ານຮູບບໍ່ໄດ້ ກະລຸນາເລືອກຮູບໃໝ່'));
+});
 $('f-slip').addEventListener('change', () => {
   const f = $('f-slip').files[0]; slipData = ''; $('go2').disabled = true; err('err2');
   if (!f) return;
@@ -452,6 +499,15 @@ $('go2').addEventListener('click', async () => {
 });
 
 // ---- Step 3 ----
+$('a-save').addEventListener('click', async () => {
+  err('err3'); const d = $('a-date').value, t = $('a-time').value;
+  if (!d || d < $('a-date').min || d > $('a-date').max) return err('err3', 'ກະລຸນາເລືອກມື້ (ມື້ນີ້ ຫາ 30 ມື້)');
+  if (!t) return err('err3', 'ກະລຸນາເລືອກເວລາ');
+  $('a-save').disabled = true; $('a-save').textContent = 'ກຳລັງບັນທຶກ…';
+  try { const j = await api('POST', {action: 'appt', bill: ORDER.bill, t: TOKEN, pickDate: d, pickTime: t}); ORDER = j.order; receiptView(); $('a-date').value = ''; $('a-time').value = ''; }
+  catch (ex) { err('err3', ex.message); }
+  $('a-save').disabled = false; $('a-save').textContent = 'ບັນທຶກມື້ມາຮັບ';
+});
 function receiptView() {
   show('v-receipt', 3);
   const st = ORDER.status, cls = /ພ້ອມຮັບ|ຮັບຄຳແລ້ວ/.test(st) ? 'good' : /ຍົກເລີກ|ໝົດເວລາ/.test(st) ? 'bad' : 'wait';
@@ -459,7 +515,10 @@ function receiptView() {
   $('r-bill').textContent = ORDER.bill; $('r-created').textContent = ORDER.created; $('r-name').textContent = ORDER.name; $('r-phone').textContent = ORDER.phone;
   $('r-item').textContent = ORDER.item + ' × ' + ORDER.qty; $('r-grams').textContent = fmtG(ORDER.grams);
   $('r-price').textContent = kip(ORDER.price); $('r-total').textContent = kip(ORDER.total);
-  $('r-slip').textContent = ORDER.slipAt || 'ຍັງບໍ່ໄດ້ແນບ'; $('r-pickup').textContent = ORDER.pickup || 'ບໍ່ຈຳກັດເວລາ'; $('r-appt').textContent = ORDER.appt || '—';
+  $('r-slip').textContent = ORDER.slipAt || 'ຍັງບໍ່ໄດ້ແນບ'; $('r-pickup').textContent = ORDER.pickup || 'ບໍ່ຈຳກັດເວລາ'; $('r-appt').textContent = ORDER.appt || 'ຍັງບໍ່ໄດ້ເລືອກ';
+  const canAppt = !/ຮັບຄຳແລ້ວ|ຍົກເລີກ|ໝົດເວລາ/.test(st);
+  $('r-appt-box').hidden = !canAppt; $('r-appt-h').textContent = ORDER.appt ? 'ປ່ຽນມື້ມາຮັບຄຳ' : 'ເລືອກມື້ ແລະ ເວລາປະມານທີ່ຈະມາຮັບຄຳ';
+  if (canAppt) { const n = laoNow(); $('a-date').min = ymd(n); $('a-date').max = ymd(new Date(n.getTime() + 30 * 86400000)); }
   err('r-late', ORDER.late && !/ພ້ອມຮັບ|ຮັບຄຳແລ້ວ/.test(st) ? 'ແນບສະລິບຫຼັງໝົດເວລາລັອກລາຄາ: ແອັດມິນຈະກວດເວລາໂອນໃນສະລິບ ແລ້ວຕິດຕໍ່ກັບທາງໂທລະສັບ' : '');
   $('r-paid').textContent = ORDER.paidAt || '—'; $('r-done').textContent = ORDER.doneAt || '—'; save();
   $('r-lab').textContent = ORDER.jewelry ? 'ຍອດໂອນເປັນລາຄາຄຳ ຍັງບໍ່ລວມຄ່າລາຍ ຈ່າຍຄ່າລາຍທີ່ຮ້ານຕອນຮັບຄຳ' : 'ຄຳແທ່ງບໍ່ມີຄ່າລາຍ';
@@ -503,7 +562,8 @@ function offView() { $('off-hours').textContent = hoursText(); show('v-off', 1);
     if (!isOpen()) return offView();
     renderItems(); calc(); show('v-choose', 1);
     const me = ME.get();
-    if (me) { $('f-name').value = me.name || ''; $('f-phone').value = me.phone; $('f-pin').value = me.pin; $('me-link').textContent = '👤 ' + (me.name || 'ໂປຣໄຟລ໌ຂອງຂ້ອຍ') + ' →'; }
+    if (me) { $('f-first').value = me.first || (me.name || '').split(' ')[0] || ''; $('f-last').value = me.last || (me.name || '').split(' ').slice(1).join(' ');
+      ['dob', 'village', 'district', 'province'].forEach(k => { if (me[k]) $('f-' + k).value = me[k]; }); $('f-phone').value = me.phone; $('f-pin').value = me.pin; $('me-link').textContent = '👤 ' + (me.name || 'ໂປຣໄຟລ໌ຂອງຂ້ອຍ') + ' →'; }
   } catch (ex) { show('v-closed', 1); }
 })();
 </script>
