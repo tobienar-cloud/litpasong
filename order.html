@@ -391,7 +391,7 @@ $('v-choose').addEventListener('submit', async e => {
   if (!$('f-agree').checked) return err('err1', 'ກະລຸນາຍອມຮັບເງື່ອນໄຂ');
   $('go1').disabled = true; $('go1').textContent = 'ກຳລັງລັອກລາຄາ…';
   try {
-    const j = await api('POST', {action: 'create', item: sel.id, qty, first, last, dob, village, district, province, photo: photoData, phone, pin, pickDate: $('f-date').value, pickTime: $('f-time').value});
+    const j = await api('POST', {action: 'create', item: sel.id, qty, name, first, last, dob, village, district, province, photo: photoData, phone, pin, pickDate: $('f-date').value, pickTime: $('f-time').value});
     ORDER = j.order; TOKEN = j.order.t;
     ME.keep({phone, pin, name}); ME.merge({name, first, last, dob, village, district, province});
   } catch (ex) { err('err1', ex.message); }
