@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ລິດປະສົງ">
 <title>ອອມຄຳເປັນນ້ຳໜັກ · ຮ້ານຄຳ ລິດປະສົງ</title>
-<meta name="description" content="ອອມຄຳເປັນນ້ຳໜັກ ເລີ່ມຕົ້ນ 1 ຫຸນ ລັອກລາຄາມື້ນີ້ ໂອນຜ່ານ BCEL ແລ້ວມາຮັບຄຳທີ່ຮ້ານ ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ">
+<meta name="description" content="ອອມຄຳເປັນນ້ຳໜັກ ເລີ່ມຕົ້ນ 1 ຫຸນ ລັອກລາຄາມື້ນີ້ ໂອນຜ່ານທະນາຄານ ແລ້ວມາຮັບຄຳທີ່ຮ້ານ ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ">
 <meta property="og:title" content="ອອມຄຳເປັນນ້ຳໜັກ · ຮ້ານຄຳ ລິດປະສົງ">
 <meta property="og:image" content="https://tobienar-cloud.github.io/litpasong/img/front.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -105,7 +105,7 @@ input[type=text],input[type=tel],input[type=password],input[type=date],select{fo
 <header><div class="wrap">
   <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><a href="./">← ກັບໜ້າຮ້ານ</a><a href="my.html" id="me-link">👤 ໂປຣໄຟລ໌ຂອງຂ້ອຍ →</a></div>
   <h1>ອອມຄຳເປັນນ້ຳໜັກ</h1>
-  <p class="sub">ລັອກລາຄາມື້ນີ້ · ໂອນຜ່ານ BCEL · ມາຮັບຄຳທີ່ຮ້ານ ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ</p>
+  <p class="sub">ລັອກລາຄາມື້ນີ້ · ໂອນຜ່ານທະນາຄານ · ມາຮັບຄຳທີ່ຮ້ານ ຕະຫຼາດຫຼັກ 3 ທ່າແຂກ</p>
 </div></header>
 
 <main class="wrap">
@@ -167,20 +167,20 @@ input[type=text],input[type=tel],input[type=password],input[type=date],select{fo
     <h2>ໂອນເງິນ ແລ້ວແນບສະລິບ</h2>
     <p class="note">ລາຄາລັອກໄວ້ເຖິງ <b id="p-due"></b> · ເຫຼືອ <span class="timer" id="p-timer"></span></p>
     <div class="pay">
-      <img id="pay-qr" src="img/pay/bcel-qr.png" alt="QR ຮັບເງິນ BCEL ບັນຊີ LITHPASONG PHAKOUSON MR" width="500" height="558">
+      <img id="pay-qr" src="img/pay/bcel-qr.png" alt="QR ຮັບເງິນ ບັນຊີ LITHPASONG PHAKOUSON MR" width="500" height="558">
       <dl class="kv">
         <dt>ເລກບິນ</dt><dd id="p-bill"></dd>
         <dt>ລາຍການ</dt><dd id="p-item"></dd>
         <dt>ຍອດໂອນ</dt><dd class="big" id="p-total"></dd>
         <dt>ຊື່ບັນຊີ</dt><dd>LITHPASONG PHAKOUSON MR</dd>
         <dt>ເລກບັນຊີ</dt><dd><span id="acct">020-12-00-01117122-001</span> <button type="button" class="btn line" id="copy-acct" style="padding:2px 10px;font-size:13px">ກັອບປີ້</button></dd>
-        <dt>ທະນາຄານ</dt><dd>BCEL · ກີບ (LAK)</dd>
+        <dt>ທະນາຄານ</dt><dd>ບັນຊີກີບ (LAK)</dd>
       </dl>
     </div>
     <p class="note">ສັ່ງຈາກມືຖື: ກົດບັນທຶກຮູບ QR ແລ້ວເປີດແອັບທະນາຄານ ເລືອກສະແກນຈາກຮູບ ຫຼື ໂອນເຂົ້າເລກບັນຊີ</p>
     <div class="row"><a class="btn line" id="qr-dl" href="img/pay/bcel-qr.png" download="litpasong-bcel-qr.png">ບັນທຶກຮູບ QR</a></div>
     <ol class="rules">
-      <li>ສະແກນ QR ດ້ວຍແອັບທະນາຄານ (BCEL One ຫຼື ທະນາຄານອື່ນຜ່ານ LAPNet)</li>
+      <li>ສະແກນ QR ດ້ວຍແອັບທະນາຄານ (ໂອນຂ້າມທະນາຄານໄດ້)</li>
       <li id="amt-rule">ໃສ່ຍອດໃຫ້ຕົງ ແລະ ໃສ່ <b>ເລກບິນ</b> ໃນຊ່ອງໝາຍເຫດ</li>
       <li>ຖ່າຍຮູບສະລິບ ແລ້ວແນບຂ້າງລຸ່ມ</li>
     </ol>
@@ -398,7 +398,7 @@ function amountQr() {
   g.fillStyle = '#c8102e'; g.fillRect(0, 0, W, 64);
   g.fillStyle = '#fff'; g.textAlign = 'center';
   g.font = '800 26px "Noto Sans Lao Looped", sans-serif';
-  g.fillText('BCEL · LAO QR', W / 2, 42);
+  g.fillText('LAO QR', W / 2, 42);
   g.imageSmoothingEnabled = false;
   g.drawImage(src, 55, 106, 390, 390);
   g.fillStyle = '#222'; g.font = '600 20px "Noto Sans Lao Looped", sans-serif';
@@ -409,7 +409,7 @@ function amountQr() {
   g.fillText('ບິນ ' + ORDER.bill, W / 2, 624);
   const url = cv.toDataURL('image/png');
   $('pay-qr').src = url;
-  $('pay-qr').alt = 'QR ຮັບເງິນ BCEL ພ້ອມຍອດ ' + kip(ORDER.total);
+  $('pay-qr').alt = 'QR ຮັບເງິນ ພ້ອມຍອດ ' + kip(ORDER.total);
   $('qr-dl').href = url; $('qr-dl').download = 'litpasong-' + ORDER.bill + '.png';
   $('amt-rule').innerHTML = 'ໃສ່ຍອດ <b>' + kip(ORDER.total) + '</b> ໃຫ້ຕົງ ແລະ ໃສ່ <b>ເລກບິນ</b> ໃນຊ່ອງໝາຍເຫດ';
 }

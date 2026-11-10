@@ -416,7 +416,7 @@ function folder_() {
 function notify_(o, slipUrl, late) {
   const body = (late ? '⚠️ ແນບສະລິບຫຼັງໝົດເວລາລັອກລາຄາ ກວດເວລາໂອນໃນສະລິບ\n' : '') + 'ບິນໃໝ່ລໍຖ້າກວດເງິນ\n\nເລກບິນ: ' + o.bill + '\nລູກຄ້າ: ' + o.name + ' ' + String(o.phone).replace(/^'/, '') +
     '\nລາຍການ: ' + o.item + ' x ' + o.qty + (o.appt ? '\nນັດມາຮັບ: ' + o.appt : '') + '\nຍອດໂອນ: ' + Number(o.total).toLocaleString('en-US') + ' ກີບ\nສະລິບ: ' + slipUrl +
-    '\n\nກວດເງິນເຂົ້າໃນ BCEL One ໃຫ້ຕົງຍອດ ແລ້ວປ່ຽນສະຖານະໃນຊີດ "' + CFG.ORDER_SHEET + '" ເປັນ "' + STATUS.READY + '"';
+    '\n\nກວດເງິນເຂົ້າໃນແອັບທະນາຄານ ໃຫ້ຕົງຍອດ ແລ້ວປ່ຽນສະຖານະໃນຊີດ "' + CFG.ORDER_SHEET + '" ເປັນ "' + STATUS.READY + '"';
   // 1) WhatsApp ແອັດມິນ
   whatsapp_(body);
   // 2) ອີເມວ
@@ -636,7 +636,7 @@ function saveSlip_(b) {
   sh.getRange(t.row, SCOL['ສະຖານະ']).setValue(SSTATUS.DEP_CHECK);
   saveNotify_('ອອມຄຳ: ລາຍການຝາກໃໝ່ ລໍຖ້າກວດເງິນ\n\nເລກລາຍການ: ' + t.id + '\nລູກຄ້າ: ' + t.name + ' ' + t.phone +
     '\nຍອດຝາກ: ' + t.amount.toLocaleString('en-US') + ' ກີບ\nສະລິບ: ' + file.getUrl() +
-    '\n\nກວດເງິນເຂົ້າໃນ BCEL One ໃຫ້ຕົງຍອດ ແລ້ວປ່ຽນສະຖານະໃນຊີດ "' + SAVE.SHEET + '" ເປັນ "' + SSTATUS.DEP_OK + '"');
+    '\n\nກວດເງິນເຂົ້າໃນແອັບທະນາຄານ ໃຫ້ຕົງຍອດ ແລ້ວປ່ຽນສະຖານະໃນຊີດ "' + SAVE.SHEET + '" ເປັນ "' + SSTATUS.DEP_OK + '"');
   return savePublic_(saveFind_(b.id, b.t));
 }
 
