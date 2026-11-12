@@ -7,7 +7,7 @@
 <meta name="description" content="ເພີ່ມໄອຄອນຮ້ານຄຳ ລິດປະສົງ ລົງໜ້າຈໍມືຖື ເບິ່ງລາຄາຄຳ ສັ່ງຊື້ຄຳ ແລະ ອອມຄຳໄດ້ທັນທີ">
 <meta property="og:title" content="ຕິດຕັ້ງແອັບ ຮ້ານຄຳ ລິດປະສົງ">
 <meta property="og:description" content="ກົດຕິດຕັ້ງ ແລ້ວໄອຄອນຮ້ານຈະຢູ່ໜ້າຈໍມືຖືຂອງທ່ານ">
-<meta property="og:image" content="https://tobienar-cloud.github.io/litpasong/img/app/icon-512.png">
+<meta property="og:image" content="https://litpasong.com/img/app/icon-512.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#c8142a">
 <link rel="icon" href="img/app/favicon-48.png" type="image/png">
@@ -137,7 +137,7 @@ section{display:grid;gap:10px}
       <li class="only-chrome"><div>
         <p>ກົດ <b>ປຸ່ມແຊຣ໌</b> ຢູ່<b>ມຸມຂວາເທິງ</b> ຂອງຈໍ</p>
         <div class="mock" aria-hidden="true">
-          <div class="m-bar"><span class="m-url">tobienar-cloud.github.io</span><span class="m-hit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M6 11H5v10h14V11h-1"/></svg></span></div>
+          <div class="m-bar"><span class="m-url">litpasong.com</span><span class="m-hit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4M6 11H5v10h14V11h-1"/></svg></span></div>
           <div class="m-page"></div>
         </div>
       </div></li>
@@ -194,7 +194,7 @@ section{display:grid;gap:10px}
   var isAndroid=/Android/.test(ua);
   var inApp=/FBAN|FBAV|FB_IAB|FBIOS|Instagram|Line\/|TikTok|musical_ly|BytedanceWebview|WhatsApp|Messenger/i.test(ua);
   var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
-  var url='https://tobienar-cloud.github.io/litpasong/app.html';
+  var url='https://litpasong.com/app.html';
   var views=['v-done','v-android-inapp','v-ios-inapp','v-android','v-ios','v-desktop'];
   function show(id){
     views.forEach(function(v){$(v).hidden=v!==id});
@@ -206,7 +206,7 @@ section{display:grid;gap:10px}
   }
   $('t-android').onclick=function(){show('v-android')};
   $('t-ios').onclick=function(){show('v-ios')};
-  $('open-chrome').href='intent://tobienar-cloud.github.io/litpasong/app.html#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(url)+';end';
+  $('open-chrome').href='intent://litpasong.com/app.html#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(url)+';end';
   $('copy-link').onclick=function(){
     var b=this,done=function(){b.textContent='ກັອບປີ້ແລ້ວ ວາງໃນ Safari ໄດ້ເລີຍ'};
     if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done,function(){b.textContent=url})}

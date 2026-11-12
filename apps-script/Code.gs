@@ -2,7 +2,7 @@
  * ລະບົບສັ່ງຊື້ຄຳອອນລາຍ ຮ້ານຄຳ ລິດປະສົງ (Litpasong Jewelry)
  * Google Apps Script — ວາງໃນ Google Sheet ລາຄາຄຳ (Extensions → Apps Script)
  *
- * ໜ້າເວັບ https://tobienar-cloud.github.io/litpasong/order.html ສົ່ງຄຳສັ່ງຊື້ມາທີ່ນີ້.
+ * ໜ້າເວັບ https://litpasong.com/order.html ສົ່ງຄຳສັ່ງຊື້ມາທີ່ນີ້.
  * ລາຄາຄິດໄລ່ຈາກຊີດ "ชีต1" ສະເໝີ ລູກຄ້າແກ້ລາຄາເອງບໍ່ໄດ້.
  */
 
@@ -56,7 +56,7 @@ const HEAD = ['ເລກບິນ', 'ເວລາສັ່ງ', 'ຊື່ລູ
   'ສະຖານະ', 'ຮັບຄຳພາຍໃນ', 'ໝາຍເຫດແອັດມິນ', 'token', 'pin',
   'ລິ້ງໃບຈອງ', 'ເວລາຢືນຢັນເງິນ', 'ເວລາຮັບຄຳ', 'ນັດມາຮັບ',
   'ວັນເດືອນປີເກີດ', 'ບ້ານ', 'ເມືອງ', 'ແຂວງ', 'ຮູບລູກຄ້າ'];
-const SITE = 'https://tobienar-cloud.github.io/litpasong/';
+const SITE = 'https://litpasong.com/';
 const COL = Object.fromEntries(HEAD.map((h, i) => [h, i + 1]));
 
 // ---------- ຕິດຕັ້ງຄັ້ງດຽວ: ກົດ Run ຟັງຊັນ setup ----------
