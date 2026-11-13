@@ -101,6 +101,7 @@ function doPost(e) {
     if (body.action === 'slip') return json_({ ok: true, order: slip_(body) });
     if (body.action === 'history') return json_({ ok: true, orders: history_(body) });
     if (body.action === 'profile') return json_(Object.assign({ ok: true }, profile_(body)));
+    if (body.action === 'delete_request') return json_(Object.assign({ ok: true }, deleteRequest_(body)));
     if (body.action === 'save_deposit') return json_(Object.assign({ ok: true }, saveDeposit_(body)));
     if (body.action === 'save_slip') return json_({ ok: true, tx: saveSlip_(body) });
     if (body.action === 'save_account') return json_(Object.assign({ ok: true }, saveAccount_(body)));
@@ -748,6 +749,23 @@ function saveNotify_(body) {
 
 
 // ---------- ໂປຣໄຟລ໌ລູກຄ້າ (ເບີໂທ + PIN): ບິນສັ່ງຊື້ ແລະ ບັນຊີອອມ ໃນບ່ອນດຽວ ----------
+// ຄຳຂໍລຶບບັນຊີ (ແອັບ ແລະ ໜ້າ delete-account.html): ກວດເບີໂທ + PIN ກ່ອນ ແລ້ວບັນທຶກໃນຊີດ ແລະ ແຈ້ງແອັດມິນ
+// ແອັດມິນລຶບຂໍ້ມູນສ່ວນຕົວ (ບ້ານ ເມືອງ ແຂວງ ວັນເກີດ ຮູບ PIN) ພາຍໃນ 30 ມື້ ເກັບໄວ້ແຕ່ຂໍ້ມູນບິນທີ່ຕ້ອງເກັບຕາມກົດໝາຍ
+function deleteRequest_(b) {
+  const prof = profile_(b);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName('ຄຳຂໍລຶບບັນຊີ');
+  if (!sh) { sh = ss.insertSheet('ຄຳຂໍລຶບບັນຊີ'); sh.appendRow(['ເວລາຂໍ', 'ຊື່', 'ເບີໂທ', 'ຈຳນວນບິນ', 'ສະຖານະ']); sh.setFrozenRows(1); }
+  const when = Utilities.formatDate(new Date(), CFG.TZ, 'dd/MM/yyyy HH:mm');
+  sh.appendRow([when, prof.name || '', "'" + String(b.phone || ''), (prof.orders || []).length, 'ລໍຖ້າລຶບ']);
+  const text = 'ຄຳຂໍລຶບບັນຊີ\nລູກຄ້າ: ' + (prof.name || '') + ' ' + b.phone + '\nເວລາ: ' + when +
+    '\n\nລຶບຂໍ້ມູນສ່ວນຕົວໃນຊີດ "' + CFG.ORDER_SHEET + '" (ວັນເກີດ ບ້ານ ເມືອງ ແຂວງ ຮູບ pin) ພາຍໃນ 30 ມື້ ແລ້ວປ່ຽນສະຖານະໃນຊີດ "ຄຳຂໍລຶບບັນຊີ" ເປັນ "ລຶບແລ້ວ"';
+  whatsapp_(text);
+  const to = CFG.NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
+  if (to) { try { MailApp.sendEmail(to, 'ຄຳຂໍລຶບບັນຊີ ' + b.phone, text); } catch (err) {} }
+  return {};
+}
+
 function profile_(b) {
   const p8 = phone8_(b.phone), pin = String(b.pin || '');
   if (p8.length < 8 || !/^[0-9]{4,6}$/.test(pin)) throw new Error('ກະລຸນາໃສ່ເບີໂທ ແລະ PIN 6 ຕົວເລກ');
