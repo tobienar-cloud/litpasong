@@ -170,7 +170,6 @@ td:last-child{text-align:right;font-weight:600;white-space:nowrap}
 .xrf-grid img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;display:block;border:1px solid var(--line)}
 .xrf-grid figcaption{font-size:14px;font-weight:600}
 .morebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
-.reviews img{aspect-ratio:8/9}
 /* Gallery */
 .more{color:var(--maroon);font-weight:600;text-decoration:none;font-size:15px}
 .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
@@ -307,13 +306,6 @@ footer .visits b{color:var(--fg);font-variant-numeric:tabular-nums}
   <p class="note">ຮູບຈາກລີວິວໃນເພຈ. ລາຍຂອງຈິງໃນຮ້ານອາດປ່ຽນໄປຕາມສິນຄ້າທີ່ມີ. ລາຄາຄຳຮູບປະພັນ ຍັງບໍ່ລວມຄ່າລາຍ, ຄຳແທ່ງ 1 ບາດ ບໍ່ມີຄ່າລາຍ.</p>
 </section>
 
-<section id="reviews">
-  <div class="sec-head"><h2>ຮີວິວຈາກລູກຄ້າ</h2><a class="more" href="https://www.facebook.com/khachitta/photos">ເບິ່ງທັງໝົດໃນເຟສບຸກ →</a></div>
-  <p class="note" style="margin:0">ຂອບໃຈລູກຄ້າທຸກທ່ານທີ່ໄວ້ວາງໃຈ ຮ້ານຄຳ ລິດປະສົງ</p>
-  <div class="products reviews" id="rlist"></div>
-  <div class="morebar"><span id="rcount" class="note"></span><button type="button" class="btn gold" id="rmore">ເບິ່ງເພີ່ມ</button></div>
-</section>
-
 <section id="xrf">
   <div class="sec-head"><h2>ເຄື່ອງເຊັກເປີເຊັນຄຳ ທີ່ທັນສະໄໝ</h2></div>
   <div class="xrf">
@@ -435,15 +427,14 @@ document.querySelectorAll('.copy').forEach(function(b){b.addEventListener('click
   try{navigator.clipboard.writeText(v).then(done,function(){sel(b)})}catch(e){sel(b)}
 })});
 var PCAP={"necklace":"ສາຍຄໍ","bracelet":"ສາຍແຂນ / ກຳໄລ","ring":"ແຫວນ","earring":"ຕຸ້ມຫູ","pendant":"ລ໋ອກເກັດ / ກອບພຣະ","bar":"ຄຳແທ່ງ"};
-(function(){var G={products:[],reviews:[]},f='all',ps=24,rs=12;
-var pl=document.getElementById('plist'),pm=document.getElementById('pmore'),pc=document.getElementById('pcount'),rl=document.getElementById('rlist'),rm=document.getElementById('rmore'),rc=document.getElementById('rcount');
+(function(){var G={products:[]},f='all',ps=24;
+var pl=document.getElementById('plist'),pm=document.getElementById('pmore'),pc=document.getElementById('pcount');
 function fig(src,cap,alt){return '<figure><img src="img/'+src+'" alt="'+alt+'" loading="lazy">'+(cap?'<figcaption>'+cap+'</figcaption>':'')+'</figure>'}
 function rp(){var it=G.products.filter(function(p){return f==='all'||p[1]===f});pl.innerHTML=it.slice(0,ps).map(function(p){return fig(p[0],PCAP[p[1]],PCAP[p[1]]+' ຮ້ານຄຳ ລິດປະສົງ')}).join('');pc.textContent='ສະແດງ '+Math.min(ps,it.length)+' ຈາກ '+it.length+' ຮູບ';pm.hidden=ps>=it.length;}
-function rr(){rl.innerHTML=G.reviews.slice(0,rs).map(function(r){return fig(r,'','ລີວິວລູກຄ້າ ຮ້ານຄຳ ລິດປະສົງ')}).join('');rc.textContent='ສະແດງ '+Math.min(rs,G.reviews.length)+' ຈາກ '+G.reviews.length+' ຮູບ';rm.hidden=rs>=G.reviews.length;}
 document.querySelectorAll('.f').forEach(function(b){b.addEventListener('click',function(){f=b.dataset.f;ps=24;document.querySelectorAll('.f').forEach(function(x){x.classList.toggle('on',x===b)});rp();})});
-pm.addEventListener('click',function(){ps+=24;rp();});rm.addEventListener('click',function(){rs+=12;rr();});
+pm.addEventListener('click',function(){ps+=24;rp();});
 pc.textContent='ກຳລັງໂຫຼດຮູບ…';
-fetch('gallery.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){G.products=d.products||[];G.reviews=d.reviews||[];rp();rr();}).catch(function(){pc.textContent='ໂຫຼດຮູບບໍ່ສຳເລັດ ລອງໂຫຼດໜ້າໃໝ່';});
+fetch('gallery.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){G.products=d.products||[];rp();}).catch(function(){pc.textContent='ໂຫຼດຮູບບໍ່ສຳເລັດ ລອງໂຫຼດໜ້າໃໝ່';});
 })();
 function sel(b){var a=b.previousElementSibling,r=document.createRange();r.selectNodeContents(a);var s=getSelection();s.removeAllRanges();s.addRange(r);}
 </script>
