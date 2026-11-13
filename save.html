@@ -148,7 +148,7 @@ input[type=number],input[type=password]{font:inherit;padding:10px 12px;border:1p
     <details>
       <summary><b>ເງື່ອນໄຂການອອມຄຳ</b> (ກົດອ່ານ)</summary>
       <ol class="rules" style="margin-top:8px">
-        <li>ຝາກອອມ ແລກຄຳ ແລະ ຖອນເງິນ ເຮັດໄດ້ທຸກມື້ ເວລາ 10:00–16:00 ນ. ເທົ່ານັ້ນ</li>
+        <li>ຝາກອອມ ແລກຄຳ ແລະ ຖອນເງິນ ເຮັດໄດ້ທຸກມື້ ເວລາ 10:00–15:30 ນ. ເທົ່ານັ້ນ</li>
         <li>ອອມຄັ້ງລະ 100,000 – 1,000,000 ກີບ ໂອນຜ່ານທະນາຄານ ແລ້ວແນບສະລິບ</li>
         <li><b>ຍອດອອມນັບເປັນເງິນກີບ</b> ບໍ່ແມ່ນນ້ຳໜັກຄຳ. ນ້ຳໜັກທີ່ສະແດງເປັນພຽງການທຽບໂດຍປະມານ ຕາມລາຄາຄຳປັດຈຸບັນ ແລະ ປ່ຽນແປງຂຶ້ນລົງຕາມລາຄາຄຳ</li>
         <li>ຍອດອອມສະສົມສູງສຸດບໍ່ເກີນລາຄາຄຳ 1 ບາດ ຕໍ່ຄົນ</li>
@@ -299,7 +299,7 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4P
 const ADMIN_WA = '8562058954624';
 const AMOUNTS = [100000,200000,300000,400000,500000,600000,700000,800000,900000,1000000];
 // ---- ເວລາເປີດຊື້ຄຳ ແລະ ອອມຄຳອອນລາຍ (ເວລາລາວ) ----
-const SELL = {from: '10:00', to: '16:00', skew: 0};
+const SELL = {from: '10:00', to: '15:30', skew: 0};
 function setHours(r) { if (r && r.sellFrom) { SELL.from = r.sellFrom; SELL.to = r.sellTo; } if (r && r.nowMs) SELL.skew = r.nowMs - Date.now(); }
 function isOpen() {
   const d = new Date(Date.now() + SELL.skew + 7 * 3600000);

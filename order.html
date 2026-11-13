@@ -119,7 +119,7 @@ input[type=text],input[type=tel],input[type=password],input[type=date],input[typ
 
   <section class="card closed" id="v-off" hidden>
     <h2>ຕອນນີ້ນອກເວລາອອມຄຳອອນລາຍ</h2>
-    <p>ອອມຄຳເປັນນ້ຳໜັກໄດ້ທຸກມື້ ເວລາ <b id="off-hours">10:00–16:00 ນ.</b> ເທົ່ານັ້ນ</p>
+    <p>ອອມຄຳເປັນນ້ຳໜັກໄດ້ທຸກມື້ ເວລາ <b id="off-hours">10:00–15:30 ນ.</b> ເທົ່ານັ້ນ</p>
     <p class="note">ກະລຸນາກັບມາໃໝ່ໃນເວລາດັ່ງກ່າວ · ບິນທີ່ສັ່ງໄວ້ແລ້ວ ຍັງເບິ່ງ ແລະ ແນບສະລິບໄດ້ຕາມປົກກະຕິ</p>
     <div class="row" style="justify-content:center"><a class="btn gold" href="./">ເບິ່ງລາຄາຄຳມື້ນີ້</a></div>
   </section>
@@ -129,8 +129,8 @@ input[type=text],input[type=tel],input[type=password],input[type=date],input[typ
   <!-- Step 1 -->
   <form class="card" id="v-choose" hidden novalidate>
     <div class="seg" role="tablist" aria-label="ເລືອກປະເພດຄຳ">
-      <button type="button" role="tab" id="tab-jewelry" aria-selected="true">ອອມຄຳຮູບປະພັນ<small>1 ຫຸນ – 1 ບາດ</small></button>
-      <button type="button" role="tab" id="tab-bar" aria-selected="false">ອອມຄຳແທ່ງ<small>1 ກຣາມ – 1 ບາດ</small></button>
+      <button type="button" role="tab" id="tab-jewelry" aria-selected="true">ອອມຄຳຮູບປະພັນ<small>ເລີ່ມ 1 ຫຸນ</small></button>
+      <button type="button" role="tab" id="tab-bar" aria-selected="false">ອອມຄຳແທ່ງ<small>ເລີ່ມ 1 ກຣາມ</small></button>
     </div>
     <p class="group-t" id="group-t"></p>
     <div class="items" id="items" role="group" aria-labelledby="group-t"></div>
@@ -265,7 +265,7 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4P
 const ADMIN_WA = '8562058954624';
 
 // ---- ເວລາເປີດຊື້ຄຳ ແລະ ອອມຄຳອອນລາຍ (ເວລາລາວ) ----
-const SELL = {from: '10:00', to: '16:00', skew: 0};
+const SELL = {from: '10:00', to: '15:30', skew: 0};
 function setHours(r) { if (r && r.sellFrom) { SELL.from = r.sellFrom; SELL.to = r.sellTo; } if (r && r.nowMs) SELL.skew = r.nowMs - Date.now(); }
 function isOpen() {
   const d = new Date(Date.now() + SELL.skew + 7 * 3600000);
@@ -283,7 +283,7 @@ const ME = {
 let photoData = '';
 const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
 const fmtG = g => (Math.round(g * 1000) / 1000) + ' ກຣາມ';
-let ITEMS = [], RULES = {payMinutes: 30, pickupMonths: 3, maxGrams: 15}, sel = null, qty = 1, ORDER = null, TOKEN = '', timerId = 0, slipData = '';
+let ITEMS = [], RULES = {payMinutes: 30, pickupMonths: 3, maxGrams: 75}, sel = null, qty = 1, ORDER = null, TOKEN = '', timerId = 0, slipData = '';
 
 function show(view, step) {
   ['v-closed','v-off','v-loading','v-choose','v-pay','v-receipt'].forEach(v => $(v).hidden = v !== view);
@@ -308,7 +308,7 @@ function save() { try {
 function setUrl() { try { history.replaceState(null, '', '?bill=' + encodeURIComponent(ORDER.bill) + '&t=' + TOKEN); } catch (e) {} }
 
 // ---- Step 1 ----
-// ແຖບ ອອມຄຳຮູບປະພັນ (1 ຫຸນ – 1 ບາດ) ແລະ ອອມຄຳແທ່ງ (1 ກຣາມ – 1 ບາດ) ລາຄາຈາກ Google Sheet ສະເໝີ
+// ແຖບ ອອມຄຳຮູບປະພັນ (ເລີ່ມ 1 ຫຸນ) ແລະ ອອມຄຳແທ່ງ (ເລີ່ມ 1 ກຣາມ) ສູງສຸດ 5 ບາດ ຕໍ່ບິນ ລາຄາຈາກ Google Sheet ສະເໝີ
 let KIND = new URLSearchParams(location.search).get('tab') === 'bar' ? 'bar' : 'jewelry';
 const KIND_T = {jewelry: 'ຄຳຮູບປະພັນ (ຍັງບໍ່ລວມຄ່າລາຍ ຈ່າຍທີ່ຮ້ານ)', bar: 'ຄຳແທ່ງ (ບໍ່ມີຄ່າລາຍ)'};
 function setKind(k) {
@@ -323,7 +323,7 @@ function renderItems() {
   $('lai').hidden = KIND !== 'jewelry';
   $('lai-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ຂໍຖາມລາຍຄຳຮູບປະພັນ\nຢາກໄດ້ລາຍ: \nນ້ຳໜັກ: \n(ແນບຮູບລາຍທີ່ຢາກໄດ້ໃນແຊັດນີ້)');
   setupPick();
-  $('items').innerHTML = ITEMS.filter(i => i.kind === KIND && i.grams <= 15).sort((a, b) => b.grams - a.grams).map(i =>
+  $('items').innerHTML = ITEMS.filter(i => i.kind === KIND && i.grams <= RULES.maxGrams).sort((a, b) => b.grams - a.grams).map(i =>
     `<button type="button" class="item" data-id="${i.id}" aria-pressed="false"${i.grams > RULES.maxGrams ? ' disabled' : ''}><b>${i.name.replace('ຄຳຮູບປະພັນ ','')}</b><span>${kip(i.price)}</span></button>`).join('');
   document.querySelectorAll('.item').forEach(b => b.addEventListener('click', () => {
     sel = ITEMS.find(i => i.id === b.dataset.id); qty = 1;
@@ -331,7 +331,7 @@ function renderItems() {
     calc();
   }));
   $('rules').innerHTML = [
-    `ອອມຄຳຮູບປະພັນ 1 ຫຸນ – 1 ບາດ · ອອມຄຳແທ່ງ 1 ກຣາມ – 1 ບາດ · ລາຄາຕາມລາຄາຄຳມື້ນີ້`,
+    `ອອມຄຳຮູບປະພັນ ເລີ່ມ 1 ຫຸນ · ອອມຄຳແທ່ງ ເລີ່ມ 1 ກຣາມ · ສູງສຸດ 5 ບາດ ຕໍ່ບິນ · ລາຄາຕາມລາຄາຄຳມື້ນີ້`,
     `ອອມໄດ້ທຸກມື້ ເວລາ ${hoursText()} ເທົ່ານັ້ນ`,
     `ລາຄາລັອກໄວ້ ${RULES.payMinutes} ນາທີ ຕ້ອງໂອນ ແລະ ແນບສະລິບພາຍໃນເວລານີ້ ບໍ່ທັນຕ້ອງສັ່ງໃໝ່ຕາມລາຄາໃໝ່`,
     `ສັ່ງໄດ້ສູງສຸດ ${RULES.maxGrams / 15} ບາດ (${RULES.maxGrams} ກຣາມ) ຕໍ່ບິນ`,
