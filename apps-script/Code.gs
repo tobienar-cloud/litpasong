@@ -473,8 +473,8 @@ function notify_(o, slipUrl, late) {
   const body = (late ? '⚠️ ແນບສະລິບຫຼັງໝົດເວລາລັອກລາຄາ ກວດເວລາໂອນໃນສະລິບ\n' : '') + 'ບິນໃໝ່ລໍຖ້າກວດເງິນ\n\nເລກບິນ: ' + o.bill + '\nລູກຄ້າ: ' + o.name + ' ' + String(o.phone).replace(/^'/, '') +
     '\nລາຍການ: ' + o.item + ' x ' + o.qty + (o.appt ? '\nນັດມາຮັບ: ' + o.appt : '') + '\nຍອດໂອນ: ' + Number(o.total).toLocaleString('en-US') + ' ກີບ\nສະລິບ: ' + slipUrl +
     '\n\nກວດເງິນເຂົ້າໃນແອັບທະນາຄານ ໃຫ້ຕົງຍອດ ແລ້ວປ່ຽນສະຖານະໃນຊີດ "' + CFG.ORDER_SHEET + '" ເປັນ "' + STATUS.READY + '"';
-  // 1) WhatsApp ແອັດມິນ
-  whatsapp_(body);
+  // 1) WhatsApp ແອັດມິນ: ສົ່ງຜ່ານບໍລິການພາຍນອກ (CallMeBot) ຈຶ່ງສົ່ງແຕ່ເລກບິນ ບໍ່ສົ່ງຊື່ ເບີ ຍອດເງິນ
+  whatsapp_((late ? '⚠️ ແນບສະລິບຫຼັງໝົດເວລາ\n' : '') + 'ບິນໃໝ່ລໍຖ້າກວດເງິນ: ' + o.bill + '\nເບິ່ງລາຍລະອຽດໃນອີເມວ ຫຼື ຊີດ "' + CFG.ORDER_SHEET + '"');
   // 2) ອີເມວ
   const to = CFG.NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
   if (to) { try { MailApp.sendEmail(to, 'ບິນໃໝ່ ' + o.bill + ' ລໍຖ້າກວດເງິນ', body); } catch (err) {} }
@@ -799,7 +799,7 @@ function saveWithdraw_(b) {
 }
 
 function saveNotify_(body) {
-  whatsapp_(body);
+  whatsapp_(body.split('\n')[0] + '\nເບິ່ງລາຍລະອຽດໃນອີເມວ ຫຼື ຊີດ "' + SAVE.SHEET + '"');
   const to = CFG.NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
   if (to) { try { MailApp.sendEmail(to, body.split('\n')[0], body); } catch (err) {} }
 }
@@ -817,7 +817,7 @@ function deleteRequest_(b) {
   sh.appendRow([when, prof.name || '', "'" + String(b.phone || ''), (prof.orders || []).length, 'ລໍຖ້າລຶບ']);
   const text = 'ຄຳຂໍລຶບບັນຊີ\nລູກຄ້າ: ' + (prof.name || '') + ' ' + b.phone + '\nເວລາ: ' + when +
     '\n\nລຶບຂໍ້ມູນສ່ວນຕົວໃນຊີດ "' + CFG.ORDER_SHEET + '" (ວັນເກີດ ບ້ານ ເມືອງ ແຂວງ ຮູບ pin) ພາຍໃນ 30 ມື້ ແລ້ວປ່ຽນສະຖານະໃນຊີດ "ຄຳຂໍລຶບບັນຊີ" ເປັນ "ລຶບແລ້ວ"';
-  whatsapp_(text);
+  whatsapp_('ມີຄຳຂໍລຶບບັນຊີໃໝ່ ເບິ່ງລາຍລະອຽດໃນອີເມວ ຫຼື ຊີດ "ຄຳຂໍລຶບບັນຊີ"');
   const to = CFG.NOTIFY_EMAIL || Session.getEffectiveUser().getEmail();
   if (to) { try { MailApp.sendEmail(to, 'ຄຳຂໍລຶບບັນຊີ ' + b.phone, text); } catch (err) {} }
   return {};
@@ -856,4 +856,40 @@ function profile_(b) {
   }
   cache.remove(key);
   return { name: name, orders: orders, savings: savings };
+}
+
+
+// =====================================================================
+// ---------- ສຳຮອງຂໍ້ມູນອັດຕະໂນມັດທຸກມື້ ----------
+// ຕິດຕັ້ງຄັ້ງດຽວ: ເລືອກຟັງຊັນ installBackup ແລ້ວກົດ Run (ອະນຸຍາດສິດ Google Drive)
+// ທຸກມື້ເວລາ 23:00 ຈະສຳເນົາໄຟລ໌ຊີດນີ້ທັງໄຟລ໌ໄວ້ໃນໂຟນເດີ "ສຳຮອງຂໍ້ມູນ Litpasong" ໃນ Drive
+// ເກັບໄວ້ 30 ມື້ລ່າສຸດ ໄຟລ໌ເກົ່າກວ່ານັ້ນຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ (ກູ້ຄືນໄດ້ອີກ 30 ມື້)
+// ກູ້ຂໍ້ມູນ: ເປີດໄຟລ໌ສຳຮອງຂອງມື້ທີ່ຕ້ອງການ ແລ້ວກັອບປີ້ແຖວທີ່ຕ້ອງການກັບມາ
+// =====================================================================
+const BACKUP = { FOLDER: 'ສຳຮອງຂໍ້ມູນ Litpasong', KEEP_DAYS: 30, HOUR: 23 };
+
+function installBackup() {
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'dailyBackup')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('dailyBackup').timeBased().everyDays(1).atHour(BACKUP.HOUR).inTimezone(CFG.TZ).create();
+  const name = dailyBackup();
+  Logger.log('ຕິດຕັ້ງສຳຮອງທຸກມື້ເວລາ ' + BACKUP.HOUR + ':00 ແລ້ວ · ສຳຮອງທຳອິດ: ' + name);
+  return name;
+}
+
+function dailyBackup() {
+  const ss = SpreadsheetApp.getActive();
+  const it = DriveApp.getFoldersByName(BACKUP.FOLDER);
+  const folder = it.hasNext() ? it.next() : DriveApp.createFolder(BACKUP.FOLDER);
+  const name = 'ສຳຮອງ ' + ss.getName() + ' ' + Utilities.formatDate(new Date(), CFG.TZ, 'yyyy-MM-dd HHmm');
+  DriveApp.getFileById(ss.getId()).makeCopy(name, folder);
+  // ລຶບໄຟລ໌ສຳຮອງທີ່ເກົ່າກວ່າ KEEP_DAYS ມື້ (ຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ ກູ້ຄືນໄດ້)
+  const cutoff = Date.now() - BACKUP.KEEP_DAYS * 86400000;
+  const files = folder.getFiles();
+  while (files.hasNext()) {
+    const f = files.next();
+    if (f.getName().indexOf('ສຳຮອງ ') === 0 && f.getDateCreated().getTime() < cutoff) f.setTrashed(true);
+  }
+  return name;
 }
