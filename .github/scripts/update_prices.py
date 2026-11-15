@@ -2,8 +2,8 @@
 """Read the gold price Google Sheet (as CSV), update the price-data JSON in index.html
 and record today's price in prices.json for the price chart.
 
-The sheet must be viewable by "anyone with the link" (or set SHEET_CSV_URL to a
-"Publish to web" CSV link). Only the <script id="price-data"> line is changed.
+Prices come from a "Publish to web" CSV of the price tab only; the spreadsheet
+stays private. Only the <script id="price-data"> line is changed.
 The 10:05 daily run and manual runs always refresh the stamp; the other runs
 leave index.html untouched unless a price changed. prices.json keeps one row per
 day (the last price of that day) and is updated on every run, because a price can
@@ -18,9 +18,11 @@ import sys
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
-SHEET_ID = "1R7EbTiq1RsIxYtwMZjmsKhojqj1brs4LSkbMLeUEyy4"
-CSV_URL = os.environ.get("SHEET_CSV_URL") or (
-    f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
+# "Publish to web" CSV of the price tab (ชีต1) only. The spreadsheet itself is
+# private (Restricted) because other tabs hold customer data; never link it here.
+CSV_URL = (
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHgeFzG6d2GaSqZK-LO5PDgDWRmmz2f3L7FlKS86ZU2N76AP6u5cuLbNT3M02E2HHjd6BBmH4ueoDB"
+    "/pub?gid=0&single=true&output=csv"
 )
 DAILY_SCHEDULE = "5 3 * * *"
 INDEX = "index.html"
@@ -52,7 +54,7 @@ def fetch_rows():
     with urllib.request.urlopen(req, timeout=60) as r:
         text = r.read().decode("utf-8-sig")
     if text.lstrip().startswith("<"):
-        sys.exit("Sheet returned HTML, not CSV: share it as 'Anyone with the link can view' or set SHEET_CSV_URL")
+        sys.exit("Sheet returned HTML, not CSV: check that the price tab (ชีต1) is still published to the web as CSV")
     return list(csv.reader(io.StringIO(text)))
 
 
