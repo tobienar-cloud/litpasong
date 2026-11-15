@@ -77,6 +77,8 @@ input[type=text],input[type=tel],input[type=password],input[type=date],input[typ
 .check input{margin-top:5px;width:18px;height:18px}
 .btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;font:600 16px var(--body);border:0;cursor:pointer;text-decoration:none}
 .btn.gold{background:linear-gradient(180deg,#f3d886,#c9a24a);color:#3a0a12}
+.staff-help{margin:14px 0;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.staff-help .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .btn.line{border:1px solid var(--line);background:var(--surface);color:var(--fg)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .btn:focus-visible,.item:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
@@ -175,12 +177,20 @@ input[type=text],input[type=tel],input[type=password],input[type=date],input[typ
     <label class="check" for="f-agree"><input type="checkbox" id="f-agree"><span>ຂ້ອຍຍອມຮັບເງື່ອນໄຂຂ້າງເທິງ</span></label>
     <div class="err" id="err1" hidden></div>
     <button class="btn gold" type="submit" id="go1">ລັອກລາຄາ ແລະ ໄປໂອນເງິນ</button>
+    <div class="staff-help">
+      <p class="note"><b>ບໍ່ເຂົ້າໃຈ ຫຼື ຢາກລົມກັບພະນັກງານ?</b> ທັກ ຫຼື ໂທຫາພວກເຮົາໄດ້ເລີຍ</p>
+      <div class="row"><a class="btn wa" href="https://wa.me/8562097170747" target="_blank" rel="noopener">💬 WhatsApp 020 9717 0747</a><a class="btn line" href="tel:+8562097170747">📞 ໂທ 020 9717 0747</a></div>
+    </div>
   </form>
 
   <!-- Step 2 -->
   <section class="card" id="v-pay" hidden>
     <h2>ໂອນເງິນ ແລ້ວແນບສະລິບ</h2>
     <p class="note">ລາຄາລັອກໄວ້ເຖິງ <b id="p-due"></b> · ເຫຼືອ <span class="timer" id="p-timer"></span></p>
+    <div class="staff-help">
+      <p class="note"><b>ບໍ່ເຂົ້າໃຈ ຫຼື ຢາກລົມກັບພະນັກງານ?</b> ທັກ ຫຼື ໂທຫາພວກເຮົາໄດ້ເລີຍ</p>
+      <div class="row"><a class="btn wa" href="https://wa.me/8562097170747" target="_blank" rel="noopener">💬 WhatsApp 020 9717 0747</a><a class="btn line" href="tel:+8562097170747">📞 ໂທ 020 9717 0747</a></div>
+    </div>
     <div class="pay">
       <img id="pay-qr" src="img/pay/bcel-qr.png" alt="QR ຮັບເງິນ ບັນຊີ LITHPASONG PHAKOUSON MR" width="500" height="558">
       <dl class="kv">
@@ -285,7 +295,7 @@ const ME = {
 let photoData = '';
 const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
 const fmtG = g => (Math.round(g * 1000) / 1000) + ' ກຣາມ';
-let ITEMS = [], RULES = {payMinutes: 30, pickupMonths: 3, maxGrams: 75}, sel = null, qty = 1, ORDER = null, TOKEN = '', timerId = 0, slipData = '';
+let ITEMS = [], RULES = {payMinutes: 15, pickupMonths: 3, maxGrams: 75}, sel = null, qty = 1, ORDER = null, TOKEN = '', timerId = 0, slipData = '';
 
 function show(view, step) {
   ['v-closed','v-off','v-loading','v-choose','v-pay','v-receipt'].forEach(v => $(v).hidden = v !== view);
