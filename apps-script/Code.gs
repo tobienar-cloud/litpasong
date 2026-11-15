@@ -90,6 +90,7 @@ function setup() {
 function doGet(e) {
   const p = e.parameter || {};
   try {
+    if (p.action !== 'items' && p.action !== 'hit') switchGate_();
     if (p.action === 'items') return json_({ ok: true, items: items_(), rules: rules_(), buy: buy_() });
     if (p.action === 'order') return json_({ ok: true, order: publicOrder_(find_(p.bill, p.t)) });
     if (/^save_/.test(String(p.action || '')) && !CFG.SAVINGS_OPEN) return json_({ ok: false, error: SAVINGS_CLOSED });
@@ -106,6 +107,7 @@ function doPost(e) {
   let body;
   try { body = JSON.parse(e.postData.contents); } catch (err) { return json_({ ok: false, error: 'bad request' }); }
   try {
+    switchGate_();
     if (body.action === 'create') return json_({ ok: true, order: create_(body) });
     if (body.action === 'appt') return json_({ ok: true, order: setAppt_(body) });
     if (body.action === 'slip') return json_({ ok: true, order: slip_(body) });
@@ -892,4 +894,46 @@ function dailyBackup() {
     if (f.getName().indexOf('ສຳຮອງ ') === 0 && f.getDateCreated().getTime() < cutoff) f.setTrashed(true);
   }
   return name;
+}
+
+
+// =====================================================================
+// ---------- ປຸ່ມປິດລະບົບສຸກເສີນ (ແທັບ "ຕັ້ງຄ່າລະບົບ" ໃນຊີດ) ----------
+// ເລືອກ "ປິດ" ໃນຊ່ອງ B2 → ລະບົບອອນລາຍ (ສັ່ງຊື້ ແນບສະລິບ ເບິ່ງບິນ ເຂົ້າສູ່ລະບົບ) ຢຸດທັນທີ
+// ລາຄາຄຳຍັງສະແດງໃນເວັບ ແລະ ແອັບຕາມປົກກະຕິ · ເລືອກ "ເປີດ" ເພື່ອເປີດຄືນ
+// ແທັບນີ້ສ້າງເອງອັດຕະໂນມັດ ເທື່ອທຳອິດທີ່ມີຄົນເປີດເວັບ ຫຼື ແອັບ
+// =====================================================================
+const SWITCH = { SHEET: 'ຕັ້ງຄ່າລະບົບ', OPEN: 'ເປີດ', CLOSED: 'ປິດ',
+  MSG: 'ລະບົບອອນລາຍປິດຊົ່ວຄາວ ກະລຸນາມາທີ່ຮ້ານ ຫຼື ທັກ WhatsApp / ໂທ 020 9717 0747' };
+
+function switchSheet_() {
+  const ss = SpreadsheetApp.getActive();
+  let sh = ss.getSheetByName(SWITCH.SHEET);
+  if (sh) return sh;
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) return null;
+  try {
+    sh = ss.getSheetByName(SWITCH.SHEET);
+    if (sh) return sh;
+    sh = ss.insertSheet(SWITCH.SHEET);
+    sh.getRange('A1:B1').setValues([['ຕັ້ງຄ່າ', 'ຄ່າ']]).setFontWeight('bold').setBackground('#6e1423').setFontColor('#fbf1df');
+    sh.getRange('A2:B3').setValues([
+      ['ລະບົບສັ່ງຊື້ອອນລາຍ (ເລືອກ ປິດ ເມື່ອມີບັນຫາ)', SWITCH.OPEN],
+      ['ຂໍ້ຄວາມເຖິງລູກຄ້າ ຕອນປິດລະບົບ', SWITCH.MSG],
+    ]);
+    sh.getRange('B2').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList([SWITCH.OPEN, SWITCH.CLOSED], true).build())
+      .setFontWeight('bold').setFontSize(14);
+    sh.setColumnWidth(1, 320); sh.setColumnWidth(2, 520);
+    sh.setFrozenRows(1);
+    return sh;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function switchGate_() {
+  const sh = switchSheet_();
+  if (!sh) return;
+  const v = sh.getRange('B2:B3').getDisplayValues();
+  if (String(v[0][0]).trim() === SWITCH.CLOSED) throw new Error(String(v[1][0]).trim() || SWITCH.MSG);
 }
