@@ -274,11 +274,13 @@ function isOpen() {
 }
 const hoursText = () => SELL.from + '–' + SELL.to + ' ນ.';
 const $ = id => document.getElementById(id);
+// PIN ເກັບສະເພາະ sessionStorage (ລຶບເມື່ອປິດແທັບ) ບໍ່ເກັບໃນ localStorage · ລຶບ PIN ເກົ່າທີ່ເຄີຍເກັບໄວ້
+(() => { try { const o = JSON.parse(localStorage.getItem('lps-me') || 'null'); if (o && 'pin' in o) { delete o.pin; localStorage.setItem('lps-me', JSON.stringify(o)); } } catch (e) {} })();
 const ME = {
-  get() { try { return JSON.parse(localStorage.getItem('lps-me') || sessionStorage.getItem('lps-me') || 'null'); } catch (e) { return null; } },
-  keep(v) { try { if (!localStorage.getItem('lps-me') && !sessionStorage.getItem('lps-me')) sessionStorage.setItem('lps-me', JSON.stringify(v)); } catch (e) {} },
+  get() { try { const l = JSON.parse(localStorage.getItem('lps-me') || 'null'), s = JSON.parse(sessionStorage.getItem('lps-me') || 'null'); return l || s ? Object.assign({}, l, s) : null; } catch (e) { return null; } },
+  keep(v) { try { if (!sessionStorage.getItem('lps-me')) sessionStorage.setItem('lps-me', JSON.stringify(v)); } catch (e) {} },
   // ຈື່ຂໍ້ມູນລູກຄ້າໄວ້ໃນບ່ອນດຽວກັບ lps-me ເພື່ອສັ່ງຄັ້ງຕໍ່ໄປບໍ່ຕ້ອງພິມໃໝ່
-  merge(v) { try { const st = localStorage.getItem('lps-me') ? localStorage : sessionStorage; st.setItem('lps-me', JSON.stringify(Object.assign(ME.get() || {}, v))); } catch (e) {} },
+  merge(v) { try { const o = Object.assign(ME.get() || {}, v); sessionStorage.setItem('lps-me', JSON.stringify(o)); if (localStorage.getItem('lps-me')) { delete o.pin; localStorage.setItem('lps-me', JSON.stringify(o)); } } catch (e) {} },
 };
 let photoData = '';
 const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
@@ -563,7 +565,7 @@ function offView() { $('off-hours').textContent = hoursText(); show('v-off', 1);
     renderItems(); calc(); show('v-choose', 1);
     const me = ME.get();
     if (me) { $('f-first').value = me.first || (me.name || '').split(' ')[0] || ''; $('f-last').value = me.last || (me.name || '').split(' ').slice(1).join(' ');
-      ['dob', 'village', 'district', 'province'].forEach(k => { if (me[k]) $('f-' + k).value = me[k]; }); $('f-phone').value = me.phone; $('f-pin').value = me.pin; $('me-link').textContent = '👤 ' + (me.name || 'ໂປຣໄຟລ໌ຂອງຂ້ອຍ') + ' →'; }
+      ['dob', 'village', 'district', 'province'].forEach(k => { if (me[k]) $('f-' + k).value = me[k]; }); $('f-phone').value = me.phone || ''; $('f-pin').value = me.pin || ''; $('me-link').textContent = '👤 ' + (me.name || 'ໂປຣໄຟລ໌ຂອງຂ້ອຍ') + ' →'; }
   } catch (ex) { show('v-closed', 1); }
 })();
 </script>

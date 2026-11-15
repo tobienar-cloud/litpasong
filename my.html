@@ -168,9 +168,12 @@ const $ = id => document.getElementById(id);
 const kip = n => Number(n).toLocaleString('en-US') + ' ກີບ';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // ເຂົ້າສູ່ລະບົບຮ່ວມກັນທຸກໜ້າ (lps-me)
+// PIN ເກັບສະເພາະ sessionStorage (ລຶບເມື່ອປິດແທັບ) ບໍ່ເກັບໃນ localStorage · ລຶບ PIN ເກົ່າທີ່ເຄີຍເກັບໄວ້
+(() => { try { const o = JSON.parse(localStorage.getItem('lps-me') || 'null'); if (o && 'pin' in o) { delete o.pin; localStorage.setItem('lps-me', JSON.stringify(o)); } } catch (e) {} })();
 const ME = {
-  get() { try { return JSON.parse(localStorage.getItem('lps-me') || sessionStorage.getItem('lps-me') || 'null'); } catch (e) { return null; } },
-  set(v, remember) { try { const s = JSON.stringify(v); if (remember) { localStorage.setItem('lps-me', s); sessionStorage.removeItem('lps-me'); } else { sessionStorage.setItem('lps-me', s); localStorage.removeItem('lps-me'); } } catch (e) {} },
+  get() { try { const l = JSON.parse(localStorage.getItem('lps-me') || 'null'), s = JSON.parse(sessionStorage.getItem('lps-me') || 'null'); return l || s ? Object.assign({}, l, s) : null; } catch (e) { return null; } },
+  // "ຈື່ຂ້ອຍໄວ້" ຈື່ແຕ່ເບີໂທ ແລະ ຊື່ ບໍ່ຈື່ PIN
+  set(v, remember) { try { sessionStorage.setItem('lps-me', JSON.stringify(v)); if (remember) { const o = Object.assign({}, JSON.parse(localStorage.getItem('lps-me') || '{}'), v); delete o.pin; localStorage.setItem('lps-me', JSON.stringify(o)); } else localStorage.removeItem('lps-me'); } catch (e) {} },
   clear() { try { localStorage.removeItem('lps-me'); sessionStorage.removeItem('lps-me'); } catch (e) {} },
 };
 const STEPS = ['ສັ່ງຊື້', 'ແນບສະລິບ', 'ຢືນຢັນເງິນ', 'ຮັບຄຳແລ້ວ'];
@@ -224,7 +227,7 @@ async function loadProfile(cred) {
     ? '<div class="sv-amt">' + kip(s.balance) + '</div><div class="sv-eq">' + esc(eqText(s.balance, s.perGram)) + '</div>' +
       '<p class="note">ຄຳນວນປະມານ ຕາມລາຄາຄຳຮູບປະພັນ 1 ບາດ = ' + kip(Math.round(s.perGram * 15)) + ' (ລາຄາ ' + esc(s.priceAt) + ') · ປ່ຽນແປງຕາມລາຄາຄຳ · ຍອດອອມເປັນເງິນກີບ</p>' +
       (s.pending ? '<p class="note">ລໍຖ້າແອັດມິນກວດເງິນ: ' + kip(s.pending) + '</p>' : '') +
-      '<div class="row"><a class="btn gold" href="save.html?view=acct">ເບິ່ງບັນຊີອອມ · ແລກຄຳ · ຖອນເງິນ</a></div>'
+      '<p class="note">ຢາກແລກຄຳ ຫຼື ຖອນເງິນ ກະລຸນາທັກແອັດມິນ WhatsApp 020 5895 4624</p>'
     : '';
   // ອອມຄຳເປັນເງິນ ປິດຮັບລູກຄ້າໃໝ່ແລ້ວ ສະແດງແຕ່ລູກຄ້າທີ່ຍັງມີຍອດເກົ່າ
   $('sv-card').hidden = !s;
@@ -248,11 +251,12 @@ $('v-login').addEventListener('submit', async e => {
   $('l-go').disabled = false; $('l-go').textContent = 'ເຂົ້າສູ່ລະບົບ';
 });
 $('logout').onclick = () => { ME.clear(); LOGGED = false; $('list').innerHTML = ''; $('sv').innerHTML = ''; $('l-phone').value = ''; tab('login'); };
-$('refresh').onclick = () => { const me = ME.get(); if (me) loadProfile(me).catch(() => {}); };
+$('refresh').onclick = () => { const me = ME.get(); if (me && me.pin) loadProfile(me).catch(() => {}); };
 (async () => {
   const me = ME.get();
   if (!me) return;
-  $('l-phone').value = me.phone;
+  $('l-phone').value = me.phone || '';
+  if (!me.pin) return; // ບໍ່ມີ PIN ໃນແທັບນີ້ ໃຫ້ລູກຄ້າພິມ PIN ເອງ
   try { await loadProfile(me); } catch (ex) { ME.clear(); $('l-err').textContent = ex.message; $('l-err').hidden = false; }
 })();
 </script>

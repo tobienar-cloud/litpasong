@@ -24,6 +24,14 @@ const CFG = {
   TZ: 'Asia/Vientiane',
   SELL_FROM: '10:00',          // ເລີ່ມຊື້ຄຳ ແລະ ອອມຄຳອອນລາຍ (ເວລາລາວ)
   SELL_TO: '15:30',            // ປິດຊື້ຄຳ ແລະ ອອມຄຳອອນລາຍ ນອກເວລານີ້ເຮັດລາຍການໃໝ່ບໍ່ໄດ້
+  // ---- ກັນການຍິງລະບົບ (rate limit) ----
+  MAX_IMAGE_BYTES: 1500000,    // ຮູບລູກຄ້າ ແລະ ສະລິບ ບໍ່ເກີນ 1.5 MB (ແອັບ ແລະ ເວັບຫຍໍ້ຮູບໃຫ້ແລ້ວ)
+  BILLS_PER_PHONE_HOUR: 5,     // ເບີດຽວສ້າງບິນໄດ້ບໍ່ເກີນ 5 ບິນ ຕໍ່ຊົ່ວໂມງ
+  BILLS_PER_10MIN: 30,         // ທັງລະບົບສ້າງບິນໄດ້ບໍ່ເກີນ 30 ບິນ ຕໍ່ 10 ນາທີ
+  SLIPS_PER_BILL: 3,           // ແນບສະລິບຊ້ຳໄດ້ບໍ່ເກີນ 3 ເທື່ອ ຕໍ່ບິນ
+  UPLOADS_PER_HOUR: 60,        // ທັງລະບົບອັບໂຫຼດສະລິບໄດ້ບໍ່ເກີນ 60 ເທື່ອ ຕໍ່ຊົ່ວໂມງ
+  LOGIN_FAILS_15MIN: 60,       // ທັງລະບົບໃສ່ PIN ຜິດໄດ້ບໍ່ເກີນ 60 ເທື່ອ ຕໍ່ 15 ນາທີ
+  SAVINGS_OPEN: false,         // ອອມຄຳເປັນເງິນ ປິດແລ້ວ (15/11/2026)
 };
 
 // ນ້ຳໜັກ (ກຣາມ) ຂອງແຕ່ລະແຖວໃນຊີດ: 1 ບາດ = 15 g = 4 ສະຫຼຶງ = 40 ຫຸນ
@@ -57,6 +65,7 @@ const HEAD = ['ເລກບິນ', 'ເວລາສັ່ງ', 'ຊື່ລູ
   'ລິ້ງໃບຈອງ', 'ເວລາຢືນຢັນເງິນ', 'ເວລາຮັບຄຳ', 'ນັດມາຮັບ',
   'ວັນເດືອນປີເກີດ', 'ບ້ານ', 'ເມືອງ', 'ແຂວງ', 'ຮູບລູກຄ້າ'];
 const SITE = 'https://litpasong.com/';
+const SAVINGS_CLOSED = 'ອອມຄຳເປັນເງິນ ປິດແລ້ວ · ອອມຄຳເປັນນ້ຳໜັກໄດ້ທີ່ https://litpasong.com/order.html ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624';
 const COL = Object.fromEntries(HEAD.map((h, i) => [h, i + 1]));
 
 // ---------- ຕິດຕັ້ງຄັ້ງດຽວ: ກົດ Run ຟັງຊັນ setup ----------
@@ -83,6 +92,7 @@ function doGet(e) {
   try {
     if (p.action === 'items') return json_({ ok: true, items: items_(), rules: rules_(), buy: buy_() });
     if (p.action === 'order') return json_({ ok: true, order: publicOrder_(find_(p.bill, p.t)) });
+    if (/^save_/.test(String(p.action || '')) && !CFG.SAVINGS_OPEN) return json_({ ok: false, error: SAVINGS_CLOSED });
     if (p.action === 'save_info') { const r = saveRef_(); return json_(Object.assign({ ok: true, cap: r.cap, perGram: r.perGram, priceAt: r.at, fee: SAVE.FEE }, sellHours_())); }
     if (p.action === 'save_tx') return json_({ ok: true, tx: savePublic_(saveFind_(p.id, p.t)) });
     if (p.action === 'hit') return json_(Object.assign({ ok: true }, hit_(p.add === '1')));
@@ -102,6 +112,7 @@ function doPost(e) {
     if (body.action === 'history') return json_({ ok: true, orders: history_(body) });
     if (body.action === 'profile') return json_(Object.assign({ ok: true }, profile_(body)));
     if (body.action === 'delete_request') return json_(Object.assign({ ok: true }, deleteRequest_(body)));
+    if (/^save_/.test(String(body.action || '')) && !CFG.SAVINGS_OPEN) return json_({ ok: false, error: SAVINGS_CLOSED });
     if (body.action === 'save_deposit') return json_(Object.assign({ ok: true }, saveDeposit_(body)));
     if (body.action === 'save_slip') return json_({ ok: true, tx: saveSlip_(body) });
     if (body.action === 'save_account') return json_(Object.assign({ ok: true }, saveAccount_(body)));
@@ -158,23 +169,26 @@ function sellGate_() {
 // ---------- ສ້າງບິນ (ລັອກລາຄາ) ----------
 function create_(b) {
   sellGate_();
-  const first = clean_(b.first, 40), last = clean_(b.last, 40), phone = clean_(b.phone, 30);
+  const first = text_(b.first, 40), last = text_(b.last, 40), phone = clean_(b.phone, 30);
   if (!first) throw new Error('ກະລຸນາໃສ່ຊື່');
   if (!last) throw new Error('ກະລຸນາໃສ່ນາມສະກຸນ');
   const name = first + ' ' + last;
   const dob = String(b.dob || '');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dob) || dob < '1900-01-01' || dob > Utilities.formatDate(new Date(), CFG.TZ, 'yyyy-MM-dd')) throw new Error('ກະລຸນາໃສ່ວັນເດືອນປີເກີດໃຫ້ຖືກຕ້ອງ');
-  const village = clean_(b.village, 60), district = clean_(b.district, 60), province = clean_(b.province, 60);
+  const village = text_(b.village, 60), district = text_(b.district, 60), province = text_(b.province, 60);
   if (!village || !district || !province) throw new Error('ກະລຸນາໃສ່ທີ່ຢູ່ ບ້ານ ເມືອງ ແຂວງ ໃຫ້ຄົບ');
   const photo = /^data:(image\/(jpeg|png|webp));base64,(.+)$/.exec(String(b.photo || ''));
   if (!/^[0-9+ ()-]{8,20}$/.test(phone) || phone8_(phone).length < 8) throw new Error('ເບີໂທບໍ່ຖືກຕ້ອງ');
   const pin = String(b.pin || '');
   if (!/^[0-9]{6}$/.test(pin)) throw new Error('ລະຫັດ PIN ຕ້ອງເປັນຕົວເລກ 6 ໂຕ');
+  if (weakPin_(pin, phone, dob)) throw new Error('PIN ນີ້ເດົາງ່າຍເກີນໄປ (ເລກຊ້ຳ ເລກລຽງ ເບີໂທ ຫຼື ວັນເກີດ) ກະລຸນາຕັ້ງ PIN ໃໝ່');
   const qty = Math.floor(Number(b.qty));
   if (!(qty >= 1 && qty <= 40)) throw new Error('ຈຳນວນບໍ່ຖືກຕ້ອງ');
   const item = items_().find(i => i.id === b.item);
   if (!item) throw new Error('ບໍ່ພົບລາຍການນີ້ ຫຼື ລາຄາຍັງບໍ່ພ້ອມ');
   const grams = Math.round(item.grams * qty * 1000) / 1000;
+  limit_('bill10', CFG.BILLS_PER_10MIN, 600, 'ຕອນນີ້ມີຄົນສັ່ງຫຼາຍ ກະລຸນາລອງໃໝ່ໃນ 10 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624');
+  limit_('billp_' + phone8_(phone), CFG.BILLS_PER_PHONE_HOUR, 3600, 'ເບີນີ້ສ້າງບິນຫຼາຍເກີນໄປ ກະລຸນາລໍຖ້າ 1 ຊົ່ວໂມງ ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624');
   const appt = appt_(b.pickDate, b.pickTime);
   if (grams > CFG.MAX_GRAMS + 1e-9) throw new Error('ສັ່ງໄດ້ສູງສຸດ ' + (CFG.MAX_GRAMS / 15) + ' ບາດ (' + CFG.MAX_GRAMS + ' ກຣາມ) ຕໍ່ບິນ ຫຼາຍກວ່ານີ້ກະລຸນາທັກແອັດມິນ');
 
@@ -221,7 +235,7 @@ function create_(b) {
     row[COL['ແຂວງ'] - 1] = province;
     if (photo) {
       const bytes = Utilities.base64Decode(photo[3]);
-      if (bytes.length <= 4 * 1024 * 1024) {
+      if (bytes.length <= CFG.MAX_IMAGE_BYTES) {
         const it = DriveApp.getFoldersByName(CFG.PHOTO_FOLDER);
         const fd = it.hasNext() ? it.next() : DriveApp.createFolder(CFG.PHOTO_FOLDER);
         row[COL['ຮູບລູກຄ້າ'] - 1] = fd.createFile(Utilities.newBlob(bytes, photo[1], bill + '-' + phone8_(phone) + '.' + (photo[2] === 'jpeg' ? 'jpg' : photo[2]))).getUrl();
@@ -288,7 +302,9 @@ function slip_(b) {
   const m = /^data:(image\/(jpeg|png|webp));base64,(.+)$/.exec(String(b.image || ''));
   if (!m) throw new Error('ກະລຸນາແນບຮູບສະລິບ');
   const bytes = Utilities.base64Decode(m[3]);
-  if (bytes.length > 4 * 1024 * 1024) throw new Error('ຮູບໃຫຍ່ເກີນໄປ');
+  if (bytes.length > CFG.MAX_IMAGE_BYTES) throw new Error('ຮູບໃຫຍ່ເກີນໄປ');
+  limit_('slipb_' + o.bill, CFG.SLIPS_PER_BILL, 86400, 'ບິນນີ້ແນບສະລິບຫຼາຍເທື່ອແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 5895 4624');
+  limit_('upl', CFG.UPLOADS_PER_HOUR, 3600, 'ລະບົບຮັບສະລິບຫຼາຍເກີນໄປ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 5895 4624');
   const ext = m[2] === 'jpeg' ? 'jpg' : m[2];
   const file = folder_().createFile(Utilities.newBlob(bytes, m[1], o.bill + '.' + ext));
   sh.getRange(o.row, COL['ສະລິບ']).setValue(file.getUrl());
@@ -309,6 +325,7 @@ function history_(b) {
   const cache = CacheService.getScriptCache(), key = 'fail_' + p8;
   const fails = Number(cache.get(key) || 0);
   if (fails >= 5) throw new Error('ໃສ່ PIN ຜິດຫຼາຍເທື່ອ ກະລຸນາລໍຖ້າ 15 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 9717 0747');
+  loginGate_();
   const h = pinHash_(p8, pin);
   const sh = orders_(), last = sh.getLastRow();
   const out = [];
@@ -321,7 +338,7 @@ function history_(b) {
     });
   }
   if (!out.length) {
-    cache.put(key, String(fails + 1), 900);
+    cache.put(key, String(fails + 1), 900); loginFail_();
     throw new Error('ບໍ່ພົບຄຳສັ່ງຊື້ ກວດເບີໂທ ແລະ PIN ອີກຄັ້ງ (PIN ແມ່ນລະຫັດທີ່ຕັ້ງຕອນສັ່ງຊື້)');
   }
   cache.remove(key);
@@ -481,6 +498,45 @@ function testWhatsApp() {
   return res;
 }
 
+// ຂໍ້ຄວາມທີ່ລູກຄ້າພິມ (ຊື່ ທີ່ຢູ່ ບັນຊີ): ຕັດ = + - @ ທາງໜ້າອອກ ເພື່ອບໍ່ໃຫ້ກາຍເປັນສູດໃນຊີດ
+// (ສູດທີ່ແອບໃສ່ມາ ອາດດຶງຂໍ້ມູນລູກຄ້າຄົນອື່ນອອກໄປໄດ້)
+function text_(s, max) {
+  return clean_(s, max).replace(/^[=+\-@\s]+/, '').trim();
+}
+
+// ກັນການຍິງລະບົບ: ນັບຈຳນວນຄັ້ງໃນ CacheService ຖ້າເກີນ limit ພາຍໃນ sec ວິນາທີ ໃຫ້ປະຕິເສດ
+function limit_(key, max, sec, msg) {
+  const cache = CacheService.getScriptCache();
+  const n = Number(cache.get('rl_' + key) || 0);
+  if (n >= max) throw new Error(msg || 'ມີການໃຊ້ງານຫຼາຍເກີນໄປ ກະລຸນາລໍຖ້າສັກຄູ່ ແລ້ວລອງໃໝ່');
+  cache.put('rl_' + key, String(n + 1), sec);
+}
+
+// PIN ທີ່ເດົາງ່າຍ: ເລກຊ້ຳ (111111), ລຽງ (123456, 654321), 6 ໂຕທ້າຍຂອງເບີໂທ, ວັນເກີດ
+function weakPin_(pin, phone, dob) {
+  if (/^(\d)\1{5}$/.test(pin)) return true;
+  if ('0123456789012345'.indexOf(pin) >= 0 || '9876543210987654'.indexOf(pin) >= 0) return true;
+  if (/^(\d\d)\1\1$/.test(pin) || /^(\d{3})\1$/.test(pin)) return true; // 121212, 123123
+  const digits = String(phone || '').replace(/[^0-9]/g, '');
+  if (digits.length >= 6 && digits.slice(-6) === pin) return true;
+  const d = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dob || ''));
+  if (d) {
+    const y2 = d[1].slice(2);
+    if ([d[3] + d[2] + y2, y2 + d[2] + d[3], d[2] + d[3] + y2, d[3] + d[2] + d[1].slice(0, 2)].indexOf(pin) >= 0) return true;
+  }
+  return false;
+}
+
+// ນັບ PIN ຜິດລວມທັງລະບົບ ກັນການລອງ PIN ຍອດນິຍົມກັບຫຼາຍເບີ
+function loginGate_() {
+  const n = Number(CacheService.getScriptCache().get('gfail') || 0);
+  if (n >= CFG.LOGIN_FAILS_15MIN) throw new Error('ລະບົບປິດການເຂົ້າສູ່ລະບົບຊົ່ວຄາວ ກະລຸນາລອງໃໝ່ໃນ 15 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624');
+}
+function loginFail_() {
+  const cache = CacheService.getScriptCache();
+  cache.put('gfail', String(Number(cache.get('gfail') || 0) + 1), 900);
+}
+
 function clean_(s, max) {
   return String(s || '').replace(/[<>\u0000-\u001f]/g, '').trim().slice(0, max);
 }
@@ -582,15 +638,16 @@ function saveAuth_(phone, pin, allowNew) {
   const cache = CacheService.getScriptCache(), key = 'sfail_' + p8;
   const fails = Number(cache.get(key) || 0);
   if (fails >= 5) throw new Error('ໃສ່ PIN ຜິດຫຼາຍເທື່ອ ກະລຸນາລໍຖ້າ 15 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624');
+  loginGate_();
   const all = saveRows_();
   const mine = all.filter(t => phone8_(t.phone) === p8);
   const h = pinHash_(p8, pin);
   if (mine.length && mine[0].pin !== h) {
-    cache.put(key, String(fails + 1), 900);
+    cache.put(key, String(fails + 1), 900); loginFail_();
     throw new Error('PIN ບໍ່ຖືກຕ້ອງ (ເບີນີ້ມີບັນຊີອອມແລ້ວ ໃຊ້ PIN ທີ່ຕັ້ງຄັ້ງທຳອິດ)');
   }
   if (!mine.length && !allowNew) {
-    cache.put(key, String(fails + 1), 900);
+    cache.put(key, String(fails + 1), 900); loginFail_();
     throw new Error('ບໍ່ພົບບັນຊີອອມຂອງເບີນີ້');
   }
   cache.remove(key);
@@ -622,7 +679,7 @@ function saveAccount_(b) {
 // ສ້າງລາຍການຝາກ
 function saveDeposit_(b) {
   sellGate_();
-  const name = clean_(b.name, 80), phone = clean_(b.phone, 30);
+  const name = text_(b.name, 80), phone = clean_(b.phone, 30);
   const amount = Math.round(Number(b.amount));
   if (!(amount >= SAVE.MIN && amount <= SAVE.MAX && amount % SAVE.STEP === 0)) throw new Error('ກະລຸນາເລືອກຍອດ 100,000 – 1,000,000 ກີບ');
   if (!/^[0-9+ ()-]{8,20}$/.test(phone)) throw new Error('ເບີໂທບໍ່ຖືກຕ້ອງ');
@@ -667,7 +724,7 @@ function saveSlip_(b) {
   const m = /^data:(image\/(jpeg|png|webp));base64,(.+)$/.exec(String(b.image || ''));
   if (!m) throw new Error('ກະລຸນາແນບຮູບສະລິບ');
   const bytes = Utilities.base64Decode(m[3]);
-  if (bytes.length > 4 * 1024 * 1024) throw new Error('ຮູບໃຫຍ່ເກີນໄປ');
+  if (bytes.length > CFG.MAX_IMAGE_BYTES) throw new Error('ຮູບໃຫຍ່ເກີນໄປ');
   const file = folder_().createFile(Utilities.newBlob(bytes, m[1], t.id + '.' + (m[2] === 'jpeg' ? 'jpg' : m[2])));
   const sh = saveSheet_();
   sh.getRange(t.row, SCOL['ສະລິບ']).setValue(file.getUrl());
@@ -720,7 +777,7 @@ function saveWithdraw_(b) {
     const amount = Math.round(Number(b.amount));
     if (!(amount > SAVE.FEE)) throw new Error('ຍອດຖອນຕ້ອງຫຼາຍກວ່າຄ່າທຳນຽມ ' + SAVE.FEE.toLocaleString('en-US') + ' ກີບ');
     if (amount > bal.balance) throw new Error('ຍອດທີ່ຢືນຢັນແລ້ວມີ ' + bal.balance.toLocaleString('en-US') + ' ກີບ');
-    const how = b.method === 'transfer' ? 'ໂອນເຂົ້າບັນຊີ: ' + clean_(b.account, 120) : 'ຮັບເງິນສົດທີ່ຮ້ານ';
+    const how = b.method === 'transfer' ? 'ໂອນເຂົ້າບັນຊີ: ' + text_(b.account, 120) : 'ຮັບເງິນສົດທີ່ຮ້ານ';
     if (b.method === 'transfer' && clean_(b.account, 120).length < 6) throw new Error('ກະລຸນາໃສ່ທະນາຄານ ເລກບັນຊີ ແລະ ຊື່ບັນຊີ');
     const id = saveNewId_(a.all), token = Utilities.getUuid().replace(/-/g, '');
     const last = a.mine[a.mine.length - 1];
@@ -772,6 +829,7 @@ function profile_(b) {
   const cache = CacheService.getScriptCache(), key = 'fail_' + p8;
   const fails = Number(cache.get(key) || 0);
   if (fails >= 5) throw new Error('ໃສ່ PIN ຜິດຫຼາຍເທື່ອ ກະລຸນາລໍຖ້າ 15 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624');
+  loginGate_();
   const h = pinHash_(p8, pin);
   // ບິນສັ່ງຊື້
   const orders = [];
@@ -793,7 +851,7 @@ function profile_(b) {
     name = mine[mine.length - 1].name || name;
   }
   if (!orders.length && !savings) {
-    cache.put(key, String(fails + 1), 900);
+    cache.put(key, String(fails + 1), 900); loginFail_();
     throw new Error('ບໍ່ພົບຂໍ້ມູນ ກວດເບີໂທ ແລະ PIN ອີກຄັ້ງ (PIN ແມ່ນລະຫັດທີ່ຕັ້ງຕອນສັ່ງຊື້ ຫຼື ຕອນເລີ່ມອອມ)');
   }
   cache.remove(key);
