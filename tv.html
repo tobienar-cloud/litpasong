@@ -47,6 +47,16 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.4vw;pa
 .cell.sell .lab{color:var(--red)}
 .cell.buy .lab{color:var(--gold-soft)}
 .cell .price{font-family:var(--display);font-size:3.25vw;line-height:1.05;align-self:center;white-space:nowrap}
+.row.wide{grid-template-columns:6.4vw minmax(0,1fr)}
+.cell.big{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto 1fr auto;column-gap:1.2vw}
+.cell.big .lab,.cell.big .chg{grid-column:1}
+.cell.big .price{grid-column:1;font-size:4.4vw}
+.cell.big .price small{font-size:1.5vw}
+.cell.big .chg span{font-size:1.25vw}
+.promo{grid-column:2;grid-row:1/4;align-self:center;display:grid;gap:.5vw;justify-items:center;text-align:center;width:13vw;padding:1vw .8vw;border-radius:.8vw;background:#fbe9c9;border:.12vw dashed #d9a441}
+.promo b{font-family:var(--display);font-size:1.3vw;color:var(--red-deep);line-height:1.25}
+.promo span{font-size:1.05vw;font-weight:600;color:#7a4a3a;line-height:1.3}
+.promo i{font-style:normal;font-size:2.4vw;line-height:1}
 .cell .price small{font-family:var(--body);font-size:1.1vw;font-weight:600;margin-left:.3vw}
 .chg{display:flex;flex-direction:column;align-items:flex-start;gap:.3vw}
 .chg span{display:inline-flex;align-items:center;gap:.3vw;font-size:1.12vw;font-weight:800;border-radius:.4vw;padding:.15vw .5vw;white-space:nowrap}
@@ -80,11 +90,11 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.4vw;pa
 
 <main>
   <section class="panel">
-    <h2>ຄຳຮູບປະພັນ <small>ລາຄາຍັງບໍ່ລວມຄ່າລາຍ</small></h2>
-    <div class="row"><div class="wt">1<br>ບາດ</div>
-      <div class="cell sell" id="c-j-b-sell"></div><div class="cell buy" id="c-j-b-buy"></div></div>
-    <div class="row"><div class="wt">1<br>ສະຫຼຶງ</div>
-      <div class="cell sell" id="c-j-s-sell"></div><div class="cell buy" id="c-j-s-buy"></div></div>
+    <h2>ຄຳຮູບປະພັນ <small>ລາຄາຂາຍອອກ · ຍັງບໍ່ລວມຄ່າລາຍ</small></h2>
+    <div class="row wide"><div class="wt">1<br>ບາດ</div>
+      <div class="cell sell big" id="c-j-b-sell"></div></div>
+    <div class="row wide"><div class="wt">1<br>ສະຫຼຶງ</div>
+      <div class="cell sell big" id="c-j-s-sell"></div></div>
   </section>
   <section class="panel">
     <h2>ຄຳແທ່ງ <small>ບໍ່ມີຄ່າລາຍ · 99.99%</small></h2>
@@ -146,21 +156,24 @@ function chip(base, ref, label, div) {
   if (!d) return `<span class="flat"><i>${label}</i> ● ເທົ່າເດີມ</span>`;
   return `<span class="${d > 0 ? 'up' : 'down'}"><i>${label}</i> ${d > 0 ? '▲ +' : '▼ −'}${fmt(Math.abs(d))}</span>`;
 }
+const PROMO = {
+  'c-j-b-sell': '<i>🔬</i><b>ກວດເປີເຊັນຄຳ<br>ດ້ວຍເຄື່ອງ XRF</b><span>ເບິ່ງຜົນໄດ້ຕໍ່ໜ້າ</span>',
+  'c-j-s-sell': '<i>📱</i><b>ສັ່ງຊື້ ແລະ ອອມຄຳ<br>ອອນລາຍ</b><span>litpasong.com</span>',
+};
 function cell(id, label, price, key, div, base) {
   const yIso = isoDaysAgo(1), wIso = isoDaysAgo(7);
   const el = $(id);
   el.innerHTML = `<div class="lab"><span>${label}</span></div>` +
     `<div class="price num">${fmt(price)}<small>ກີບ</small></div>` +
-    `<div class="chg num">${chip(base, histOn(yIso, key), 'ທຽບມື້ວານ', div)}${chip(base, histOn(wIso, key), 'ທຽບ 7 ມື້ກ່ອນ', div)}</div>`;
+    `<div class="chg num">${chip(base, histOn(yIso, key), 'ທຽບມື້ວານ', div)}${chip(base, histOn(wIso, key), 'ທຽບ 7 ມື້ກ່ອນ', div)}</div>` +
+    (PROMO[id] ? `<div class="promo">${PROMO[id]}</div>` : '');
   if (last[id] && last[id] !== price) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
   last[id] = price;
 }
 function render() {
   if (!P) return;
   cell('c-j-b-sell', 'ຂາຍອອກ', P.baht1, 'baht1', 1, P.baht1);
-  cell('c-j-b-buy', 'ຮັບຊື້', P.buy_jewelry, 'buy_jewelry', 1, P.buy_jewelry);
   cell('c-j-s-sell', 'ຂາຍອອກ', P.salung1, 'baht1', 4, P.baht1);
-  cell('c-j-s-buy', 'ຮັບຊື້', P.buy_j_salung1 || q(P.buy_jewelry), 'buy_jewelry', 4, P.buy_jewelry);
   cell('c-b-b-sell', 'ຂາຍອອກ', P.bar_sell, 'bar_sell', 1, P.bar_sell);
   cell('c-b-b-buy', 'ຮັບຊື້', P.buy_bar_max, 'buy_bar_max', 1, P.buy_bar_max);
   cell('c-b-s-sell', 'ຂາຍອອກ', P.bar_salung1 || q(P.bar_sell), 'bar_sell', 4, P.bar_sell);
