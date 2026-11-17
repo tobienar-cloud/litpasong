@@ -522,17 +522,17 @@ $('a-save').addEventListener('click', async () => {
 });
 function receiptView() {
   show('v-receipt', 3);
-  const st = ORDER.status, cls = /ພ້ອມຮັບ|ຮັບຄຳແລ້ວ/.test(st) ? 'good' : /ຍົກເລີກ|ໝົດເວລາ/.test(st) ? 'bad' : 'wait';
+  const st = ORDER.status, cls = /ພ້ອມຮັບ|ຮັບຄຳແລ້ວ|ຂາຍຄືນ/.test(st) ? 'good' : /ຍົກເລີກ|ໝົດເວລາ/.test(st) ? 'bad' : 'wait';
   $('r-status').textContent = st; $('r-status').className = 'pill ' + cls;
   $('r-bill').textContent = ORDER.bill; $('r-created').textContent = ORDER.created; $('r-name').textContent = ORDER.name; $('r-phone').textContent = ORDER.phone;
   $('r-item').textContent = ORDER.item + ' × ' + ORDER.qty; $('r-grams').textContent = fmtG(ORDER.grams);
   $('r-price').textContent = kip(ORDER.price); $('r-total').textContent = kip(ORDER.total);
   $('r-slip').textContent = ORDER.slipAt || 'ຍັງບໍ່ໄດ້ແນບ'; $('r-pickup').textContent = ORDER.pickup || 'ບໍ່ຈຳກັດເວລາ'; $('r-appt').textContent = ORDER.appt || 'ຍັງບໍ່ໄດ້ເລືອກ';
-  const canAppt = !/ຮັບຄຳແລ້ວ|ຍົກເລີກ|ໝົດເວລາ/.test(st);
+  const canAppt = !/ຮັບຄຳແລ້ວ|ຂາຍຄືນ|ຍົກເລີກ|ໝົດເວລາ/.test(st);
   $('r-appt-box').hidden = !canAppt; $('r-appt-h').textContent = ORDER.appt ? 'ປ່ຽນມື້ມາຮັບຄຳ' : 'ເລືອກມື້ ແລະ ເວລາປະມານທີ່ຈະມາຮັບຄຳ';
   if (canAppt) { const n = laoNow(); $('a-date').min = ymd(n); $('a-date').max = ymd(new Date(n.getTime() + 30 * 86400000)); }
-  err('r-late', ORDER.late && !/ພ້ອມຮັບ|ຮັບຄຳແລ້ວ/.test(st) ? 'ແນບສະລິບຫຼັງໝົດເວລາລັອກລາຄາ: ແອັດມິນຈະກວດເວລາໂອນໃນສະລິບ ແລ້ວຕິດຕໍ່ກັບທາງໂທລະສັບ' : '');
-  $('r-paid').textContent = ORDER.paidAt || '—'; $('r-done').textContent = ORDER.doneAt || '—'; save();
+  err('r-late', ORDER.late && !/ພ້ອມຮັບ|ຮັບຄຳແລ້ວ|ຂາຍຄືນ/.test(st) ? 'ແນບສະລິບຫຼັງໝົດເວລາລັອກລາຄາ: ແອັດມິນຈະກວດເວລາໂອນໃນສະລິບ ແລ້ວຕິດຕໍ່ກັບທາງໂທລະສັບ' : '');
+  $('r-paid').textContent = ORDER.paidAt || '—'; $('r-done').textContent = ORDER.soldAt ? 'ຂາຍຄືນໃຫ້ຮ້ານ ' + ORDER.soldAt : (ORDER.doneAt || '—'); save();
   $('r-lab').textContent = ORDER.jewelry ? 'ຍອດໂອນເປັນລາຄາຄຳ ຍັງບໍ່ລວມຄ່າລາຍ ຈ່າຍຄ່າລາຍທີ່ຮ້ານຕອນຮັບຄຳ' : 'ຄຳແທ່ງບໍ່ມີຄ່າລາຍ';
   $('r-wa').href = 'https://wa.me/' + ADMIN_WA + '?text=' + encodeURIComponent('ສະບາຍດີ ຂ້ອຍອອມຄຳເປັນນ້ຳໜັກ ສົ່ງໃບຈອງ ແລະ ສະລິບ\nເລກບິນ ' + ORDER.bill +
     '\nຊື່ ' + ORDER.name + '\nລາຍການ ' + ORDER.item + ' × ' + ORDER.qty + ' (' + fmtG(ORDER.grams) + ')\nຍອດໂອນ ' + kip(ORDER.total) +

@@ -55,6 +55,7 @@ const STATUS = {
   WAIT_CHECK: 'ລໍຖ້າກວດເງິນ',
   READY: 'ຈ່າຍແລ້ວ ພ້ອມຮັບ',
   DONE: 'ຮັບຄຳແລ້ວ',
+  SOLD: 'ຂາຍຄືນໃຫ້ຮ້ານ',   // ລູກຄ້າຂາຍຄືນທາງ WhatsApp ບໍ່ໄດ້ມາຮັບຄຳ: ໃສ່ລາຄາຮັບຊື້ຄືນ ແລະ ສະລິບໂອນໃຫ້ລູກຄ້າ ໃນຖັນທ້າຍ
   CANCEL: 'ຍົກເລີກ',
   EXPIRED: 'ໝົດເວລາໂອນ',
 };
@@ -63,7 +64,8 @@ const HEAD = ['ເລກບິນ', 'ເວລາສັ່ງ', 'ຊື່ລູ
   'ລາຄາຕໍ່ໜ່ວຍ (ກີບ)', 'ຍອດໂອນ (ກີບ)', 'ໂອນກ່ອນ', 'ສະລິບ', 'ເວລາແນບສະລິບ',
   'ສະຖານະ', 'ຮັບຄຳພາຍໃນ', 'ໝາຍເຫດແອັດມິນ', 'token', 'pin',
   'ລິ້ງໃບຈອງ', 'ເວລາຢືນຢັນເງິນ', 'ເວລາຮັບຄຳ', 'ນັດມາຮັບ',
-  'ວັນເດືອນປີເກີດ', 'ບ້ານ', 'ເມືອງ', 'ແຂວງ', 'ຮູບລູກຄ້າ'];
+  'ວັນເດືອນປີເກີດ', 'ບ້ານ', 'ເມືອງ', 'ແຂວງ', 'ຮູບລູກຄ້າ',
+  'ເວລາຂາຍຄືນ', 'ລາຄາຮັບຊື້ຄືນ (ກີບ)', 'ສະລິບໂອນໃຫ້ລູກຄ້າ'];
 const SITE = 'https://litpasong.com/';
 const SAVINGS_CLOSED = 'ອອມຄຳເປັນເງິນ ປິດແລ້ວ · ອອມຄຳເປັນນ້ຳໜັກໄດ້ທີ່ https://litpasong.com/order.html ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624';
 const COL = Object.fromEntries(HEAD.map((h, i) => [h, i + 1]));
@@ -370,6 +372,7 @@ function onEdit(e) {
     logStatus_(e);
     if (v === STATUS.READY) stamp_(sh.getRange(e.range.getRow(), COL['ເວລາຢືນຢັນເງິນ']));
     if (v === STATUS.DONE) stamp_(sh.getRange(e.range.getRow(), COL['ເວລາຮັບຄຳ']));
+    if (v === STATUS.SOLD) stamp_(sh.getRange(e.range.getRow(), COL['ເວລາຂາຍຄືນ']));
   } catch (err) {}
 }
 
@@ -398,7 +401,12 @@ function orders_() {
   if (!sh) throw new Error('ລະບົບຍັງບໍ່ໄດ້ຕັ້ງຄ່າ (ແລ່ນ setup ກ່ອນ)');
   // ເພີ່ມຖັນ ແລະ ຫົວຖັນໃໝ່ເອງ ເມື່ອ HEAD ຍາວຂຶ້ນ
   if (sh.getMaxColumns() < HEAD.length) sh.insertColumnsAfter(sh.getMaxColumns(), HEAD.length - sh.getMaxColumns());
-  if (String(sh.getRange(1, HEAD.length).getValue()) !== HEAD[HEAD.length - 1]) sh.getRange(1, 1, 1, HEAD.length).setValues([HEAD]);
+  if (String(sh.getRange(1, HEAD.length).getValue()) !== HEAD[HEAD.length - 1]) {
+    sh.getRange(1, 1, 1, HEAD.length).setValues([HEAD]).setFontWeight('bold').setBackground('#6e1423').setFontColor('#fbf1df');
+    // ອັບເດດລາຍການສະຖານະໃນຊ່ອງເລືອກ (ເຊັ່ນ ເພີ່ມ "ຂາຍຄືນໃຫ້ຮ້ານ")
+    const rule = SpreadsheetApp.newDataValidation().requireValueInList(Object.values(STATUS), true).build();
+    sh.getRange(2, COL['ສະຖານະ'], 2000, 1).setDataValidation(rule);
+  }
   return sh;
 }
 
@@ -433,7 +441,7 @@ function appt_(date, slot) {
 // ລູກຄ້າເລືອກ ຫຼື ປ່ຽນມື້ມາຮັບຄຳພາຍຫຼັງ ຈາກໜ້າໃບຈອງ
 function setAppt_(b) {
   const o = find_(b.bill, b.t);
-  if ([STATUS.DONE, STATUS.CANCEL, STATUS.EXPIRED].indexOf(o.status) >= 0) throw new Error('ບິນນີ້ປ່ຽນມື້ມາຮັບບໍ່ໄດ້ແລ້ວ');
+  if ([STATUS.DONE, STATUS.SOLD, STATUS.CANCEL, STATUS.EXPIRED].indexOf(o.status) >= 0) throw new Error('ບິນນີ້ປ່ຽນມື້ມາຮັບບໍ່ໄດ້ແລ້ວ');
   const appt = appt_(b.pickDate, b.pickTime);
   if (!appt) throw new Error('ກະລຸນາເລືອກມື້ ແລະ ເວລາ');
   orders_().getRange(o.row, COL['ນັດມາຮັບ']).setValue(appt);
@@ -448,6 +456,7 @@ function rowObj_(r, row) {
     item: g('ລາຍການ'), qty: g('ຈຳນວນ'), grams: g('ນ້ຳໜັກ (g)'), price: g('ລາຄາຕໍ່ໜ່ວຍ (ກີບ)'),
     total: g('ຍອດໂອນ (ກີບ)'), due: g('ໂອນກ່ອນ'), slipAt: g('ເວລາແນບສະລິບ'), status: g('ສະຖານະ'),
     pickup: g('ຮັບຄຳພາຍໃນ'), appt: String(g('ນັດມາຮັບ') || ''), paidAt: g('ເວລາຢືນຢັນເງິນ'), doneAt: g('ເວລາຮັບຄຳ'),
+    soldAt: g('ເວລາຂາຍຄືນ'), soldPrice: g('ລາຄາຮັບຊື້ຄືນ (ກີບ)'),
   };
 }
 
@@ -462,6 +471,7 @@ function publicOrder_(o) {
     due: f(o.due), dueMs: (o.due instanceof Date) ? o.due.getTime() : 0, slipAt: f(o.slipAt),
     late: (o.slipAt instanceof Date) && (o.due instanceof Date) && o.slipAt.getTime() > o.due.getTime() + 5 * 60000,
     status: o.status, appt: o.appt || '', pickup: CFG.PICKUP_MONTHS > 0 ? fd(o.pickup) : 'ບໍ່ຈຳກັດເວລາ', paidAt: f(o.paidAt), doneAt: f(o.doneAt),
+    soldAt: f(o.soldAt), soldPrice: Number(o.soldPrice) || 0,
     jewelry: String(o.item).indexOf('ຮູບປະພັນ') >= 0,
   };
 }
