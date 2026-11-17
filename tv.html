@@ -107,11 +107,11 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4P
 const $ = id => document.getElementById(id);
 const fmt = n => Math.round(n).toLocaleString('en-US');
 const TZ = 'Asia/Vientiane';
-const ITEM = {'1 ບາດ': 'baht1', '1 ສະຫຼຶງ': 'salung1', 'ລາຄາຂາຍຄຳແທ່ງ 1 ບາດ': 'bar_sell'};
+const ITEM = {'1 ບາດ': 'baht1', '1 ສະຫຼຶງ': 'salung1', 'ລາຄາຂາຍຄຳແທ່ງ 1 ບາດ': 'bar_sell', 'ຄຳແທ່ງ 1 ສະຫຼຶງ': 'bar_salung1'};
 const COL = {baht1: 1, bar_sell: 2, buy_jewelry: 3, buy_bar_max: 4};   // ຖັນໃນ prices.json
 let P = null, HIST = [], last = {};
 
-// ລາຄາ 1 ສະຫຼຶງ ທີ່ບໍ່ມີໃນຊີດ = ລາຄາ 1 ບາດ ÷ 4 ປັດເປັນຫຼັກ 10,000
+// ລາຄາ 1 ສະຫຼຶງ ມາຈາກຊີດ (ຂາຍ: ຖັນ C, ຮັບຊື້: ຖັນ E). ຖ້າຍັງບໍ່ມີ ໃຊ້ລາຄາ 1 ບາດ ÷ 4 ປັດເປັນຫຼັກ 10,000 ແທນຊົ່ວຄາວ
 const q = v => Math.round(v / 4 / 10000) * 10000;
 
 function partsNow() {
@@ -160,11 +160,11 @@ function render() {
   cell('c-j-b-sell', 'ຂາຍອອກ', P.baht1, 'baht1', 1, P.baht1);
   cell('c-j-b-buy', 'ຮັບຊື້', P.buy_jewelry, 'buy_jewelry', 1, P.buy_jewelry);
   cell('c-j-s-sell', 'ຂາຍອອກ', P.salung1, 'baht1', 4, P.baht1);
-  cell('c-j-s-buy', 'ຮັບຊື້', q(P.buy_jewelry), 'buy_jewelry', 4, P.buy_jewelry);
+  cell('c-j-s-buy', 'ຮັບຊື້', P.buy_j_salung1 || q(P.buy_jewelry), 'buy_jewelry', 4, P.buy_jewelry);
   cell('c-b-b-sell', 'ຂາຍອອກ', P.bar_sell, 'bar_sell', 1, P.bar_sell);
   cell('c-b-b-buy', 'ຮັບຊື້', P.buy_bar_max, 'buy_bar_max', 1, P.buy_bar_max);
-  cell('c-b-s-sell', 'ຂາຍອອກ', q(P.bar_sell), 'bar_sell', 4, P.bar_sell);
-  cell('c-b-s-buy', 'ຮັບຊື້', q(P.buy_bar_max), 'buy_bar_max', 4, P.buy_bar_max);
+  cell('c-b-s-sell', 'ຂາຍອອກ', P.bar_salung1 || q(P.bar_sell), 'bar_sell', 4, P.bar_sell);
+  cell('c-b-s-buy', 'ຮັບຊື້', P.buy_bar_salung1 || q(P.buy_bar_max), 'buy_bar_max', 4, P.buy_bar_max);
 }
 
 async function loadPrices() {
@@ -172,7 +172,12 @@ async function loadPrices() {
     const j = await fetch(SCRIPT_URL + '?action=items', {cache: 'no-store'}).then(r => r.json());
     const n = {};
     (j && j.ok && j.items || []).forEach(i => { const k = ITEM[i.id]; if (k && Number(i.price) > 0 && !n[k]) n[k] = Number(i.price); });
-    if (j && j.buy) ['buy_jewelry', 'buy_bar_max'].forEach(k => { if (Number(j.buy[k]) > 0) n[k] = Number(j.buy[k]); });
+    if (j && j.buy) {
+      ['buy_jewelry', 'buy_bar_max'].forEach(k => { if (Number(j.buy[k]) > 0) n[k] = Number(j.buy[k]); });
+      const r = j.buy.rows || {};
+      if (Number(r['1 ສະຫຼຶງ']) > 0) n.buy_j_salung1 = Number(r['1 ສະຫຼຶງ']);
+      if (Number(r['ຄຳແທ່ງ 1 ສະຫຼຶງ']) > 0) n.buy_bar_salung1 = Number(r['ຄຳແທ່ງ 1 ສະຫຼຶງ']);
+    }
     if (!(n.baht1 && n.salung1 && n.bar_sell && n.buy_jewelry && n.buy_bar_max)) throw new Error('incomplete');
     P = n; render();
     const p = partsNow();

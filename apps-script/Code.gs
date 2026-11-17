@@ -9,7 +9,8 @@
 // ---------- ການຕັ້ງຄ່າ ----------
 const CFG = {
   PRICE_SHEET: 'ชีต1',
-  PRICE_RANGE: 'A5:C20',       // ແຖວ 17–19 = ຄຳແທ່ງ 1 ສະຫຼຶງ, 2 ສະຫຼຶງ, 2 ບາດ (ຕັ້ງເປີເຊັນໃນຖັນ B ກ່ອນ ຈຶ່ງຂຶ້ນໃຫ້ລູກຄ້າເລືອກ)
+  PRICE_RANGE: 'A5:C20',
+  BUY_RANGE: 'A5:E20',         // ຖັນ E = ລາຄາຊື້ເຂົ້າຂອງແຕ່ລະນ້ຳໜັກ       // ແຖວ 17–19 = ຄຳແທ່ງ 1 ສະຫຼຶງ, 2 ສະຫຼຶງ, 2 ບາດ (ຕັ້ງເປີເຊັນໃນຖັນ B ກ່ອນ ຈຶ່ງຂຶ້ນໃຫ້ລູກຄ້າເລືອກ)
   ORDER_SHEET: 'ຄຳສັ່ງຊື້',
   SLIP_FOLDER: 'ສະລິບໂອນເງິນ Litpasong',
   PHOTO_FOLDER: 'ຮູບລູກຄ້າ Litpasong',
@@ -142,15 +143,19 @@ function items_() {
   return out.sort((a, b) => (a.kind === b.kind ? b.grams - a.grams : a.kind === 'jewelry' ? -1 : 1));
 }
 
-// ລາຄາຮັບຊື້ສຳລັບສະແດງໜ້າເວັບ (ບໍ່ສົ່ງແຖວ "ຊື້ເຂົ້າ ຮູບປະພັນດີ")
+// ລາຄາຮັບຊື້ສຳລັບສະແດງໜ້າເວັບ ແລະ ທີວີໃນຮ້ານ (ບໍ່ສົ່ງແຖວ "ຊື້ເຂົ້າ ຮູບປະພັນດີ")
+// buy_jewelry = C14, buy_bar_max = C16 ("ຊື້ເຂົ້າ ຄຳແທ່ງ" ຫຼື ຊື່ເກົ່າ "ຊື້ເຂົ້າ ຄຳແທ່ງສູງສຸດ")
+// rows = ລາຄາຊື້ເຂົ້າໃນຖັນ E ຕາມຊື່ແຖວ ເຊັ່ນ { '1 ສະຫຼຶງ': 10410000, 'ຄຳແທ່ງ 1 ສະຫຼຶງ': 10650000 }
 function buy_() {
-  const BUY = { 'ຊື້ເຂົ້າຮູບປະພັນ': 'buy_jewelry', 'ຊື້ເຂົ້າຄຳແທ່ງສູງສຸດ': 'buy_bar_max' };
-  const rows = SpreadsheetApp.getActive().getSheetByName(CFG.PRICE_SHEET).getRange(CFG.PRICE_RANGE).getValues();
-  const out = {};
+  const BUY = { 'ຊື້ເຂົ້າຮູບປະພັນ': 'buy_jewelry', 'ຊື້ເຂົ້າຄຳແທ່ງ': 'buy_bar_max', 'ຊື້ເຂົ້າຄຳແທ່ງສູງສຸດ': 'buy_bar_max' };
+  const rows = SpreadsheetApp.getActive().getSheetByName(CFG.PRICE_SHEET).getRange(CFG.BUY_RANGE).getValues();
+  const out = { rows: {} };
+  const num = v => Number(String(v).replace(/[^0-9.]/g, ''));
   rows.forEach(r => {
-    const key = BUY[String(r[0]).replace(/\s+/g, '')];
-    const price = Number(String(r[2]).replace(/[^0-9.]/g, ''));
-    if (key && price > 0) out[key] = price;
+    const label = String(r[0]).trim();
+    const key = BUY[label.replace(/\s+/g, '')];
+    if (key && num(r[2]) > 0) out[key] = num(r[2]);
+    if (ITEMS[label] && num(r[4]) > 0) out.rows[label] = num(r[4]);
   });
   return out;
 }

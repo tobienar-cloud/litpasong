@@ -41,8 +41,10 @@ LABELS = {
     "ຄຳແທ່ງ 1 ກຣາມ": "bar_gram",
     "ລາຄາຂາຍຄຳແທ່ງ 1 ບາດ": "bar_sell",
     "ຊື້ເຂົ້າ ຮູບປະພັນ": "buy_jewelry",
-    "ຊື້ເຂົ້າ ຄຳແທ່ງສູງສຸດ": "buy_bar_max",
+    "ຊື້ເຂົ້າ ຄຳແທ່ງ": "buy_bar_max",
 }
+# ຊື່ເກົ່າຂອງແຖວໃນຊີດ ທີ່ຍັງອ່ານໄດ້
+ALIASES = {"ຊື້ເຂົ້າ ຄຳແທ່ງສູງສຸດ": "buy_bar_max"}
 
 
 def norm(s):
@@ -59,7 +61,7 @@ def fetch_rows():
 
 
 def read_prices(rows):
-    wanted = {norm(label): key for label, key in LABELS.items()}
+    wanted = {norm(label): key for label, key in list(LABELS.items()) + list(ALIASES.items())}
     prices = {}
     for row in rows:
         if len(row) < 3:
