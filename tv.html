@@ -50,9 +50,9 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.4vw;pa
 .row.wide{grid-template-columns:6.4vw minmax(0,1fr)}
 .cell.big{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto 1fr auto;column-gap:1.2vw}
 .cell.big .lab,.cell.big .chg{grid-column:1}
-.cell.big .price{grid-column:1;font-size:4.4vw}
-.cell.big .price small{font-size:1.5vw}
-.cell.big .chg span{font-size:1.25vw}
+.cell.big .price{grid-column:1;font-size:6.2vw}
+.cell.big .price small{font-size:1.9vw}
+.cell.big .chg{flex-direction:row;gap:1vw}.cell.big .chg span{font-size:1.3vw}
 .promo{grid-column:2;grid-row:1/4;align-self:center;display:grid;gap:.5vw;justify-items:center;text-align:center;width:13vw;padding:1vw .8vw;border-radius:.8vw;background:#fbe9c9;border:.12vw dashed #d9a441}
 .promo b{font-family:var(--display);font-size:1.3vw;color:var(--red-deep);line-height:1.25}
 .promo span{font-size:1.05vw;font-weight:600;color:#7a4a3a;line-height:1.3}
@@ -157,8 +157,6 @@ function chip(base, ref, label, div) {
   return `<span class="${d > 0 ? 'up' : 'down'}"><i>${label}</i> ${d > 0 ? '▲ +' : '▼ −'}${fmt(Math.abs(d))}</span>`;
 }
 const PROMO = {
-  'c-j-b-sell': '<i>🔬</i><b>ກວດເປີເຊັນຄຳ<br>ດ້ວຍເຄື່ອງ XRF</b><span>ເບິ່ງຜົນໄດ້ຕໍ່ໜ້າ</span>',
-  'c-j-s-sell': '<i>📱</i><b>ສັ່ງຊື້ ແລະ ອອມຄຳ<br>ອອນລາຍ</b><span>litpasong.com</span>',
 };
 function cell(id, label, price, key, div, base) {
   const yIso = isoDaysAgo(1), wIso = isoDaysAgo(7);
