@@ -18,7 +18,7 @@ import sys
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
-# "Publish to web" CSV of the price tab (ชีต1) only. The spreadsheet itself is
+# "Publish to web" CSV of the price tab (ລາຄາຄຳ, formerly ชีต1) only. The spreadsheet itself is
 # private (Restricted) because other tabs hold customer data; never link it here.
 CSV_URL = (
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHgeFzG6d2GaSqZK-LO5PDgDWRmmz2f3L7FlKS86ZU2N76AP6u5cuLbNT3M02E2HHjd6BBmH4ueoDB"
@@ -56,7 +56,7 @@ def fetch_rows():
     with urllib.request.urlopen(req, timeout=60) as r:
         text = r.read().decode("utf-8-sig")
     if text.lstrip().startswith("<"):
-        sys.exit("Sheet returned HTML, not CSV: check that the price tab (ชีต1) is still published to the web as CSV")
+        sys.exit("Sheet returned HTML, not CSV: check that the price tab (ລາຄາຄຳ, formerly ชีต1) is still published to the web as CSV")
     return list(csv.reader(io.StringIO(text)))
 
 

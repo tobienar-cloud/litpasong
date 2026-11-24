@@ -3,12 +3,13 @@
  * Google Apps Script — ວາງໃນ Google Sheet ລາຄາຄຳ (Extensions → Apps Script)
  *
  * ໜ້າເວັບ https://litpasong.com/order.html ສົ່ງຄຳສັ່ງຊື້ມາທີ່ນີ້.
- * ລາຄາຄິດໄລ່ຈາກຊີດ "ชีต1" ສະເໝີ ລູກຄ້າແກ້ລາຄາເອງບໍ່ໄດ້.
+ * ລາຄາຄິດໄລ່ຈາກຊີດ "ລາຄາຄຳ" (ຊື່ເກົ່າ "ชีต1") ສະເໝີ ລູກຄ້າແກ້ລາຄາເອງບໍ່ໄດ້.
  */
 
 // ---------- ການຕັ້ງຄ່າ ----------
 const CFG = {
-  PRICE_SHEET: 'ชีต1',
+  PRICE_SHEET: 'ລາຄາຄຳ',
+  PRICE_SHEET_OLD: 'ชีต1',      // ຊື່ເກົ່າ ໃຊ້ໄດ້ທັງສອງຊື່
   PRICE_RANGE: 'A5:C20',
   BUY_RANGE: 'A5:E20',         // ຖັນ E = ລາຄາຊື້ເຂົ້າຂອງແຕ່ລະນ້ຳໜັກ       // ແຖວ 17–19 = ຄຳແທ່ງ 1 ສະຫຼຶງ, 2 ສະຫຼຶງ, 2 ບາດ (ຕັ້ງເປີເຊັນໃນຖັນ B ກ່ອນ ຈຶ່ງຂຶ້ນໃຫ້ລູກຄ້າເລືອກ)
   ORDER_SHEET: 'ຄຳສັ່ງຊື້',
@@ -131,7 +132,7 @@ function doPost(e) {
 
 // ---------- ລາຍການ ແລະ ລາຄາ ----------
 function items_() {
-  const rows = SpreadsheetApp.getActive().getSheetByName(CFG.PRICE_SHEET).getRange(CFG.PRICE_RANGE).getValues();
+  const rows = priceSheet_().getRange(CFG.PRICE_RANGE).getValues();
   const out = [];
   rows.forEach(r => {
     const label = String(r[0]).trim();
@@ -148,7 +149,7 @@ function items_() {
 // rows = ລາຄາຊື້ເຂົ້າໃນຖັນ E ຕາມຊື່ແຖວ ເຊັ່ນ { '1 ສະຫຼຶງ': 10410000, 'ຄຳແທ່ງ 1 ສະຫຼຶງ': 10650000 }
 function buy_() {
   const BUY = { 'ຊື້ເຂົ້າຮູບປະພັນ': 'buy_jewelry', 'ຊື້ເຂົ້າຄຳແທ່ງ': 'buy_bar_max', 'ຊື້ເຂົ້າຄຳແທ່ງສູງສຸດ': 'buy_bar_max' };
-  const rows = SpreadsheetApp.getActive().getSheetByName(CFG.PRICE_SHEET).getRange(CFG.BUY_RANGE).getValues();
+  const rows = priceSheet_().getRange(CFG.BUY_RANGE).getValues();
   const out = { rows: {} };
   const num = v => Number(String(v).replace(/[^0-9.]/g, ''));
   rows.forEach(r => {
@@ -586,6 +587,11 @@ const SHEAD = ['ເລກລາຍການ', 'ເວລາ', 'ຊື່ລູ�
   'ລາຍການຄຳ', 'ນ້ຳໜັກ (g)', 'ສະລິບ', 'ເວລາແນບສະລິບ', 'ສະຖານະ', 'ຮັບເງິນຄືນທາງ', 'ໝາຍເຫດແອັດມິນ',
   'token', 'pin', 'ເວລາຢືນຢັນ'];
 const SCOL = Object.fromEntries(SHEAD.map((h, i) => [h, i + 1]));
+
+function priceSheet_() {
+  const ss = SpreadsheetApp.getActive();
+  return ss.getSheetByName(CFG.PRICE_SHEET) || ss.getSheetByName(CFG.PRICE_SHEET_OLD);
+}
 
 function saveSheet_() {
   const ss = SpreadsheetApp.getActive();
