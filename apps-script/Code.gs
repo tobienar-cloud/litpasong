@@ -387,9 +387,13 @@ function onEdit(e) {
     if (sh.getName() !== CFG.ORDER_SHEET || e.range.getColumn() !== COL['ສະຖານະ'] || e.range.getRow() < 2) return;
     const v = e.range.getValue();
     logStatus_(e);
-    if (v === STATUS.READY) stamp_(sh.getRange(e.range.getRow(), COL['ເວລາຢືນຢັນເງິນ']));
-    if (v === STATUS.DONE) stamp_(sh.getRange(e.range.getRow(), COL['ເວລາຮັບຄຳ']));
-    if (v === STATUS.SOLD) stamp_(sh.getRange(e.range.getRow(), COL['ເວລາຂາຍຄືນ']));
+    const r = e.range.getRow();
+    if (v === STATUS.READY) stamp_(sh.getRange(r, COL['ເວລາຢືນຢັນເງິນ']));
+    if (v === STATUS.DONE) stamp_(sh.getRange(r, COL['ເວລາຮັບຄຳ']));
+    if (v === STATUS.SOLD) stamp_(sh.getRange(r, COL['ເວລາຂາຍຄືນ']));
+    // ຖ້າປ່ຽນສະຖານະກັບຄືນ (ເຊັ່ນ ກົດຜິດເປັນ ຮັບຄຳແລ້ວ ແລ້ວປ່ຽນກັບ) ລຶບເວລາທີ່ຄ້າງໄວ້ ບໍ່ໃຫ້ແອັບສັບສົນ (27/11/2026)
+    if (v !== STATUS.DONE) sh.getRange(r, COL['ເວລາຮັບຄຳ']).clearContent();
+    if (v !== STATUS.SOLD && COL['ເວລາຂາຍຄືນ']) sh.getRange(r, COL['ເວລາຂາຍຄືນ']).clearContent();
   } catch (err) {}
 }
 
@@ -487,8 +491,8 @@ function publicOrder_(o) {
     item: o.item, qty: o.qty, grams: o.grams, price: o.price, total: o.total,
     due: f(o.due), dueMs: (o.due instanceof Date) ? o.due.getTime() : 0, slipAt: f(o.slipAt),
     late: (o.slipAt instanceof Date) && (o.due instanceof Date) && o.slipAt.getTime() > o.due.getTime() + 5 * 60000,
-    status: o.status, appt: o.appt || '', pickup: CFG.PICKUP_MONTHS > 0 ? fd(o.pickup) : 'ບໍ່ຈຳກັດເວລາ', paidAt: f(o.paidAt), doneAt: f(o.doneAt),
-    soldAt: f(o.soldAt), soldPrice: Number(o.soldPrice) || 0,
+    status: o.status, appt: o.appt || '', pickup: CFG.PICKUP_MONTHS > 0 ? fd(o.pickup) : 'ບໍ່ຈຳກັດເວລາ', paidAt: f(o.paidAt), doneAt: o.status === STATUS.DONE ? f(o.doneAt) : '',
+    soldAt: o.status === STATUS.SOLD ? f(o.soldAt) : '', soldPrice: Number(o.soldPrice) || 0,
     jewelry: String(o.item).indexOf('ຮູບປະພັນ') >= 0,
   };
 }
