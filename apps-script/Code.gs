@@ -100,7 +100,7 @@ function doGet(e) {
     if (/^save_/.test(String(p.action || '')) && !CFG.SAVINGS_OPEN) return json_({ ok: false, error: SAVINGS_CLOSED });
     if (p.action === 'save_info') { const r = saveRef_(); return json_(Object.assign({ ok: true, cap: r.cap, perGram: r.perGram, priceAt: r.at, fee: SAVE.FEE }, sellHours_())); }
     if (p.action === 'save_tx') return json_({ ok: true, tx: savePublic_(saveFind_(p.id, p.t)) });
-    if (p.action === 'hit') return json_(Object.assign({ ok: true }, hit_(p.add === '1')));
+    if (p.action === 'hit') return json_(Object.assign({ ok: true }, hit_(p.add === '1', p.dev)));
     return json_({ ok: false, error: 'unknown action' });
   } catch (err) {
     return json_({ ok: false, error: String(err.message || err) });
@@ -273,7 +273,10 @@ function create_(b) {
 
 // ---------- ນັບຜູ້ເຂົ້າຊົມເວັບ ----------
 // ລວມທັງໝົດເກັບໃນ Script Properties, ລາຍວັນເກັບໃນແຖບ "ສະຖິຕິເຂົ້າເວັບ"
-function hit_(add) {
+// ຖັນ D–F ນັບແຍກຕາມມືຖື: Android, iPhone/iPad, ອື່ນໆ (ຄອມພິວເຕີ) ເພື່ອຕັດສິນໃຈລົງ Play Store (28/11/2026)
+const DEV_COLS = { android: 4, ios: 5, other: 6 };
+function hit_(add, dev) {
+  dev = DEV_COLS[dev] ? dev : 'other';
   const props = PropertiesService.getScriptProperties();
   const today = Utilities.formatDate(new Date(), CFG.TZ, 'yyyy-MM-dd');
   if (!add) {
@@ -291,14 +294,19 @@ function hit_(add) {
     let sh = ss.getSheetByName(CFG.STATS_SHEET);
     if (!sh) {
       sh = ss.insertSheet(CFG.STATS_SHEET);
-      sh.appendRow(['ວັນທີ', 'ຈຳນວນເຂົ້າເວັບ', 'ລວມທັງໝົດ']);
+      sh.appendRow(['ວັນທີ', 'ຈຳນວນເຂົ້າເວັບ', 'ລວມທັງໝົດ', 'Android', 'iPhone / iPad', 'ອື່ນໆ (ຄອມພິວເຕີ)']);
       sh.setFrozenRows(1);
     }
+    if (String(sh.getRange(1, 4).getValue()) !== 'Android') sh.getRange(1, 4, 1, 3).setValues([['Android', 'iPhone / iPad', 'ອື່ນໆ (ຄອມພິວເຕີ)']]);
     const last = sh.getLastRow();
     if (last > 1 && String(sh.getRange(last, 1).getDisplayValue()) === today) {
       sh.getRange(last, 2, 1, 2).setValues([[todayN, total]]);
+      const c = sh.getRange(last, DEV_COLS[dev]);
+      c.setValue(Number(c.getValue() || 0) + 1);
     } else {
-      sh.appendRow(["'" + today, todayN, total]);
+      const row = ["'" + today, todayN, total, 0, 0, 0];
+      row[DEV_COLS[dev] - 1] = 1;
+      sh.appendRow(row);
     }
     return { total: total, today: todayN };
   } finally {

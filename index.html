@@ -408,7 +408,9 @@ footer .visits b{color:var(--fg);font-variant-numeric:tabular-nums}
   var U='https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4PY_Xt5TtnErjBkAryQ8Sb8N1cwv67FImKLI7E33VxF4jfO361g/exec';
   var add='1';
   try{ if(sessionStorage.getItem('lps-v')) add='0'; else sessionStorage.setItem('lps-v','1'); }catch(e){}
-  fetch(U+'?action=hit&add='+add,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+  // ແຍກປະເພດມືຖື ບໍ່ເກັບຂໍ້ມູນສ່ວນຕົວ: android / ios / other
+  var ua=navigator.userAgent||'', dev=/android/i.test(ua)?'android':(/iphone|ipad|ipod/i.test(ua)||(/macintosh/i.test(ua)&&navigator.maxTouchPoints>1))?'ios':'other';
+  fetch(U+'?action=hit&add='+add+'&dev='+dev,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
     if(!j||!j.ok||!j.total) return;
     document.getElementById('v-total').textContent=Number(j.total).toLocaleString('en-US');
     document.getElementById('v-today').textContent=Number(j.today||0).toLocaleString('en-US');
