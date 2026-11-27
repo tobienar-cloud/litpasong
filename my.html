@@ -105,6 +105,17 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
 .tl span.bad{background:var(--bad)}
 .legend{display:flex;gap:4px;font-size:12px;color:var(--muted);grid-column:1/-1}
 .legend i{flex:1;font-style:normal;text-align:center}
+.mg-pick{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:16px;align-items:start}
+@media (max-width:520px){.mg-pick{grid-template-columns:1fr}.mg-qr{order:-1}}
+.mg-qr{display:grid;justify-items:center;gap:6px;text-align:center}
+.mg-qr small{color:var(--muted);font-size:13px}
+#mg-qr{background:#fff;padding:8px;border-radius:8px;width:166px;height:166px}
+#mg-qr img,#mg-qr canvas{width:150px!important;height:150px!important}
+.mg-row{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);cursor:pointer}
+.mg-row input{width:20px;height:20px;flex:none;accent-color:var(--maroon)}
+.mg-row span{flex:1;min-width:0}
+.mg-row small{display:block;color:var(--muted);font-size:13px}
+.mg-row b{font-variant-numeric:tabular-nums;white-space:nowrap}
 .tabs{display:flex;gap:8px;margin-top:18px}
 .tabs button{flex:1;padding:10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:600 15px var(--body);cursor:pointer}
 .tabs button[aria-selected="true"]{background:var(--maroon);border-color:var(--maroon);color:#fbf1df}
@@ -142,6 +153,29 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
       <div class="row"><a class="btn gold" href="order.html">ອອມຄຳຮູບປະພັນ</a><a class="btn gold" href="order.html?tab=bar">ອອມຄຳແທ່ງ</a><button type="button" class="btn line" id="refresh" style="background:transparent;color:#fbf1df;border-color:rgba(255,255,255,.4)">ອັບເດດ</button></div>
     </section>
 
+    <section class="card receipt" id="mg-card" hidden>
+      <h2>ຄຳຂອງຂ້ອຍ ທີ່ລໍຖ້າຮັບ</h2>
+      <div class="sv-amt" id="mg-total"></div>
+      <p class="note" id="mg-sub"></p>
+      <div class="mg-pick">
+        <div>
+          <p class="note" style="margin-bottom:6px"><b>ເລືອກບິນທີ່ຈະມາຮັບຄັ້ງນີ້</b></p>
+          <div class="list" id="mg-list"></div>
+        </div>
+        <div class="mg-qr">
+          <div id="mg-qr" aria-label="QR ຮັບຄຳ"></div>
+          <b id="mg-sel"></b>
+          <small>ສະແດງ QR ນີ້ ພ້ອມບັດປະຈຳຕົວ ຕອນຮັບຄຳ</small>
+        </div>
+      </div>
+      <ul class="rules">
+        <li>ຮັບບາງບິນກໍໄດ້ ບິນທີ່ເຫຼືອຮ້ານເກັບໄວ້ໃຫ້ ບໍ່ຈຳກັດເວລາ</li>
+        <li>ລວມຫຼາຍບິນ ແລກເປັນຄຳຊິ້ນໃຫຍ່ໄດ້ ບໍ່ມີສ່ວນຕ່າງ ບໍ່ມີຄ່າແລກ ເຊັ່ນ 1 ຫຸນ × 10 ບິນ ແລກເປັນຄຳ 1 ສະຫຼຶງ</li>
+        <li>ຖ້າແລກເປັນຄຳຮູບປະພັນ ຈ່າຍແຕ່ຄ່າລາຍ (ຄ່າກຳເໜັດ) ຂອງລາຍທີ່ເລືອກ</li>
+        <li>ບິນດຽວ ແບ່ງຮັບເທື່ອລະເຄິ່ງບໍ່ໄດ້ ຮັບເປັນຊິ້ນຕາມບິນ</li>
+      </ul>
+    </section>
+
     <section class="card" id="sv-card" hidden>
       <h2>ຍອດອອມຄຳເປັນເງິນ (ບັນຊີເກົ່າ)</h2>
       <div id="sv"></div>
@@ -162,6 +196,7 @@ input[type=text],input[type=tel]{font:inherit;padding:10px 12px;border:1px solid
 <p class="note" style="text-align:center;margin-top:24px"><a href="privacy.html">ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ</a> · <a href="delete-account.html">ລຶບບັນຊີ ແລະ ຂໍ້ມູນ</a></p>
 </main>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZGKzQiZDxkUevDo-4PY_Xt5TtnErjBkAryQ8Sb8N1cwv67FImKLI7E33VxF4jfO361g/exec';
 const $ = id => document.getElementById(id);
@@ -199,6 +234,40 @@ function eqText(money, perGram) {
   const unit = g >= 3.75 ? (g / 3.75).toFixed(2) + ' ສະຫຼຶງ' : (g / 0.375).toFixed(1) + ' ຫຸນ';
   return 'ທຽບເທົ່າຄຳປະມານ ' + (g < 1 ? g.toFixed(3) : g.toFixed(2)) + ' ກຣາມ (≈ ' + unit + ')';
 }
+// ---------- ຄຳທີ່ລໍຖ້າຮັບ: ລວມນ້ຳໜັກທຸກບິນ ແລະ QR ຮັບຄຳ ----------
+// 1 ບາດ = 4 ສະຫຼຶງ = 40 ຫຸນ = 15 g · 1 ສະຫຼຶງ = 10 ຫຸນ · 1 ຫຸນ = 0.375 g
+function wt(g) {
+  g = Math.round(Number(g) * 1000) / 1000;
+  const hun = Math.round(g / 0.375);
+  const gs = (Number.isInteger(g) ? g : g.toFixed(3).replace(/0+$/, '')) + ' g';
+  if (!(g > 0) || Math.abs(hun * 0.375 - g) > 0.001) return gs;
+  const b = Math.floor(hun / 40), s = Math.floor((hun % 40) / 10), h = hun % 10;
+  return [b && b + ' ບາດ', s && s + ' ສະຫຼຶງ', h && h + ' ຫຸນ'].filter(Boolean).join(' ') + ' (' + gs + ')';
+}
+let MG = [], MG_NAME = '';
+function renderMine(orders, name) {
+  MG = orders.filter(o => o.status === 'ຈ່າຍແລ້ວ ພ້ອມຮັບ'); MG_NAME = name || '';
+  $('mg-card').hidden = !MG.length;
+  if (!MG.length) return;
+  const sum = MG.reduce((a, o) => a + Number(o.grams || 0), 0);
+  const jw = MG.filter(o => o.jewelry).reduce((a, o) => a + Number(o.grams || 0), 0);
+  $('mg-total').textContent = wt(sum);
+  $('mg-sub').textContent = MG.length + ' ບິນ ຈ່າຍແລ້ວ ລໍຖ້າມາຮັບທີ່ຮ້ານ' + (jw > 0 && jw < sum ? ' · ຄຳຮູບປະພັນ ' + wt(jw) + ' · ຄຳແທ່ງ ' + wt(sum - jw) : '');
+  $('mg-list').innerHTML = MG.map((o, i) => '<label class="mg-row"><input type="checkbox" checked data-i="' + i + '">' +
+    '<span>' + esc(o.item) + (o.qty > 1 ? ' × ' + esc(o.qty) : '') + '<small>' + esc(o.bill) + '</small></span><b>' + esc(wt(o.grams)) + '</b></label>').join('');
+  $('mg-list').querySelectorAll('input').forEach(c => c.onchange = drawMineQr);
+  drawMineQr();
+}
+function drawMineQr() {
+  const pick = [...$('mg-list').querySelectorAll('input:checked')].map(c => MG[+c.dataset.i]);
+  const sum = pick.reduce((a, o) => a + Number(o.grams || 0), 0);
+  $('mg-sel').textContent = pick.length ? 'ຮັບ ' + pick.length + ' ບິນ · ' + wt(sum) : 'ເລືອກຢ່າງໜ້ອຍ 1 ບິນ';
+  $('mg-qr').innerHTML = '';
+  $('mg-qr').style.visibility = pick.length ? '' : 'hidden';
+  if (!pick.length || !window.QRCode) return;
+  const text = ['ຮັບຄຳ ລິດປະສົງ', MG_NAME, ...pick.map(o => o.bill), 'ລວມ ' + pick.length + ' ບິນ ' + wt(sum)].filter(Boolean).join('\n');
+  new QRCode($('mg-qr'), {text, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.L});
+}
 let LOGGED = false;
 function tab(which) {
   const login = which === 'login';
@@ -234,6 +303,7 @@ async function loadProfile(cred) {
   const n = j.orders.length, active = j.orders.filter(o => [1, 2, 3].includes(stage(o.status))).length;
   $('list-sum').textContent = n ? 'ທັງໝົດ ' + n + ' ບິນ · ກຳລັງດຳເນີນການ ' + active + ' ບິນ' : '';
   $('list').innerHTML = n ? j.orders.map(card).join('') : '<p class="note">ຍັງບໍ່ມີບິນສັ່ງຊື້ (ຫຼື ໃຊ້ PIN ອື່ນຕອນສັ່ງຊື້)</p><div class="row"><a class="btn gold" href="order.html">ອອມຄຳຮູບປະພັນ</a><a class="btn gold" href="order.html?tab=bar">ອອມຄຳແທ່ງ</a></div>';
+  renderMine(j.orders, j.name);
   LOGGED = true; tab('login');
   return j;
 }
@@ -250,7 +320,7 @@ $('v-login').addEventListener('submit', async e => {
   } catch (ex) { $('l-err').textContent = ex.message || 'ເກີດຂໍ້ຜິດພາດ ລອງໃໝ່ອີກຄັ້ງ'; $('l-err').hidden = false; }
   $('l-go').disabled = false; $('l-go').textContent = 'ເຂົ້າສູ່ລະບົບ';
 });
-$('logout').onclick = () => { ME.clear(); LOGGED = false; $('list').innerHTML = ''; $('sv').innerHTML = ''; $('l-phone').value = ''; tab('login'); };
+$('logout').onclick = () => { ME.clear(); LOGGED = false; MG = []; $('mg-card').hidden = true; $('mg-qr').innerHTML = ''; $('list').innerHTML = ''; $('sv').innerHTML = ''; $('l-phone').value = ''; tab('login'); };
 $('refresh').onclick = () => { const me = ME.get(); if (me && me.pin) loadProfile(me).catch(() => {}); };
 (async () => {
   const me = ME.get();
