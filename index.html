@@ -152,6 +152,10 @@ td:last-child{text-align:right;font-weight:600;white-space:nowrap}
 .filters{display:flex;flex-wrap:wrap;gap:8px}
 .f{font-family:var(--body);font-size:14px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
 .f.on{background:var(--maroon);border-color:var(--maroon);color:#fbf1df}
+.albums{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 2px}
+.albums b{font-size:14px;color:var(--muted);font-weight:600;margin-right:2px}
+.albums a{font-size:14px;padding:5px 12px;border-radius:999px;border:1px solid #d9b45a;background:#fff8e6;color:var(--maroon);text-decoration:none;white-space:nowrap}
+.albums a:hover{background:#ffefc2}
 .f:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
 .products figure{margin:0;display:grid;gap:6px}
@@ -301,9 +305,10 @@ footer .visits b{color:var(--fg);font-variant-numeric:tabular-nums}
     <button type="button" class="f" data-f="pendant" id="f-pendant">ລ໋ອກເກັດ</button>
     <button type="button" class="f" data-f="bar" id="f-bar">ຄຳແທ່ງ</button>
   </div>
+  <div class="albums" id="albums" aria-label="ອັນບັ້ມລາຍຄຳໃນເຟສບຸກ"></div>
   <div class="products" id="plist"></div>
   <div class="morebar"><span id="pcount" class="note"></span><button type="button" class="btn gold" id="pmore">ເບິ່ງເພີ່ມ</button></div>
-  <p class="note">ຮູບຈາກລີວິວໃນເພຈ. ລາຍຂອງຈິງໃນຮ້ານອາດປ່ຽນໄປຕາມສິນຄ້າທີ່ມີ. ລາຄາຄຳຮູບປະພັນ ຍັງບໍ່ລວມຄ່າລາຍ, ຄຳແທ່ງ 1 ບາດ ບໍ່ມີຄ່າລາຍ.</p>
+  <p class="note">ຮູບຈາກອັນບັ້ມໃນເພຈ. ລາຍຂອງຈິງໃນຮ້ານອາດປ່ຽນໄປຕາມສິນຄ້າທີ່ມີ. ລາຄາຄຳຮູບປະພັນ ຍັງບໍ່ລວມຄ່າລາຍ, ຄຳແທ່ງ 1 ບາດ ບໍ່ມີຄ່າລາຍ.</p>
 </section>
 
 <section id="xrf">
@@ -426,11 +431,19 @@ document.querySelectorAll('.copy').forEach(function(b){b.addEventListener('click
   var v=b.dataset.v,done=function(){b.textContent='ກັອບປີ້ແລ້ວ';setTimeout(function(){b.textContent='ກັອບປີ້'},1500)};
   try{navigator.clipboard.writeText(v).then(done,function(){sel(b)})}catch(e){sel(b)}
 })});
+// ອັນບັ້ມລາຍຄຳໃນເຟສບຸກ ແຍກຕາມປະເພດ (ກົດແລ້ວເປີດອັນບັ້ມນັ້ນໃນເຟສບຸກ)
+var ALB={"ring":[["ແຫວນ 5 ຫຸນ","1506140261519186"],["ແຫວນ 1 ສະຫຼຶງ","1503225331810679"],["ແຫວນ 2 ສະຫຼຶງ","1517559623710583"],["ແຫວນ 1 ບາດ","1585737783559433"]],
+"necklace":[["ສາຍຄໍ 1 ສະຫຼຶງ","1533030792163466"],["ສາຍຄໍ 1,5 ສະຫຼຶງ","1657865839679960"],["ສາຍຄໍ 3 ສະຫຼຶງ","1622933386506539"],["ສາຍຄໍ 1 ບາດ","1513822617417617"],["ສາຍຄໍ 2 ບາດ","1503231398476739"],["ສາຍຄໍ 3 ບາດ","1533726472093898"],["ສາຍຄໍ + ຕ້າງ","1504287798371099"]],
+"bracelet":[["ສາຍແຂນ 1 ສະຫຼຶງ","1529559275843951"],["ສາຍແຂນ 2 ສະຫຼຶງ","1499778208822058"],["ສາຍແຂນ 2 ບາດ","1495077302625482"],["ສາຍແຂນເດັກ","1730894805710396"]],
+"earring":[["ຕ້າງຫູ","1490334633099749"]],
+"pendant":[["ຈີ້ພະ 5 ຫຸນ","1504169005049645"],["ຈີ້ຄຳ","1589429346523610"]],
+"bar":[["ຄຳແທ່ງ","1549298063870072"]]};
 var PCAP={"necklace":"ສາຍຄໍ","bracelet":"ສາຍແຂນ / ກຳໄລ","ring":"ແຫວນ","earring":"ຕຸ້ມຫູ","pendant":"ລ໋ອກເກັດ / ກອບພຣະ","bar":"ຄຳແທ່ງ"};
 (function(){var G={products:[]},f='all',ps=24;
 var pl=document.getElementById('plist'),pm=document.getElementById('pmore'),pc=document.getElementById('pcount');
 function fig(src,cap,alt){return '<figure><img src="img/'+src+'" alt="'+alt+'" loading="lazy">'+(cap?'<figcaption>'+cap+'</figcaption>':'')+'</figure>'}
-function rp(){var it=G.products.filter(function(p){return f==='all'||p[1]===f});pl.innerHTML=it.slice(0,ps).map(function(p){return fig(p[0],PCAP[p[1]],PCAP[p[1]]+' ຮ້ານຄຳ ລິດປະສົງ')}).join('');pc.textContent='ສະແດງ '+Math.min(ps,it.length)+' ຈາກ '+it.length+' ຮູບ';pm.hidden=ps>=it.length;}
+function ra(){var ab=document.getElementById('albums');if(!ab)return;var L=f==='all'?Object.keys(ALB).reduce(function(a,k){return a.concat(ALB[k])},[]):(ALB[f]||[]);ab.innerHTML='<b>ເບິ່ງລາຍທັງໝົດໃນເຟສບຸກ:</b>'+L.map(function(x){return '<a href="https://www.facebook.com/media/set/?set=a.'+x[1]+'&amp;type=3" target="_blank" rel="noopener">'+x[0]+' ↗</a>'}).join('');}
+function rp(){ra();var it=G.products.filter(function(p){return f==='all'||p[1]===f});pl.innerHTML=it.slice(0,ps).map(function(p){return fig(p[0],PCAP[p[1]],PCAP[p[1]]+' ຮ້ານຄຳ ລິດປະສົງ')}).join('');pc.textContent='ສະແດງ '+Math.min(ps,it.length)+' ຈາກ '+it.length+' ຮູບ';pm.hidden=ps>=it.length;}
 document.querySelectorAll('.f').forEach(function(b){b.addEventListener('click',function(){f=b.dataset.f;ps=24;document.querySelectorAll('.f').forEach(function(x){x.classList.toggle('on',x===b)});rp();})});
 pm.addEventListener('click',function(){ps+=24;rp();});
 pc.textContent='ກຳລັງໂຫຼດຮູບ…';
