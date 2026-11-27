@@ -95,7 +95,7 @@ function doGet(e) {
   const p = e.parameter || {};
   try {
     if (p.action !== 'items' && p.action !== 'hit') switchGate_();
-    if (p.action === 'items') return json_({ ok: true, items: items_(), rules: rules_(), buy: buy_() });
+    if (p.action === 'items') return json_({ ok: true, items: items_(), rules: rules_(), buy: buy_(), stamp: priceStamp_() });
     if (p.action === 'order') return json_({ ok: true, order: publicOrder_(find_(p.bill, p.t)) });
     if (/^save_/.test(String(p.action || '')) && !CFG.SAVINGS_OPEN) return json_({ ok: false, error: SAVINGS_CLOSED });
     if (p.action === 'save_info') { const r = saveRef_(); return json_(Object.assign({ ok: true, cap: r.cap, perGram: r.perGram, priceAt: r.at, fee: SAVE.FEE }, sellHours_())); }
@@ -159,6 +159,17 @@ function buy_() {
     if (ITEMS[label] && num(r[4]) > 0) out.rows[label] = num(r[4]);
   });
   return out;
+}
+
+// ເວລາອັບເດດລາຄາ ຈາກເຊວ D1 ຂອງຊີດລາຄາ ("ອັບເດດລາຄາ: 26-11-2026 10:05") ໃຫ້ແອັບສະແດງຕົງກັບຊີດທັນທີ
+function priceStamp_() {
+  try {
+    const v = String(priceSheet_().getRange('D1').getDisplayValue());
+    const m = /(\d{1,2})-(\d{1,2})-(\d{4})\s+(\d{1,2}:\d{2})/.exec(v);
+    return m ? 'ອັບເດດ ວັນທີ ' + m[1].padStart(2, '0') + '/' + m[2].padStart(2, '0') + '/' + m[3] + ' ເວລາ ' + m[4] + ' ໂມງ' : '';
+  } catch (e) {
+    return '';
+  }
 }
 
 function rules_() {
