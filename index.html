@@ -144,6 +144,8 @@ td:last-child{text-align:right;font-weight:600;white-space:nowrap}
 .callout span{color:var(--muted);font-size:15px}
 .callout.warn{border-left:5px solid var(--maroon)}
 .callout.wa{border-left:5px solid #25a35a}
+.callout.gold{background:#fff6df;border:1.5px solid #e2b64a;margin:0 0 12px}
+.callout.gold b{color:var(--maroon)}
 .callout a{font-weight:700;color:var(--fg)}
 .tbl h3 small{font-family:var(--body);font-size:13px;font-weight:600;color:var(--maroon);margin-left:6px}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tbl h3 small{color:var(--gold)}}
@@ -234,6 +236,8 @@ footer .visits b{color:var(--fg);font-variant-numeric:tabular-nums}
 
 <section id="price">
   <div class="sec-head"><h2>ລາຄາຄຳມື້ນີ້</h2><span class="stamp num" data-p="stamp">ອັບເດດ ວັນທີ 27/10/2026 ເວລາ 21:00 ໂມງ</span></div>
+  <div class="callout gold" id="wait10" hidden><b>⏰ ລາຄາຄຳມື້ນີ້ຈະອອກເວລາ 10:00 ໂມງ</b><span>ຂອບໃຈທີ່ລໍຖ້າ 🙏 ຫຼັງຈາກນັ້ນສາມາດອອມຄຳໄດ້ເລີຍ ຮອດ 15:30</span></div>
+  <script>(function(){var d=new Date(Date.now()+7*3600000),t=('0'+d.getUTCHours()).slice(-2)+':'+('0'+d.getUTCMinutes()).slice(-2);if(t<'10:00')document.getElementById('wait10').hidden=false;})();</script>
   <div class="feature">
     <div class="big main"><span class="lbl">ຄຳຮູບປະພັນ 1 ບາດ (ລາຄາຂາຍ)</span><span class="val num" data-p="baht1">45,000,000</span><span class="unit">ກີບ · ຍັງບໍ່ລວມຄ່າລາຍ</span></div>
     <div class="big"><span class="lbl">ຄຳແທ່ງ 1 ບາດ (ລາຄາຂາຍ)</span><span class="val num" data-p="bar_sell">44,950,000</span><span class="unit">ກີບ · ບໍ່ມີຄ່າລາຍ</span></div>
@@ -275,7 +279,7 @@ footer .visits b{color:var(--fg);font-variant-numeric:tabular-nums}
     </div>
   </div>
   <div class="callout warn"><b>ລາຄາຄຳຮູບປະພັນ ຍັງບໍ່ລວມຄ່າລາຍ</b><span>ຄ່າລາຍແຕ່ລະແບບບໍ່ເທົ່າກັນ ຂຶ້ນກັບລາຍ ແລະ ນ້ຳໜັກ ສອບຖາມຄ່າລາຍໄດ້ທີ່ແອັດມິນ. ຄຳແທ່ງ 1 ບາດ ບໍ່ມີຄ່າລາຍ.</span></div>
-  <div class="callout warn"><b>ອອມຄຳອອນລາຍ</b><span>ອອມຄຳຮູບປະພັນ ເລີ່ມ 1 ຫຸນ · ອອມຄຳແທ່ງ ເລີ່ມ 1 ກຣາມ · ສູງສຸດ 5 ບາດ ຕໍ່ບິນ · ລາຄາຕາມລາຄາຄຳມື້ນີ້ · ທຸກມື້ ເວລາ 10:00–16:00 ນ. · ລັອກລາຄາ ໂອນຜ່ານທະນາຄານ ແລ້ວມາຮັບຄຳທີ່ຮ້ານ ບໍ່ຈຳກັດເວລາ · <a href="order.html">ອອມຄຳຮູບປະພັນ →</a> · <a href="order.html?tab=bar">ອອມຄຳແທ່ງ →</a> · <a href="my.html">ໂປຣໄຟລ໌ຂອງຂ້ອຍ →</a></span></div>
+  <div class="callout warn"><b>ອອມຄຳອອນລາຍ</b><span>ອອມຄຳຮູບປະພັນ ເລີ່ມ 1 ຫຸນ · ອອມຄຳແທ່ງ ເລີ່ມ 1 ກຣາມ · ສູງສຸດ 5 ບາດ ຕໍ່ບິນ · ລາຄາຕາມລາຄາຄຳມື້ນີ້ · ທຸກມື້ ເວລາ 10:00–15:30 ນ. · ລັອກລາຄາ ໂອນຜ່ານທະນາຄານ ແລ້ວມາຮັບຄຳທີ່ຮ້ານ ບໍ່ຈຳກັດເວລາ · <a href="order.html">ອອມຄຳຮູບປະພັນ →</a> · <a href="order.html?tab=bar">ອອມຄຳແທ່ງ →</a> · <a href="my.html">ໂປຣໄຟລ໌ຂອງຂ້ອຍ →</a></span></div>
   <div class="callout wa"><b>ລູກຄ້າຕ່າງແຂວງ ຫຼື ສອບຖາມການອອມ</b><span>ທັກແອັດມິນທາງ WhatsApp <a class="num" href="https://wa.me/8562058954624" target="_blank" rel="noopener">020 5895 4624</a></span></div>
   <p class="note">ລາຄາຮັບຊື້ຄິດຕໍ່ 1 ບາດ. ລາຄາຄຳອາດມີການປ່ຽນແປງພາຍໃນມື້ ສອບຖາມລາຄາລ່າສຸດຜ່ານແອັດມິນໄດ້.</p>
 </section>

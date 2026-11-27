@@ -120,9 +120,9 @@ input[type=text],input[type=tel],input[type=password],input[type=date],input[typ
   </section>
 
   <section class="card closed" id="v-off" hidden>
-    <h2>ຕອນນີ້ນອກເວລາອອມຄຳອອນລາຍ</h2>
-    <p>ອອມຄຳເປັນນ້ຳໜັກໄດ້ທຸກມື້ ເວລາ <b id="off-hours">10:00–15:30 ນ.</b> ເທົ່ານັ້ນ</p>
-    <p class="note">ກະລຸນາກັບມາໃໝ່ໃນເວລາດັ່ງກ່າວ · ບິນທີ່ສັ່ງໄວ້ແລ້ວ ຍັງເບິ່ງ ແລະ ແນບສະລິບໄດ້ຕາມປົກກະຕິ</p>
+    <h2 id="off-title">⏰ ລາຄາຄຳມື້ນີ້ຈະອອກເວລາ 10:00 ໂມງ</h2>
+    <p id="off-text">ຂອບໃຈທີ່ລໍຖ້າ 🙏 ຫຼັງຈາກນັ້ນສາມາດອອມຄຳໄດ້ເລີຍ ຮອດ 15:30</p>
+    <p class="note">ອອມຄຳເປັນນ້ຳໜັກໄດ້ທຸກມື້ ເວລາ <b id="off-hours">10:00–15:30 ນ.</b> · ບິນທີ່ສັ່ງໄວ້ແລ້ວ ຍັງເບິ່ງ ແລະ ແນບສະລິບໄດ້ຕາມປົກກະຕິ</p>
     <div class="row" style="justify-content:center"><a class="btn gold" href="./">ເບິ່ງລາຄາຄຳມື້ນີ້</a></div>
   </section>
 
@@ -557,7 +557,15 @@ async function loadOrder(bill, t) {
   } catch (ex) { show('v-closed', 1); $('v-closed').querySelector('h2').textContent = ex.message; }
 }
 
-function offView() { $('off-hours').textContent = hoursText(); show('v-off', 1); }
+// ຂໍ້ຄວາມທີ່ Toby ເລືອກ (ແບບ 1, 27/11/2026): ກ່ອນ 10:00 ໃຫ້ລໍຖ້າລາຄາມື້ນີ້ອອກ, ຫຼັງ 15:30 ປິດຮັບແລ້ວ
+function laoHm() { const d = new Date(Date.now() + SELL.skew + 7 * 3600000); return String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); }
+const hm = s => s.replace(/^0/, '');
+function offView() {
+  $('off-hours').textContent = hoursText();
+  if (laoHm() < SELL.from) { $('off-title').textContent = '⏰ ລາຄາຄຳມື້ນີ້ຈະອອກເວລາ ' + hm(SELL.from) + ' ໂມງ'; $('off-text').textContent = 'ຂອບໃຈທີ່ລໍຖ້າ 🙏 ຫຼັງຈາກນັ້ນສາມາດອອມຄຳໄດ້ເລີຍ ຮອດ ' + hm(SELL.to); }
+  else { $('off-title').textContent = 'ປິດຮັບອອມຄຳມື້ນີ້ແລ້ວ'; $('off-text').textContent = 'ພົບກັນມື້ອື່ນ ' + hm(SELL.from) + ' ໂມງ 🙏'; }
+  show('v-off', 1);
+}
 
 // ---- start ----
 (async () => {
