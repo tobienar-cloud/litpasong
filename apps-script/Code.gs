@@ -900,7 +900,8 @@ function profile_(b) {
 // =====================================================================
 // ---------- ສຳຮອງຂໍ້ມູນອັດຕະໂນມັດທຸກມື້ ----------
 // ຕິດຕັ້ງຄັ້ງດຽວ: ເລືອກຟັງຊັນ installBackup ແລ້ວກົດ Run (ອະນຸຍາດສິດ Google Drive)
-// ທຸກມື້ເວລາ 23:00 ຈະສຳເນົາໄຟລ໌ຊີດນີ້ທັງໄຟລ໌ໄວ້ໃນໂຟນເດີ "ສຳຮອງຂໍ້ມູນ Litpasong" ໃນ Drive
+// ທຸກມື້ເວລາ 23:00 ຈະເກັບໄຟລ໌ຊີດນີ້ເປັນໄຟລ໌ Excel (.xlsx) ໄວ້ໃນໂຟນເດີ "ສຳຮອງຂໍ້ມູນ Litpasong" ໃນ Drive
+// ເປັນ .xlsx (ບໍ່ແມ່ນ Google Sheet) ເພື່ອບໍ່ໃຫ້ສັບສົນກັບຊີດຕົວຈິງ ແລະ ບໍ່ມີ Apps Script ຕິດມາ (Toby 27/11/2026)
 // ເກັບໄວ້ 30 ມື້ລ່າສຸດ ໄຟລ໌ເກົ່າກວ່ານັ້ນຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ (ກູ້ຄືນໄດ້ອີກ 30 ມື້)
 // ກູ້ຂໍ້ມູນ: ເປີດໄຟລ໌ສຳຮອງຂອງມື້ທີ່ຕ້ອງການ ແລ້ວກັອບປີ້ແຖວທີ່ຕ້ອງການກັບມາ
 // =====================================================================
@@ -916,18 +917,31 @@ function installBackup() {
   return name;
 }
 
+// ສົ່ງອອກ Google Sheet ເປັນໄຟລ໌ .xlsx
+function xlsxBlob_(id, name) {
+  const r = UrlFetchApp.fetch('https://docs.google.com/spreadsheets/d/' + id + '/export?format=xlsx', {
+    headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }, muteHttpExceptions: true,
+  });
+  if (r.getResponseCode() !== 200) throw new Error('export xlsx ' + r.getResponseCode());
+  return r.getBlob().setName(name + '.xlsx');
+}
+
 function dailyBackup() {
   const ss = SpreadsheetApp.getActive();
   const it = DriveApp.getFoldersByName(BACKUP.FOLDER);
   const folder = it.hasNext() ? it.next() : DriveApp.createFolder(BACKUP.FOLDER);
   const name = 'ສຳຮອງ ' + ss.getName() + ' ' + Utilities.formatDate(new Date(), CFG.TZ, 'yyyy-MM-dd HHmm');
-  DriveApp.getFileById(ss.getId()).makeCopy(name, folder);
-  // ລຶບໄຟລ໌ສຳຮອງທີ່ເກົ່າກວ່າ KEEP_DAYS ມື້ (ຍ້າຍໄປຖັງຂີ້ເຫຍື້ອ ກູ້ຄືນໄດ້)
+  folder.createFile(xlsxBlob_(ss.getId(), name));
   const cutoff = Date.now() - BACKUP.KEEP_DAYS * 86400000;
   const files = folder.getFiles();
   while (files.hasNext()) {
     const f = files.next();
-    if (f.getName().indexOf('ສຳຮອງ ') === 0 && f.getDateCreated().getTime() < cutoff) f.setTrashed(true);
+    if (f.getName().indexOf('ສຳຮອງ ') !== 0) continue;
+    if (f.getDateCreated().getTime() < cutoff) { f.setTrashed(true); continue; }
+    // ສຳເນົາແບບເກົ່າທີ່ເປັນ Google Sheet: ປ່ຽນເປັນ .xlsx ຊື່ດຽວກັນ ແລ້ວຍ້າຍຕົວເກົ່າໄປຖັງຂີ້ເຫຍື້ອ (ຂໍ້ມູນບໍ່ຫາຍ)
+    if (f.getMimeType() === MimeType.GOOGLE_SHEETS) {
+      try { folder.createFile(xlsxBlob_(f.getId(), f.getName())); f.setTrashed(true); } catch (e) { /* ລອງໃໝ່ຮອບໜ້າ */ }
+    }
   }
   return name;
 }
