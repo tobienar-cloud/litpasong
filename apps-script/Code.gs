@@ -69,7 +69,7 @@ const HEAD = ['ເລກບິນ', 'ເວລາສັ່ງ', 'ຊື່ລູ
   'ວັນເດືອນປີເກີດ', 'ບ້ານ', 'ເມືອງ', 'ແຂວງ', 'ຮູບລູກຄ້າ',
   'ເວລາຂາຍຄືນ', 'ລາຄາຮັບຊື້ຄືນ (ກີບ)', 'ສະລິບໂອນໃຫ້ລູກຄ້າ'];
 const SITE = 'https://litpasong.com/';
-const SAVINGS_CLOSED = 'ອອມຄຳເປັນເງິນ ປິດແລ້ວ · ອອມຄຳເປັນນ້ຳໜັກໄດ້ທີ່ https://litpasong.com/order.html ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624';
+const SAVINGS_CLOSED = 'ອອມຄຳເປັນເງິນ ປິດແລ້ວ · ອອມຄຳເປັນນ້ຳໜັກໄດ້ທີ່ https://litpasong.com/order.html ຫຼື ທັກແອັດມິນ WhatsApp 020 9717 0747';
 const COL = Object.fromEntries(HEAD.map((h, i) => [h, i + 1]));
 
 // ---------- ຕິດຕັ້ງຄັ້ງດຽວ: ກົດ Run ຟັງຊັນ setup ----------
@@ -208,8 +208,8 @@ function create_(b) {
   const item = items_().find(i => i.id === b.item);
   if (!item) throw new Error('ບໍ່ພົບລາຍການນີ້ ຫຼື ລາຄາຍັງບໍ່ພ້ອມ');
   const grams = Math.round(item.grams * qty * 1000) / 1000;
-  limit_('bill10', CFG.BILLS_PER_10MIN, 600, 'ຕອນນີ້ມີຄົນສັ່ງຫຼາຍ ກະລຸນາລອງໃໝ່ໃນ 10 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624');
-  limit_('billp_' + phone8_(phone), CFG.BILLS_PER_PHONE_HOUR, 3600, 'ເບີນີ້ສ້າງບິນຫຼາຍເກີນໄປ ກະລຸນາລໍຖ້າ 1 ຊົ່ວໂມງ ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624');
+  limit_('bill10', CFG.BILLS_PER_10MIN, 600, 'ຕອນນີ້ມີຄົນສັ່ງຫຼາຍ ກະລຸນາລອງໃໝ່ໃນ 10 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 9717 0747');
+  limit_('billp_' + phone8_(phone), CFG.BILLS_PER_PHONE_HOUR, 3600, 'ເບີນີ້ສ້າງບິນຫຼາຍເກີນໄປ ກະລຸນາລໍຖ້າ 1 ຊົ່ວໂມງ ຫຼື ທັກແອັດມິນ WhatsApp 020 9717 0747');
   const appt = appt_(b.pickDate, b.pickTime);
   if (grams > CFG.MAX_GRAMS + 1e-9) throw new Error('ສັ່ງໄດ້ສູງສຸດ ' + (CFG.MAX_GRAMS / 15) + ' ບາດ (' + CFG.MAX_GRAMS + ' ກຣາມ) ຕໍ່ບິນ ຫຼາຍກວ່ານີ້ກະລຸນາທັກແອັດມິນ');
 
@@ -319,21 +319,21 @@ function slip_(b) {
   const o = find_(b.bill, b.t);
   const sh = orders_();
   const status = sh.getRange(o.row, COL['ສະຖານະ']).getValue();
-  if (status !== STATUS.WAIT_PAY && status !== STATUS.WAIT_CHECK && status !== STATUS.EXPIRED) throw new Error('ບິນນີ້ແນບສະລິບບໍ່ໄດ້ແລ້ວ (ສະຖານະ: ' + status + ') ຖ້າໂອນເງິນແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 5895 4624');
+  if (status !== STATUS.WAIT_PAY && status !== STATUS.WAIT_CHECK && status !== STATUS.EXPIRED) throw new Error('ບິນນີ້ແນບສະລິບບໍ່ໄດ້ແລ້ວ (ສະຖານະ: ' + status + ') ຖ້າໂອນເງິນແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 9717 0747');
   const due = sh.getRange(o.row, COL['ໂອນກ່ອນ']).getValue();
   const now = new Date();
   // ແນບຊ້າໄດ້ພາຍໃນ 24 ຊົ່ວໂມງ ແອັດມິນກວດເວລາໂອນໃນສະລິບເອງ
   const late = status !== STATUS.WAIT_CHECK && now > new Date(due.getTime() + 5 * 60000);
   if (late && now > new Date(due.getTime() + CFG.LATE_SLIP_HOURS * 3600000)) {
     sh.getRange(o.row, COL['ສະຖານະ']).setValue(STATUS.EXPIRED);
-    throw new Error('ບິນນີ້ໝົດເວລາແນບສະລິບແລ້ວ ຖ້າໂອນເງິນແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 5895 4624');
+    throw new Error('ບິນນີ້ໝົດເວລາແນບສະລິບແລ້ວ ຖ້າໂອນເງິນແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 9717 0747');
   }
   const m = /^data:(image\/(jpeg|png|webp));base64,(.+)$/.exec(String(b.image || ''));
   if (!m) throw new Error('ກະລຸນາແນບຮູບສະລິບ');
   const bytes = Utilities.base64Decode(m[3]);
   if (bytes.length > CFG.MAX_IMAGE_BYTES) throw new Error('ຮູບໃຫຍ່ເກີນໄປ');
-  limit_('slipb_' + o.bill, CFG.SLIPS_PER_BILL, 86400, 'ບິນນີ້ແນບສະລິບຫຼາຍເທື່ອແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 5895 4624');
-  limit_('upl', CFG.UPLOADS_PER_HOUR, 3600, 'ລະບົບຮັບສະລິບຫຼາຍເກີນໄປ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 5895 4624');
+  limit_('slipb_' + o.bill, CFG.SLIPS_PER_BILL, 86400, 'ບິນນີ້ແນບສະລິບຫຼາຍເທື່ອແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 9717 0747');
+  limit_('upl', CFG.UPLOADS_PER_HOUR, 3600, 'ລະບົບຮັບສະລິບຫຼາຍເກີນໄປ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 9717 0747');
   const ext = m[2] === 'jpeg' ? 'jpg' : m[2];
   const file = folder_().createFile(Utilities.newBlob(bytes, m[1], o.bill + '.' + ext));
   sh.getRange(o.row, COL['ສະລິບ']).setValue(file.getUrl());
@@ -571,7 +571,7 @@ function weakPin_(pin, phone, dob) {
 // ນັບ PIN ຜິດລວມທັງລະບົບ ກັນການລອງ PIN ຍອດນິຍົມກັບຫຼາຍເບີ
 function loginGate_() {
   const n = Number(CacheService.getScriptCache().get('gfail') || 0);
-  if (n >= CFG.LOGIN_FAILS_15MIN) throw new Error('ລະບົບປິດການເຂົ້າສູ່ລະບົບຊົ່ວຄາວ ກະລຸນາລອງໃໝ່ໃນ 15 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624');
+  if (n >= CFG.LOGIN_FAILS_15MIN) throw new Error('ລະບົບປິດການເຂົ້າສູ່ລະບົບຊົ່ວຄາວ ກະລຸນາລອງໃໝ່ໃນ 15 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 9717 0747');
 }
 function loginFail_() {
   const cache = CacheService.getScriptCache();
@@ -683,7 +683,7 @@ function saveAuth_(phone, pin, allowNew) {
   if (!/^[0-9]{6}$/.test(String(pin || ''))) throw new Error('ລະຫັດ PIN ຕ້ອງເປັນຕົວເລກ 6 ໂຕ');
   const cache = CacheService.getScriptCache(), key = 'sfail_' + p8;
   const fails = Number(cache.get(key) || 0);
-  if (fails >= 5) throw new Error('ໃສ່ PIN ຜິດຫຼາຍເທື່ອ ກະລຸນາລໍຖ້າ 15 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624');
+  if (fails >= 5) throw new Error('ໃສ່ PIN ຜິດຫຼາຍເທື່ອ ກະລຸນາລໍຖ້າ 15 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 9717 0747');
   loginGate_();
   const all = saveRows_();
   const mine = all.filter(t => phone8_(t.phone) === p8);
@@ -764,9 +764,9 @@ function saveFind_(id, token) {
 function saveSlip_(b) {
   const t = saveFind_(b.id, b.t);
   if (t.type !== STYPE.DEP || (t.status !== SSTATUS.DEP_WAIT && t.status !== SSTATUS.DEP_CHECK))
-    throw new Error('ລາຍການນີ້ແນບສະລິບບໍ່ໄດ້ແລ້ວ (ສະຖານະ: ' + t.status + ') ຖ້າໂອນເງິນແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 5895 4624');
+    throw new Error('ລາຍການນີ້ແນບສະລິບບໍ່ໄດ້ແລ້ວ (ສະຖານະ: ' + t.status + ') ຖ້າໂອນເງິນແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 9717 0747');
   if (t.time instanceof Date && Date.now() - t.time.getTime() > SAVE.SLIP_HOURS * 3600000)
-    throw new Error('ລາຍການນີ້ເກີນ 24 ຊົ່ວໂມງແລ້ວ ຖ້າໂອນເງິນແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 5895 4624');
+    throw new Error('ລາຍການນີ້ເກີນ 24 ຊົ່ວໂມງແລ້ວ ຖ້າໂອນເງິນແລ້ວ ກະລຸນາສົ່ງສະລິບທາງ WhatsApp 020 9717 0747');
   const m = /^data:(image\/(jpeg|png|webp));base64,(.+)$/.exec(String(b.image || ''));
   if (!m) throw new Error('ກະລຸນາແນບຮູບສະລິບ');
   const bytes = Utilities.base64Decode(m[3]);
@@ -874,7 +874,7 @@ function profile_(b) {
   if (p8.length < 8 || !/^[0-9]{4,6}$/.test(pin)) throw new Error('ກະລຸນາໃສ່ເບີໂທ ແລະ PIN 6 ຕົວເລກ');
   const cache = CacheService.getScriptCache(), key = 'fail_' + p8;
   const fails = Number(cache.get(key) || 0);
-  if (fails >= 5) throw new Error('ໃສ່ PIN ຜິດຫຼາຍເທື່ອ ກະລຸນາລໍຖ້າ 15 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 5895 4624');
+  if (fails >= 5) throw new Error('ໃສ່ PIN ຜິດຫຼາຍເທື່ອ ກະລຸນາລໍຖ້າ 15 ນາທີ ຫຼື ທັກແອັດມິນ WhatsApp 020 9717 0747');
   loginGate_();
   const h = pinHash_(p8, pin);
   // ບິນສັ່ງຊື້
