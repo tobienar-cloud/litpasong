@@ -52,7 +52,7 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.4vw;pa
 .cell.big .lab,.cell.big .chg{grid-column:1}
 .cell.big .price{grid-column:1;font-size:6.2vw}
 .cell.big .price small{font-size:1.9vw}
-.cell.big .chg{flex-direction:row;gap:1vw}.cell.big .chg span{font-size:1.3vw}
+.cell.big .chg{flex-direction:row;flex-wrap:wrap;gap:.4vw 1vw}.cell.big .chg span{font-size:1.3vw}
 .promo{grid-column:2;grid-row:1/4;align-self:center;display:grid;gap:.5vw;justify-items:center;text-align:center;width:13vw;padding:1vw .8vw;border-radius:.8vw;background:#fbe9c9;border:.12vw dashed #d9a441}
 .promo b{font-family:var(--display);font-size:1.3vw;color:var(--red-deep);line-height:1.25}
 .promo span{font-size:1.05vw;font-weight:600;color:#7a4a3a;line-height:1.3}
@@ -150,6 +150,13 @@ function isoDaysAgo(n) {
   d.setUTCDate(d.getUTCDate() - n);
   return d.toISOString().slice(0, 10);
 }
+// ວັນທີດຽວກັນຂອງເດືອນກ່ອນ (ຖ້າເດືອນກ່ອນບໍ່ມີວັນທີນັ້ນ ໃຊ້ວັນສຸດທ້າຍຂອງເດືອນ ເຊັ່ນ 31/03 → 28/02)
+function isoMonthAgo() {
+  const p = partsNow();
+  const y = +p.year, m = +p.month - 1, day = +p.day;
+  const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  return new Date(Date.UTC(y, m - 1, Math.min(day, last))).toISOString().slice(0, 10);
+}
 function chip(base, ref, label, div) {
   if (!ref) return `<span class="flat"><i>${label}</i> ຍັງບໍ່ມີຂໍ້ມູນ</span>`;
   const d = Math.round((base - ref) / div / 10000) * 10000;
@@ -159,11 +166,11 @@ function chip(base, ref, label, div) {
 const PROMO = {
 };
 function cell(id, label, price, key, div, base) {
-  const yIso = isoDaysAgo(1), wIso = isoDaysAgo(7);
+  const yIso = isoDaysAgo(1), wIso = isoDaysAgo(7), mIso = isoMonthAgo();
   const el = $(id);
   el.innerHTML = `<div class="lab"><span>${label}</span></div>` +
     `<div class="price num">${fmt(price)}<small>ກີບ</small></div>` +
-    `<div class="chg num">${chip(base, histOn(yIso, key), 'ທຽບມື້ວານ', div)}${chip(base, histOn(wIso, key), 'ທຽບ 7 ມື້ກ່ອນ', div)}</div>` +
+    `<div class="chg num">${chip(base, histOn(yIso, key), 'ທຽບມື້ວານ', div)}${chip(base, histOn(wIso, key), 'ທຽບ 7 ມື້ກ່ອນ', div)}${chip(base, histOn(mIso, key), 'ທຽບ 1 ເດືອນ', div)}</div>` +
     (PROMO[id] ? `<div class="promo">${PROMO[id]}</div>` : '');
   if (last[id] && last[id] !== price) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
   last[id] = price;
