@@ -538,7 +538,7 @@ function receiptView() {
     '\nຊື່ ' + ORDER.name + '\nລາຍການ ' + ORDER.item + ' × ' + ORDER.qty + ' (' + fmtG(ORDER.grams) + ')\nຍອດໂອນ ' + kip(ORDER.total) +
     '\nເວລາສັ່ງ ' + ORDER.created + (ORDER.appt ? '\nນັດມາຮັບ ' + ORDER.appt : '') + '\n' + location.href + '\n(ແນບຮູບແຄັບໜ້າຈໍໃບຈອງ ແລະ ສະລິບໃນແຊັດນີ້)');
   $('billqr').innerHTML = '';
-  if (window.QRCode) new QRCode($('billqr'), {text: ORDER.bill, width: 116, height: 116, correctLevel: QRCode.CorrectLevel.M});
+  if (window.QRCode) new QRCode($('billqr'), {text: 'https://litpasong.com/staff.html#' + ORDER.bill, width: 116, height: 116, correctLevel: QRCode.CorrectLevel.M});
 }
 $('r-copy').addEventListener('click', () => {
   const b = $('r-copy');

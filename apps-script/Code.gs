@@ -117,6 +117,8 @@ function doPost(e) {
     if (body.action === 'slip') return json_({ ok: true, order: slip_(body) });
     if (body.action === 'history') return json_({ ok: true, orders: history_(body) });
     if (body.action === 'profile') return json_(Object.assign({ ok: true }, profile_(body)));
+    if (body.action === 'staff_lookup') return json_(Object.assign({ ok: true }, staffLookup_(body)));
+    if (body.action === 'staff_pickup') return json_(Object.assign({ ok: true }, staffPickup_(body)));
     if (body.action === 'delete_request') return json_(Object.assign({ ok: true }, deleteRequest_(body)));
     if (/^save_/.test(String(body.action || '')) && !CFG.SAVINGS_OPEN) return json_({ ok: false, error: SAVINGS_CLOSED });
     if (body.action === 'save_deposit') return json_(Object.assign({ ok: true }, saveDeposit_(body)));
@@ -422,6 +424,80 @@ function logStatus_(e) {
     const old = e.range.getNote();
     e.range.setNote(old ? old + '\n' + line : line);
   } catch (err) {}
+}
+
+// ---------- ໜ້າພະນັກງານ: ສະແກນ QR ໃບຈອງ ແລ້ວກົດ ມອບຄຳແລ້ວ (staff.html) ----------
+// ຕັ້ງລະຫັດພະນັກງານໃນ Project Settings → Script properties ຊື່ STAFF_PINS
+// ຮູບແບບ: ຊື່:ລະຫັດ ຄັ່ນດ້ວຍຈຸດ , ເຊັ່ນ  ໂຕບີ້:482915,ແກ້ວ:730264  (ລະຫັດ 6 ໂຕເລກ ຕ່າງກັນທຸກຄົນ)
+function staffAuth_(pin) {
+  pin = String(pin || '').trim();
+  const cache = CacheService.getScriptCache();
+  const fails = Number(cache.get('staff_fail') || 0);
+  if (fails >= 10) throw new Error('ໃສ່ລະຫັດພະນັກງານຜິດຫຼາຍເທື່ອ ລໍຖ້າ 15 ນາທີ');
+  const raw = PropertiesService.getScriptProperties().getProperty('STAFF_PINS') || '';
+  if (!raw) throw new Error('ຍັງບໍ່ໄດ້ຕັ້ງລະຫັດພະນັກງານ (Script properties ຊື່ STAFF_PINS)');
+  const hit = raw.split(',').map(x => x.split(':')).find(x => x.length === 2 && x[1].trim() && x[1].trim() === pin);
+  if (!/^[0-9]{4,8}$/.test(pin) || !hit) { cache.put('staff_fail', String(fails + 1), 900); throw new Error('ລະຫັດພະນັກງານບໍ່ຖືກຕ້ອງ'); }
+  return hit[0].trim();
+}
+
+function staffFind_(bill) {
+  bill = String(bill || '').trim().toUpperCase();
+  const m = /LPS-\d{8}-\d{4}/.exec(bill);
+  if (!m) throw new Error('ເລກບິນບໍ່ຖືກຕ້ອງ (ຕົວຢ່າງ LPS-20261128-0001)');
+  const sh = orders_(), last = sh.getLastRow();
+  if (last > 1) {
+    const vals = sh.getRange(2, 1, last - 1, HEAD.length).getValues();
+    for (let i = vals.length - 1; i >= 0; i--) if (vals[i][COL['ເລກບິນ'] - 1] === m[0]) return { sh: sh, r: vals[i], row: i + 2 };
+  }
+  throw new Error('ບໍ່ພົບບິນ ' + m[0]);
+}
+
+function staffView_(f) {
+  const r = f.r, g = h => (COL[h] ? r[COL[h] - 1] : '');
+  const fmt = d => (d instanceof Date) ? Utilities.formatDate(d, CFG.TZ, 'dd/MM/yyyy HH:mm') : String(d || '');
+  const dob = g('ວັນເດືອນປີເກີດ');
+  const photo = String(g('ຮູບລູກຄ້າ') || '');
+  const pid = (/\/d\/([\w-]+)/.exec(photo) || /id=([\w-]+)/.exec(photo) || [])[1] || '';
+  let photoData = '';
+  if (pid) { try { const b = DriveApp.getFileById(pid).getBlob(); photoData = 'data:' + b.getContentType() + ';base64,' + Utilities.base64Encode(b.getBytes()); } catch (e) {} }
+  return {
+    bill: g('ເລກບິນ'), status: g('ສະຖານະ'), name: g('ຊື່ລູກຄ້າ'), phone: String(g('ເບີໂທ')).replace(/^'/, ''),
+    dob: (dob instanceof Date) ? Utilities.formatDate(dob, CFG.TZ, 'dd/MM/yyyy') : String(dob || ''),
+    address: [g('ບ້ານ'), g('ເມືອງ'), g('ແຂວງ')].filter(String).join(', '),
+    item: g('ລາຍການ'), qty: g('ຈຳນວນ'), grams: g('ນ້ຳໜັກ (g)'), total: Number(g('ຍອດໂອນ (ກີບ)')) || 0,
+    created: fmt(g('ເວລາສັ່ງ')), paidAt: fmt(g('ເວລາຢືນຢັນເງິນ')), doneAt: fmt(g('ເວລາຮັບຄຳ')), appt: String(g('ນັດມາຮັບ') || ''),
+    note: String(g('ໝາຍເຫດແອັດມິນ') || ''), jewelry: String(g('ລາຍການ')).indexOf('ຮູບປະພັນ') >= 0, photo: photoData,
+  };
+}
+
+function staffLookup_(b) {
+  const staff = staffAuth_(b.pin);
+  if (!b.bill) return { staff: staff };
+  return { staff: staff, order: staffView_(staffFind_(b.bill)) };
+}
+
+function staffPickup_(b) {
+  const staff = staffAuth_(b.pin);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const f = staffFind_(b.bill);
+    const cell = f.sh.getRange(f.row, COL['ສະຖານະ']);
+    const now = String(cell.getValue());
+    if (now === STATUS.DONE) throw new Error('ບິນນີ້ມອບຄຳໄປແລ້ວ ຫ້າມມອບຊ້ຳ');
+    if (now !== STATUS.READY) throw new Error('ບິນນີ້ຍັງມອບຄຳບໍ່ໄດ້ ສະຖານະ: ' + now);
+    cell.setValue(STATUS.DONE);
+    stamp_(f.sh.getRange(f.row, COL['ເວລາຮັບຄຳ']));
+    const when = Utilities.formatDate(new Date(), CFG.TZ, 'dd/MM/yyyy HH:mm:ss');
+    const old = cell.getNote();
+    cell.setNote((old ? old + '\n' : '') + when + '  ' + now + ' → ' + STATUS.DONE + '  (ໜ້າພະນັກງານ: ' + staff + ')');
+    const nc = f.sh.getRange(f.row, COL['ໝາຍເຫດແອັດມິນ']);
+    nc.setValue((nc.getValue() ? nc.getValue() + ' | ' : '') + 'ມອບຄຳໂດຍ ' + staff + ' ' + when);
+    SpreadsheetApp.flush();
+    whatsapp_('✅ ມອບຄຳແລ້ວ: ' + f.r[COL['ເລກບິນ'] - 1] + '\nໂດຍ ' + staff + ' ' + when);
+    return { staff: staff, order: staffView_(staffFind_(b.bill)) };
+  } finally { lock.releaseLock(); }
 }
 
 // ---------- ຕົວຊ່ວຍ ----------
