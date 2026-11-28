@@ -175,6 +175,7 @@ input[type=text],input[type=tel],input[type=password],input[type=date],input[typ
     <p class="note" style="margin-top:-8px">ຈື່ PIN ໄວ້ ແລະ ໃຊ້ PIN ດຽວກັນທຸກຄັ້ງທີ່ສັ່ງ ຢ່າບອກ PIN ໃຫ້ຄົນອື່ນ</p>
     <ul class="rules" id="rules"></ul>
     <label class="check" for="f-agree"><input type="checkbox" id="f-agree"><span>ຂ້ອຍຍອມຮັບເງື່ອນໄຂຂ້າງເທິງ</span></label>
+    <p class="note" id="agree-note" style="margin-top:-8px" hidden>ທ່ານເຄີຍຍອມຮັບເງື່ອນໄຂນີ້ແລ້ວ ລະບົບຕິກໃຫ້ອັດຕະໂນມັດ</p>
     <div class="err" id="err1" hidden></div>
     <button class="btn gold" type="submit" id="go1">ລັອກລາຄາ ແລະ ໄປໂອນເງິນ</button>
     <div class="staff-help">
@@ -284,6 +285,9 @@ function isOpen() {
 }
 const hoursText = () => SELL.from + '–' + SELL.to + ' ນ.';
 const $ = id => document.getElementById(id);
+// ຍອມຮັບເງື່ອນໄຂເທື່ອດຽວ ເທື່ອຕໍ່ໄປຕິກໃຫ້ເອງ · ປ່ຽນເງື່ອນໄຂເມື່ອໃດ ໃຫ້ປ່ຽນ TERMS_VER (ລູກຄ້າຈະຕ້ອງຕິກໃໝ່)
+const TERMS_VER = '2026-11-28';
+(() => { try { if (localStorage.getItem('lps-agree') === TERMS_VER) { $('f-agree').checked = true; $('agree-note').hidden = false; } } catch (e) {} })();
 // PIN ເກັບສະເພາະ sessionStorage (ລຶບເມື່ອປິດແທັບ) ບໍ່ເກັບໃນ localStorage · ລຶບ PIN ເກົ່າທີ່ເຄີຍເກັບໄວ້
 (() => { try { const o = JSON.parse(localStorage.getItem('lps-me') || 'null'); if (o && 'pin' in o) { delete o.pin; localStorage.setItem('lps-me', JSON.stringify(o)); } } catch (e) {} })();
 const ME = {
@@ -401,6 +405,7 @@ $('v-choose').addEventListener('submit', async e => {
   if ($('f-date').value && ($('f-date').value < $('f-date').min || $('f-date').value > $('f-date').max)) return err('err1', 'ມື້ມາຮັບຄຳຕ້ອງເປັນມື້ນີ້ ຫາ 30 ມື້');
   if (!!$('f-date').value !== !!$('f-time').value) return err('err1', $('f-date').value ? 'ກະລຸນາເລືອກເວລາປະມານທີ່ຈະມາຮັບຄຳ' : 'ກະລຸນາເລືອກມື້ມາຮັບຄຳ');
   if (!$('f-agree').checked) return err('err1', 'ກະລຸນາຍອມຮັບເງື່ອນໄຂ');
+  try { localStorage.setItem('lps-agree', TERMS_VER); } catch (e) {}
   $('go1').disabled = true; $('go1').textContent = 'ກຳລັງລັອກລາຄາ…';
   try {
     const j = await api('POST', {action: 'create', item: sel.id, qty, name, first, last, dob, village, district, province, photo: photoData, phone, pin, pickDate: $('f-date').value, pickTime: $('f-time').value});
