@@ -149,7 +149,7 @@ async function login(pin, silent) {
   PIN = pin; err('login-err');
   $('login-btn').disabled = true;
   try {
-    const j = await post({});
+    const j = await post({ action: 'staff_lookup' });
     $('who-staff').textContent = 'ພະນັກງານ: ' + j.staff;
     $('logout').hidden = false;
     if ($('remember').checked) store.set('lps_staff_pin', pin);
